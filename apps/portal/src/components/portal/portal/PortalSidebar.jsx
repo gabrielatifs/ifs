@@ -71,7 +71,11 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
     const { search } = location;
 
     const handleLogout = async () => {
-        await User.logout();
+        const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || '/';
+        window.location.replace(mainSiteUrl);
+        setTimeout(() => {
+            User.logout();
+        }, 0);
     };
 
     const displayName = user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || "Member";

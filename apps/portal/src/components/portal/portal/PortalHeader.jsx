@@ -119,7 +119,11 @@ export default function PortalHeader({ setSidebarOpen, user: propUser, currentPo
     const { search } = location;
 
     const handleLogout = async () => {
-        await User.logout();
+        const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || '/';
+        window.location.replace(mainSiteUrl);
+        setTimeout(() => {
+            User.logout();
+        }, 0);
     };
 
     // Show CPD hours meter for all Full and Associate members, even if balance is 0 or undefined
