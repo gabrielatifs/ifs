@@ -270,6 +270,9 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
                         </div>
                         <span>Sign Out</span>
                     </button>
+                    <div className="px-3 pt-2 text-xs text-slate-400">
+                        Version {import.meta.env.VITE_PORTAL_VERSION || 'dev'}
+                    </div>
                 </div>
             </aside>
         </>
