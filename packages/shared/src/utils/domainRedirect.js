@@ -12,6 +12,11 @@ export const checkDomainRedirect = (currentDomain) => {
   const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'http://localhost:3001';
   const MAIN_SITE_URL = import.meta.env.VITE_MAIN_SITE_URL || 'http://localhost:3000';
 
+  // Portal root should not redirect away; let the portal app handle it.
+  if (currentDomain === 'portal' && !pageName) {
+    return null;
+  }
+
   // If on main site but page should be on portal
   if (currentDomain === 'main' && pageName && isPortalPage(pageName)) {
     return `${PORTAL_URL}${pathname}${window.location.search}${window.location.hash}`;
