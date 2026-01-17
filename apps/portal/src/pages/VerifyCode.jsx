@@ -70,6 +70,20 @@ export default function VerifyCode() {
           console.warn("[VerifyCode] Profile claim skipped:", claimError?.message);
         }
 
+        if (pending.firstName || pending.lastName) {
+          try {
+            await auth.updateMe({
+              firstName: pending.firstName || "",
+              lastName: pending.lastName || "",
+              displayName:
+                pending.displayName ||
+                `${pending.firstName || ""} ${pending.lastName || ""}`.trim(),
+            });
+          } catch (profileError) {
+            console.warn("[VerifyCode] Name update skipped:", profileError?.message);
+          }
+        }
+
         sessionStorage.removeItem("verifiedEmail");
         sessionStorage.removeItem("pendingAuth");
         const redirectUrl =
