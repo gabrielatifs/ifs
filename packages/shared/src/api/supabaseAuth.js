@@ -246,16 +246,16 @@ export const auth = {
       console.log("[auth.logout] mainSiteUrl:", mainSiteUrl);
     }
     try {
+      if (typeof window !== "undefined") {
+        // Redirect immediately so logout feels instant.
+        window.location.replace(mainSiteUrl);
+      }
       const { error } = await supabase.auth.signOut({ scope: "local" });
       if (error) {
         console.warn("[auth.logout] Supabase signOut error:", error.message);
       }
     } catch (error) {
       console.warn("[auth.logout] Supabase signOut threw:", error.message);
-    } finally {
-      if (typeof window !== "undefined") {
-        window.location.replace(mainSiteUrl);
-      }
     }
     return { success: true };
   },
