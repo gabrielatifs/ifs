@@ -28,6 +28,7 @@ import {
   TooltipTrigger,
 } from "@ifs/shared/components/ui/tooltip";
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
+import { fastLogout } from '../utils/fastLogout';
 
 const CommandMenu = () => {
     const [open, setOpen] = useState(false);
@@ -119,11 +120,7 @@ export default function PortalHeader({ setSidebarOpen, user: propUser, currentPo
     const { search } = location;
 
     const handleLogout = async () => {
-        const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || '/';
-        window.location.replace(mainSiteUrl);
-        setTimeout(() => {
-            User.logout();
-        }, 0);
+        fastLogout();
     };
 
     // Show CPD hours meter for all Full and Associate members, even if balance is 0 or undefined

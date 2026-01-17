@@ -8,6 +8,7 @@ import {
     Coffee, MessageSquare, ChevronDown, ChevronRight, Newspaper
 } from 'lucide-react';
 import PortalSwitcher from './PortalSwitcher';
+import { fastLogout } from '../utils/fastLogout';
 
 const NavLink = ({ to, icon, children, current, badge, external = false, ...props }) => {
     const baseClasses = "group relative flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all duration-200 rounded-lg";
@@ -71,11 +72,7 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
     const { search } = location;
 
     const handleLogout = async () => {
-        const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || '/';
-        window.location.replace(mainSiteUrl);
-        setTimeout(() => {
-            User.logout();
-        }, 0);
+        fastLogout();
     };
 
     const displayName = user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || "Member";
