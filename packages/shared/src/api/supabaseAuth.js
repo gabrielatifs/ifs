@@ -246,7 +246,7 @@ export const auth = {
       console.log("[auth.logout] mainSiteUrl:", mainSiteUrl);
     }
     try {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut({ scope: "local" });
       if (error) {
         console.warn("[auth.logout] Supabase signOut error:", error.message);
       }
