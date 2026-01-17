@@ -61,7 +61,17 @@ export default function VerifyCode() {
         });
 
         if (updateError) {
+          if (
+            updateError.message &&
+            updateError.message.toLowerCase().includes("different from the old password")
+          ) {
+            console.warn(
+              "[VerifyCode] Password already set, skipping update:",
+              updateError.message
+            );
+          } else {
           throw updateError;
+          }
         }
 
         try {
