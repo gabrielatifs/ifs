@@ -71,8 +71,11 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
     const location = useLocation();
     const { search } = location;
 
-    const handleLogout = async () => {
-        fastLogout();
+    const handleLogout = () => {
+        alert('CLICKED');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'https://www.join-ifs.org';
     };
 
     const displayName = user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || "Member";

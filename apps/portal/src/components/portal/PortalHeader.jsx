@@ -123,9 +123,7 @@ export default function PortalHeader({ setSidebarOpen, user: propUser, currentPo
     const location = useLocation();
     const { search } = location;
 
-    const handleLogout = async () => {
-        fastLogout();
-    };
+    const handleLogout = () => fastLogout();
 
     // Show CPD hours meter for all Full and Associate members, even if balance is 0 or undefined
     const showCpdMeter = user && (user.membershipType === 'Full' || user.membershipType === 'Associate');
