@@ -243,6 +243,7 @@ export const auth = {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("logoutRedirectAt", String(Date.now()));
       sessionStorage.setItem("logoutRedirectUrl", mainSiteUrl);
+      console.log("[auth.logout] mainSiteUrl:", mainSiteUrl);
     }
     try {
       const { error } = await supabase.auth.signOut();

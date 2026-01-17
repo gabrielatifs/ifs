@@ -162,6 +162,7 @@ function PortalLayout({ children, currentPageName }) {
         if (logoutAt) {
             const elapsed = Date.now() - Number(logoutAt);
             if (!Number.isNaN(elapsed) && elapsed < 15000) {
+                console.log('[PortalLayout] Logout in progress, skipping auth redirect');
                 return;
             }
             sessionStorage.removeItem('logoutRedirectAt');

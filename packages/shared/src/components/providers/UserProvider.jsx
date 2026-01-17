@@ -78,6 +78,14 @@ export const UserProvider = ({ children }) => {
     // Listen for auth state changes after initial load
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('[UserProvider] Auth state changed:', event, session?.user?.email);
+      if (event === 'SIGNED_OUT' && typeof window !== 'undefined') {
+        const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || '/';
+        sessionStorage.setItem('logoutRedirectAt', String(Date.now()));
+        sessionStorage.setItem('logoutRedirectUrl', mainSiteUrl);
+        console.log('[UserProvider] Signed out, redirecting to main site:', mainSiteUrl);
+        window.location.replace(mainSiteUrl);
+        return;
+      }
       // Only refetch on actual auth changes, not initial session
       if (event !== 'INITIAL_SESSION' && isMounted) {
         fetchUser(session);
