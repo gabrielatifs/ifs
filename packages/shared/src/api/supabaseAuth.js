@@ -245,11 +245,24 @@ export const auth = {
       sessionStorage.setItem("logoutRedirectUrl", mainSiteUrl);
       console.log("[auth.logout] mainSiteUrl:", mainSiteUrl);
     }
-    try {
-      if (typeof window !== "undefined") {
-        // Redirect immediately so logout feels instant.
-        window.location.replace(mainSiteUrl);
+    if (typeof window !== "undefined") {
+      try {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+        const projectRef = new URL(supabaseUrl).host.split(".")[0];
+        if (projectRef) {
+          const storageKey = `sb-${projectRef}-auth-token`;
+          localStorage.removeItem(storageKey);
+          sessionStorage.removeItem(storageKey);
+        }
+      } catch (error) {
+        console.warn("[auth.logout] Failed to clear auth storage:", error.message);
       }
+
+      // Redirect immediately so logout feels instant.
+      window.location.replace(mainSiteUrl);
+    }
+
+    try {
       const { error } = await supabase.auth.signOut({ scope: "local" });
       if (error) {
         console.warn("[auth.logout] Supabase signOut error:", error.message);
