@@ -67,9 +67,8 @@ export default function OrgPortalSidebar({ organisation, user, sidebarOpen, setS
     const location = useLocation();
     const { search } = location;
 
-    const handleLogout = async () => {
-        await base44.auth.logout();
-        window.location.href = createPageUrl('Home');
+    const handleLogout = () => {
+        base44.auth.logout();
     };
 
     const createLinkWithParams = (pageName) => {
