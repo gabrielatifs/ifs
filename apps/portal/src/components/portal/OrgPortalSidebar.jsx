@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { fastLogout } from '../utils/fastLogout';
 import {
     LogOut, ExternalLink, Home, Users, X, Building2,
     CreditCard, Briefcase, TrendingUp, ChevronDown, ChevronRight, FileText
@@ -68,7 +68,7 @@ export default function OrgPortalSidebar({ organisation, user, sidebarOpen, setS
     const { search } = location;
 
     const handleLogout = () => {
-        base44.auth.logout();
+        fastLogout();
     };
 
     const createLinkWithParams = (pageName) => {

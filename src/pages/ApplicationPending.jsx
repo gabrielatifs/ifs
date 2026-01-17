@@ -1,14 +1,12 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { User } from '@/api/entities';
-import { createPageUrl } from '@/utils';
+import { createPageUrl, fastLogout } from '@/utils';
 import { MailCheck, LogOut, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ApplicationPending() {
-    const handleLogout = async () => {
-        await User.logout();
-        window.location.href = createPageUrl('Home');
+    const handleLogout = () => {
+        fastLogout();
     };
 
     return (
