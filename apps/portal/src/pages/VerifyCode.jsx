@@ -55,6 +55,30 @@ export default function VerifyCode() {
       }
 
       sessionStorage.setItem("verifiedEmail", email);
+      if (mode === "signup" && pending.password) {
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: pending.password,
+        });
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        try {
+          await auth.me();
+        } catch (claimError) {
+          console.warn("[VerifyCode] Profile claim skipped:", claimError?.message);
+        }
+
+        sessionStorage.removeItem("verifiedEmail");
+        sessionStorage.removeItem("pendingAuth");
+        const redirectUrl =
+          sessionStorage.getItem("postLoginRedirectUrl") || "/dashboard";
+        sessionStorage.removeItem("postLoginRedirectUrl");
+        navigate(redirectUrl);
+        return;
+      }
+
       navigate("/set-password");
     } catch (err) {
       setError(err?.message || "Verification failed. Please try again.");

@@ -11,6 +11,7 @@ import { Loader2 } from 'lucide-react';
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
     const [error, setError] = useState('');
@@ -61,6 +62,19 @@ export default function Login() {
         setError('');
 
         try {
+            if (mode === 'signup') {
+                if (password.length < 8) {
+                    setError('Password must be at least 8 characters.');
+                    setIsLoading(false);
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    setError('Passwords do not match.');
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
             const pendingAuth = {
                 email: email.trim(),
                 password: mode === 'forgot' ? '' : password,
@@ -151,6 +165,23 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password"
+                            required
+                            className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
+                        />
+                    </div>
+                )}
+
+                {mode === 'signup' && (
+                    <div>
+                        <Label htmlFor="confirm-password" className="text-slate-700 font-medium">
+                            Confirm Password
+                        </Label>
+                        <Input
+                            id="confirm-password"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Re-enter your password"
                             required
                             className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
                         />
