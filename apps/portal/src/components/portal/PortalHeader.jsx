@@ -28,7 +28,6 @@ import {
   TooltipTrigger,
 } from "@ifs/shared/components/ui/tooltip";
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
-import { fastLogout } from '../utils/fastLogout';
 
 const CommandMenu = () => {
     const [open, setOpen] = useState(false);
@@ -123,7 +122,11 @@ export default function PortalHeader({ setSidebarOpen, user: propUser, currentPo
     const location = useLocation();
     const { search } = location;
 
-    const handleLogout = () => fastLogout();
+    const handleLogout = () => {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'https://www.join-ifs.org';
+    };
 
     // Show CPD hours meter for all Full and Associate members, even if balance is 0 or undefined
     const showCpdMeter = user && (user.membershipType === 'Full' || user.membershipType === 'Associate');
