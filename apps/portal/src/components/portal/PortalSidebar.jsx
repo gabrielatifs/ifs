@@ -72,7 +72,6 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
 
     const handleLogout = async () => {
         await User.logout();
-        window.location.href = createPageUrl('Home');
     };
 
     const displayName = user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || "Member";
