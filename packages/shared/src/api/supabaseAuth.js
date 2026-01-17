@@ -244,10 +244,17 @@ export const auth = {
       sessionStorage.setItem("logoutRedirectAt", String(Date.now()));
       sessionStorage.setItem("logoutRedirectUrl", mainSiteUrl);
     }
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    if (typeof window !== "undefined") {
-      window.location.href = mainSiteUrl;
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.warn("[auth.logout] Supabase signOut error:", error.message);
+      }
+    } catch (error) {
+      console.warn("[auth.logout] Supabase signOut threw:", error.message);
+    } finally {
+      if (typeof window !== "undefined") {
+        window.location.replace(mainSiteUrl);
+      }
     }
     return { success: true };
   },
