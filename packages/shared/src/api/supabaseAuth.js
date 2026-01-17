@@ -239,10 +239,14 @@ export const auth = {
   },
 
   async logout() {
+    const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || "/";
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("logoutRedirectAt", String(Date.now()));
+      sessionStorage.setItem("logoutRedirectUrl", mainSiteUrl);
+    }
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     if (typeof window !== "undefined") {
-      const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || "/";
       window.location.href = mainSiteUrl;
     }
     return { success: true };

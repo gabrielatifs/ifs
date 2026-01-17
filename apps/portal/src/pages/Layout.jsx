@@ -158,7 +158,16 @@ function PortalLayout({ children, currentPageName }) {
     useEffect(() => {
         console.log('[PortalLayout] Auth check:', { initialCheckComplete, hasUser: !!user });
         if (!initialCheckComplete) return;
-        
+        const logoutAt = sessionStorage.getItem('logoutRedirectAt');
+        if (logoutAt) {
+            const elapsed = Date.now() - Number(logoutAt);
+            if (!Number.isNaN(elapsed) && elapsed < 15000) {
+                return;
+            }
+            sessionStorage.removeItem('logoutRedirectAt');
+            sessionStorage.removeItem('logoutRedirectUrl');
+        }
+
         if (!user) {
             console.log('[PortalLayout] No user, redirecting to login');
             const currentUrl = location.pathname + location.search + location.hash;
