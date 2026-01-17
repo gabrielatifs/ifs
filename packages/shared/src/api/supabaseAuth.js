@@ -260,6 +260,12 @@ export const auth = {
 
       // Redirect immediately so logout feels instant.
       window.location.replace(mainSiteUrl);
+
+      // Fire-and-forget local sign-out cleanup.
+      supabase.auth.signOut({ scope: "local" }).catch((error) => {
+        console.warn("[auth.logout] Supabase signOut threw:", error.message);
+      });
+      return { success: true };
     }
 
     try {
