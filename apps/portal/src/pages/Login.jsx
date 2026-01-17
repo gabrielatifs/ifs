@@ -17,6 +17,13 @@ export default function Login() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
+    useEffect(() => {
+        const redirectParam = searchParams.get('redirect');
+        if (redirectParam) {
+            sessionStorage.setItem('postLoginRedirectUrl', redirectParam);
+        }
+    }, [searchParams]);
+
     // Check if already authenticated on mount using same method as rest of app
     useEffect(() => {
         const checkAuth = async () => {
@@ -31,7 +38,9 @@ export default function Login() {
                     if (user) {
                         console.log('[Login] Already authenticated as:', user.email);
                         // Already logged in, redirect
-                        const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl') || '/';
+                        const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl')
+                            || searchParams.get('redirect')
+                            || '/';
                         sessionStorage.removeItem('postLoginRedirectUrl');
                         window.location.href = redirectUrl;
                         return;
@@ -68,7 +77,9 @@ export default function Login() {
             await auth.signIn(email, password);
 
             // Redirect after successful sign-in
-            const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl') || '/';
+            const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl')
+                || searchParams.get('redirect')
+                || '/';
             sessionStorage.removeItem('postLoginRedirectUrl');
             window.location.href = redirectUrl;
         } catch (err) {

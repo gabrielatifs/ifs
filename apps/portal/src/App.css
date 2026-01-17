@@ -1,4 +1,8 @@
 /* Portal specific styles */
+html {
+  font-size: 15px;
+}
+
 #root {
   width: 100%;
   min-height: 100vh;

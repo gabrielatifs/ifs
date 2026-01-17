@@ -241,6 +241,10 @@ export const auth = {
   async logout() {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    if (typeof window !== "undefined") {
+      const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || "/";
+      window.location.href = mainSiteUrl;
+    }
     return { success: true };
   },
 
@@ -249,7 +253,34 @@ export const auth = {
     if (redirectUrl) {
       sessionStorage.setItem("postLoginRedirectUrl", redirectUrl);
     }
-    window.location.href = "/login";
+
+    const portalUrl = import.meta.env.VITE_PORTAL_URL;
+    const loginPath = "/login";
+    let loginUrl = loginPath;
+
+    if (portalUrl) {
+      try {
+        const portalOrigin = new URL(portalUrl).origin;
+        const loginTarget = new URL(loginPath, portalOrigin);
+        if (redirectUrl) {
+          loginTarget.searchParams.set("redirect", redirectUrl);
+        }
+
+        if (window.location.origin === portalOrigin) {
+          loginUrl = `${loginTarget.pathname}${loginTarget.search}${loginTarget.hash}`;
+        } else {
+          loginUrl = loginTarget.toString();
+        }
+      } catch (error) {
+        loginUrl = loginPath;
+      }
+    } else if (redirectUrl) {
+      const loginTarget = new URL(loginPath, window.location.origin);
+      loginTarget.searchParams.set("redirect", redirectUrl);
+      loginUrl = `${loginTarget.pathname}${loginTarget.search}${loginTarget.hash}`;
+    }
+
+    window.location.href = loginUrl;
   },
 
   // Alias for compatibility with base44 SDK naming
