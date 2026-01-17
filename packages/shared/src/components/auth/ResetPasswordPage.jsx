@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Loader2, CheckCircle2, Lock, ArrowRight, Sparkles } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { auth } from "../../api/supabaseAuth";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -74,6 +75,12 @@ export default function ResetPasswordPage() {
         throw error;
       }
 
+      try {
+        await auth.me();
+      } catch (claimError) {
+        console.warn("[ResetPasswordPage] Profile claim skipped:", claimError?.message);
+      }
+
       setSuccess(true);
       toast({
         title: "Password updated",
@@ -127,7 +134,7 @@ export default function ResetPasswordPage() {
           </div>
           <Button
             onClick={() => navigate("/Login")}
-            className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(15,118,110,0.7)] hover:shadow-[0_18px_45px_-20px_rgba(15,118,110,0.8)] transition-all duration-200"
+            className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)] transition-all duration-200"
           >
             Continue to Sign In
             <ArrowRight className="ml-2 h-5 w-5" />
@@ -238,7 +245,7 @@ export default function ResetPasswordPage() {
 
         <Button
           type="submit"
-          className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(15,118,110,0.7)] hover:shadow-[0_18px_45px_-20px_rgba(15,118,110,0.8)] transition-all duration-200"
+          className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)] transition-all duration-200"
           disabled={submitting}
         >
           {submitting ? (

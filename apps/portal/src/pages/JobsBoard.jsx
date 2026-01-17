@@ -12,8 +12,15 @@ import { Loader2, ArrowRight, MapPin, Briefcase, Building2, Banknote, CalendarDa
 import JobFilters from '@/components/jobs/JobFilters';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isValid } from 'date-fns'; // formatDistanceToNow used in safeFormatDistanceToNow
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
+
+const safeFormatDistanceToNow = (dateValue) => {
+    if (!dateValue) return null;
+    const date = new Date(dateValue);
+    if (!isValid(date)) return null;
+    return formatDistanceToNow(date, { addSuffix: true });
+};
 import { usePostHog } from '@ifs/shared/components/providers/PostHogProvider';
 import PortalBottomNav from '../components/portal/PortalBottomNav';
 import DataTablePagination from '@ifs/shared/components/ui/DataTablePagination';
@@ -49,9 +56,11 @@ const JobCard = React.memo(({ job, isActiveMember, onJoinClick }) => (
                             <span className="font-medium text-slate-700">{job.salaryDisplayText}</span>
                         </div>
                     )}
-                    <div className="flex items-center gap-1.5">
-                        <span>{formatDistanceToNow(new Date(job.created_date), { addSuffix: true })}</span>
-                    </div>
+                    {safeFormatDistanceToNow(job.created_date) && (
+                        <div className="flex items-center gap-1.5">
+                            <span>{safeFormatDistanceToNow(job.created_date)}</span>
+                        </div>
+                    )}
                 </div>
                 
                 {/* Description */}
@@ -77,10 +86,10 @@ const JobCard = React.memo(({ job, isActiveMember, onJoinClick }) => (
                 
                 {/* Action Row */}
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                    {job.applicationDeadline && (
+                    {safeFormatDistanceToNow(job.applicationDeadline) && (
                         <div className="flex items-center gap-1.5 text-sm text-amber-600">
                             <span className="font-medium">
-                                Closes {formatDistanceToNow(new Date(job.applicationDeadline), { addSuffix: true })}
+                                Closes {safeFormatDistanceToNow(job.applicationDeadline)}
                             </span>
                         </div>
                     )}

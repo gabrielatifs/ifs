@@ -47,6 +47,8 @@ import SurveyResponses from "./SurveyResponses";
 import TrusteeElections from "./TrusteeElections";
 import YourVoice from "./YourVoice";
 import Login from "./Login";
+import VerifyCode from "./VerifyCode";
+import SetPassword from "./SetPassword";
 
 export default function Pages() {
     const adminUrl = import.meta.env.VITE_ADMIN_URL || 'https://admin.ifs-safeguarding.co.uk';
@@ -64,6 +66,8 @@ export default function Pages() {
             <Routes>
                 {/* Auth routes - no layout */}
                 <Route path="/login" element={<Login />} />
+                <Route path="/verify-code" element={<VerifyCode />} />
+                <Route path="/set-password" element={<SetPassword />} />
 
                 {/* All other routes with layout */}
                 <Route path="/*" element={

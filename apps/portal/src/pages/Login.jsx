@@ -5,6 +5,7 @@ import { auth } from '@ifs/shared/api/supabaseAuth';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Input } from '@ifs/shared/components/ui/input';
 import { Label } from '@ifs/shared/components/ui/label';
+import AuthShell from '@ifs/shared/components/auth/AuthShell';
 import { Loader2 } from 'lucide-react';
 
 export default function Login() {
@@ -60,28 +61,15 @@ export default function Login() {
         setError('');
 
         try {
-            if (mode === 'forgot') {
-                await auth.resetPassword(email);
-                setError('Check your email for a password reset link.');
-                setIsLoading(false);
-                return;
-            }
+            const pendingAuth = {
+                email: email.trim(),
+                password: mode === 'forgot' ? '' : password,
+                mode,
+            };
+            sessionStorage.setItem('pendingAuth', JSON.stringify(pendingAuth));
 
-            if (mode === 'signup') {
-                await auth.signUp({ email, password });
-                setError('Check your email to verify your account.');
-                setIsLoading(false);
-                return;
-            }
-
-            await auth.signIn(email, password);
-
-            // Redirect after successful sign-in
-            const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl')
-                || searchParams.get('redirect')
-                || '/';
-            sessionStorage.removeItem('postLoginRedirectUrl');
-            window.location.href = redirectUrl;
+            await auth.sendOtp(pendingAuth.email, { shouldCreateUser: true });
+            navigate('/verify-code');
         } catch (err) {
             console.error('Auth error:', err);
             setError(err.message || 'Authentication failed. Please try again.');
@@ -89,124 +77,152 @@ export default function Login() {
         }
     };
 
+    const titleCopy = {
+        login: 'Sign in to your portal',
+        signup: 'Create your member account',
+        forgot: 'Reset your password',
+    };
+
+    const subtitleCopy = {
+        login: 'Access your membership, credentials, and resources.',
+        signup: 'Join the Independent Federation for Safeguarding.',
+        forgot: 'We will email you a secure verification code.',
+    };
+
+    const heroTitleCopy = {
+        login: 'Your Member Portal awaits',
+        signup: 'Start your membership journey',
+        forgot: 'Verify and reset in minutes',
+    };
+
+    const heroSubtitleCopy = {
+        login: 'Sign in to manage your profile, credentials, and community access.',
+        signup: 'Create an account to unlock member benefits, CPD tracking, and events.',
+        forgot: 'Confirm your code, then set a new password.',
+    };
+
     if (checkingAuth) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-            </div>
+            <AuthShell
+                title="Checking your session"
+                subtitle="Just a moment while we confirm your access."
+                heroTitle="Preparing your member portal"
+                heroSubtitle="We are securing your session before you continue."
+                showPlayButton={false}
+            >
+                <div className="flex items-center justify-center py-10">
+                    <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+                </div>
+            </AuthShell>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-md">
-                <div className="bg-white rounded-lg shadow-lg p-8">
-                    <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold text-slate-900">
-                            {mode === 'login' && 'Sign In'}
-                            {mode === 'signup' && 'Create Account'}
-                            {mode === 'forgot' && 'Reset Password'}
-                        </h1>
-                        <p className="text-slate-600 mt-2">
-                            {mode === 'login' && 'Welcome back to the IfS Portal'}
-                            {mode === 'signup' && 'Join the Independent Federation for Safeguarding'}
-                            {mode === 'forgot' && 'Enter your email to reset your password'}
-                        </p>
+        <AuthShell
+            title={titleCopy[mode]}
+            subtitle={subtitleCopy[mode]}
+            heroTitle={heroTitleCopy[mode]}
+            heroSubtitle={heroSubtitleCopy[mode]}
+        >
+            <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                    <Label htmlFor="email" className="text-slate-700 font-medium">
+                        Email
+                    </Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        required
+                        className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
+                    />
+                </div>
+
+                {mode !== 'forgot' && (
+                    <div>
+                        <Label htmlFor="password" className="text-slate-700 font-medium">
+                            Password
+                        </Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                            required
+                            className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
+                        />
                     </div>
+                )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@example.com"
-                                required
-                                className="mt-1"
-                            />
-                        </div>
+                {error && (
+                    <div className={`rounded-xl border px-4 py-3 text-sm ${
+                        error.includes('Check your email')
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                            : 'border-rose-200 bg-rose-50 text-rose-700'
+                    }`}>
+                        {error}
+                    </div>
+                )}
 
-                        {mode !== 'forgot' && (
-                            <div>
-                                <Label htmlFor="password">Password</Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Enter your password"
-                                    required
-                                    className="mt-1"
-                                />
-                            </div>
-                        )}
+                <Button
+                    type="submit"
+                    className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)]"
+                    disabled={isLoading}
+                >
+                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {mode === 'login' && 'Sign In'}
+                    {mode === 'signup' && 'Create Account'}
+                    {mode === 'forgot' && 'Send Verification Code'}
+                </Button>
+            </form>
 
-                        {error && (
-                            <div className={`p-3 rounded-md text-sm ${
-                                error.includes('Check your email')
-                                    ? 'bg-green-50 text-green-700'
-                                    : 'bg-red-50 text-red-700'
-                            }`}>
-                                {error}
-                            </div>
-                        )}
-
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                            {mode === 'login' && 'Sign In'}
-                            {mode === 'signup' && 'Create Account'}
-                            {mode === 'forgot' && 'Send Reset Link'}
-                        </Button>
-                    </form>
-
-                    <div className="mt-6 text-center text-sm">
-                        {mode === 'login' && (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={() => setMode('forgot')}
-                                    className="text-purple-600 hover:text-purple-700"
-                                >
-                                    Forgot password?
-                                </button>
-                                <div className="mt-4 text-slate-600">
-                                    Don't have an account?{' '}
-                                    <button
-                                        type="button"
-                                        onClick={() => setMode('signup')}
-                                        className="text-purple-600 hover:text-purple-700 font-medium"
-                                    >
-                                        Sign up
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                        {mode === 'signup' && (
-                            <div className="text-slate-600">
-                                Already have an account?{' '}
-                                <button
-                                    type="button"
-                                    onClick={() => setMode('login')}
-                                    className="text-purple-600 hover:text-purple-700 font-medium"
-                                >
-                                    Sign in
-                                </button>
-                            </div>
-                        )}
-                        {mode === 'forgot' && (
+            <div className="mt-6 text-center text-sm text-slate-600">
+                {mode === 'login' && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setMode('forgot')}
+                            className="text-blue-700 hover:text-blue-800 font-medium"
+                        >
+                            Forgot password?
+                        </button>
+                        <div className="mt-4">
+                            Don't have an account?{' '}
                             <button
                                 type="button"
-                                onClick={() => setMode('login')}
-                                className="text-purple-600 hover:text-purple-700"
+                                onClick={() => setMode('signup')}
+                                className="text-blue-700 hover:text-blue-800 font-semibold"
                             >
-                                Back to sign in
+                                Sign up
                             </button>
-                        )}
+                        </div>
+                    </>
+                )}
+                {mode === 'signup' && (
+                    <div>
+                        Already have an account?{' '}
+                        <button
+                            type="button"
+                            onClick={() => setMode('login')}
+                            className="text-blue-700 hover:text-blue-800 font-semibold"
+                        >
+                            Sign in
+                        </button>
                     </div>
-                </div>
+                )}
+                {mode === 'forgot' && (
+                    <button
+                        type="button"
+                        onClick={() => setMode('login')}
+                        className="text-blue-700 hover:text-blue-800 font-medium"
+                    >
+                        Back to sign in
+                    </button>
+                )}
             </div>
-        </div>
+        </AuthShell>
     );
 }

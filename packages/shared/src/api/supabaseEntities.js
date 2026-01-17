@@ -6,7 +6,7 @@ const normalizeKey = (key) => {
     // Special cases for timestamp/tracking fields - DB uses created_at/updated_at
     if (key === 'createdDate' || key === 'createdAt' || key === 'created_date') return 'created_at';
     if (key === 'updatedDate' || key === 'updatedAt' || key === 'updated_date') return 'updated_at';
-    if (key === 'createdBy') return 'created_by';
+    if (key === 'createdBy') return 'created_by_email';
     if (key === 'createdById') return 'created_by_id';
     if (key === 'isSample') return 'is_sample';
 
@@ -20,6 +20,50 @@ const denormalizeKey = (key) => {
     return key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 };
 
+// Fields that should be parsed as JSON arrays/objects
+const JSON_FIELDS = ['questions', 'sections', 'responses', 'messages', 'tags', 'resources', 'metadata', 'subcategories'];
+
+// Fields that should be converted to booleans
+const BOOLEAN_FIELDS = ['is_always_available', 'allow_multiple_responses', 'is_featured', 'is_anonymous', 'completed'];
+
+// Helper to parse a value based on its field name (DB -> App)
+const parseValue = (key, value) => {
+    if (value === null || value === undefined) return value;
+
+    // Parse JSON fields
+    if (JSON_FIELDS.includes(key) && typeof value === 'string') {
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value; // Return original if parsing fails
+        }
+    }
+
+    // Convert boolean strings
+    if (BOOLEAN_FIELDS.includes(key) && typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+    }
+
+    return value;
+};
+
+// Helper to serialize a value for storage (App -> DB)
+const serializeValue = (key, value) => {
+    if (value === null || value === undefined) return value;
+
+    // Stringify JSON fields (arrays/objects)
+    if (JSON_FIELDS.includes(key) && (Array.isArray(value) || (typeof value === 'object' && value !== null))) {
+        return JSON.stringify(value);
+    }
+
+    // Convert booleans to strings for TEXT columns
+    if (BOOLEAN_FIELDS.includes(key) && typeof value === 'boolean') {
+        return value.toString();
+    }
+
+    return value;
+};
+
 // Helper to transform an object's keys from DB format to app format
 const denormalizeObject = (obj) => {
     if (!obj || typeof obj !== 'object') return obj;
@@ -27,7 +71,8 @@ const denormalizeObject = (obj) => {
 
     const denormalized = {};
     Object.entries(obj).forEach(([key, value]) => {
-        denormalized[denormalizeKey(key)] = value;
+        const parsedValue = parseValue(key, value);
+        denormalized[denormalizeKey(key)] = parsedValue;
     });
     return denormalized;
 };
@@ -132,13 +177,10 @@ const createSupabaseEntity = (tableName) => ({
     },
 
     create: async (data) => {
-        // We might need to normalize keys for create too?
-        // If the app sends { userId: '...' }, it will fail if column is userid.
-        // Yes, likely need to normalize data keys too.
-
         const normalizedData = {};
         Object.entries(data).forEach(([key, value]) => {
-            normalizedData[normalizeKey(key)] = value;
+            const normalizedKey = normalizeKey(key);
+            normalizedData[normalizedKey] = serializeValue(normalizedKey, value);
         });
 
         const { data: created, error } = await supabase.from(tableName).insert(normalizedData).select().single();
@@ -149,8 +191,9 @@ const createSupabaseEntity = (tableName) => ({
     update: async (id, data) => {
         const normalizedData = {};
         Object.entries(data).forEach(([key, value]) => {
-            if (key !== 'id') { // Don't include ID in update payload if not needed
-                normalizedData[normalizeKey(key)] = value;
+            if (key !== 'id') {
+                const normalizedKey = normalizeKey(key);
+                normalizedData[normalizedKey] = serializeValue(normalizedKey, value);
             }
         });
 
@@ -166,13 +209,10 @@ const createSupabaseEntity = (tableName) => ({
     },
 
     upsert: async (query, data) => {
-        // Logic for upsert based on query is tricky.
-        // We will just try to normalize data and upsert.
-        // Ignore Query for now as Supabase Upsert works on PK or unique constraint.
-
         const normalizedData = {};
         Object.entries(data).forEach(([key, value]) => {
-            normalizedData[normalizeKey(key)] = value;
+            const normalizedKey = normalizeKey(key);
+            normalizedData[normalizedKey] = serializeValue(normalizedKey, value);
         });
 
         const { data: result, error } = await supabase.from(tableName).upsert(normalizedData).select().single();

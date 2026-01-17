@@ -54,6 +54,77 @@ const getProfileByAuthId = async (authId) => {
   return data || null;
 };
 
+const isLegacyUnclaimedEmail = async (email) => {
+  if (!email) return false;
+  const { data, error } = await supabase.rpc("is_legacy_unclaimed", {
+    p_email: email,
+  });
+  if (error) throw error;
+  return Boolean(data);
+};
+
+const generateTempPassword = () => {
+  const fallback = `Temp-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
+  if (typeof crypto === "undefined" || !crypto.getRandomValues) {
+    return fallback;
+  }
+  const bytes = new Uint8Array(18);
+  crypto.getRandomValues(bytes);
+  const token = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return `Temp-${token}`;
+};
+
+const provisionAuthForLegacyProfile = async (email) => {
+  const redirectBase =
+    typeof window !== "undefined" ? window.location.origin : "";
+  const tempPassword = generateTempPassword();
+
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    email,
+    password: tempPassword,
+    options: {
+      emailRedirectTo: `${redirectBase}/verify-email`,
+    },
+  });
+
+  if (signUpError) {
+    if (
+      signUpError.message?.toLowerCase().includes("already registered") ||
+      signUpError.message?.toLowerCase().includes("already exists")
+    ) {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        { redirectTo: `${redirectBase}/reset-password` }
+      );
+      if (resetError) throw resetError;
+      return { provisioned: false };
+    }
+    throw signUpError;
+  }
+
+  const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+    email,
+    { redirectTo: `${redirectBase}/reset-password` }
+  );
+  if (resetError) throw resetError;
+
+  return { provisioned: true, signUpData };
+};
+
+const sendEmailOtp = async ({ email, shouldCreateUser = true }) => {
+  const redirectBase =
+    typeof window !== "undefined" ? window.location.origin : "";
+  const { data, error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser,
+      emailRedirectTo: `${redirectBase}/verify-code`,
+    },
+  });
+  if (error) throw error;
+  return data;
+};
+
 const claimProfileByEmail = async (user) => {
   if (!user?.email) return null;
 
@@ -220,12 +291,26 @@ export const auth = {
   },
 
   async signIn(email, password) {
+    const normalizedEmail = email?.trim();
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
-    if (error) throw error;
-    return data;
+    if (!error) return { ...data, recoverySent: false };
+
+    const isLegacyUnclaimed = await isLegacyUnclaimedEmail(normalizedEmail);
+
+    if (isLegacyUnclaimed) {
+      await provisionAuthForLegacyProfile(normalizedEmail);
+      return { recoverySent: true };
+    }
+
+    throw error;
+  },
+
+  async sendOtp(email, options = {}) {
+    const normalizedEmail = email?.trim();
+    return sendEmailOtp({ email: normalizedEmail, ...options });
   },
 
   async resetPassword(email) {

@@ -47,23 +47,16 @@ export default function PathNormalizer() {
             return;
         }
 
-        // Find the correctly-cased page name from our list
-        const canonicalPage = validPageNames.find(name => name.toLowerCase() === pageSegment.toLowerCase());
-        console.log('[PathNormalizer] Canonical page found:', canonicalPage);
+        // Check if the page exists in our valid list (case-insensitive)
+        const isValidPage = validPageNames.some(name => name.toLowerCase() === pageSegment.toLowerCase());
+        console.log('[PathNormalizer] Is valid page:', isValidPage);
 
-        if (canonicalPage) {
-            // Case 1: Page exists, but casing is wrong. Correct it.
-            if (canonicalPage !== pageSegment) {
-                const correctPath = location.pathname.substring(0, location.pathname.length - pageSegment.length) + canonicalPage;
-                console.log(`[PathNormalizer] Correcting case: ${location.pathname} -> ${correctPath}`);
-                navigate(correctPath + location.search + location.hash, { replace: true });
-            } else {
-                console.log('[PathNormalizer] Page exists and casing is correct');
-            }
-            // If casing is correct, do nothing.
+        if (isValidPage) {
+            // Page is valid, no action needed - routes are lowercase in the portal
+            console.log('[PathNormalizer] Page is valid, no redirect needed');
         } else {
-            // Case 2: Page does not exist in our list. Redirect to NotFound.
-            const notFoundPath = location.pathname.substring(0, location.pathname.length - pageSegment.length) + 'NotFound';
+            // Page does not exist in our list. Redirect to NotFound.
+            const notFoundPath = location.pathname.substring(0, location.pathname.length - pageSegment.length) + 'notfound';
             console.log(`[PathNormalizer] Page not found. Redirecting: ${location.pathname} -> ${notFoundPath}`);
             navigate(notFoundPath + location.search + location.hash, { replace: true });
         }

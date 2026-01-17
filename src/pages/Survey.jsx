@@ -67,7 +67,7 @@ export default function Survey() {
             }
 
             // Check if user responded
-            const userDemographics = await base44.entities.SurveyDemographic.filter({ created_by: user.email });
+            const userDemographics = await base44.entities.SurveyDemographic.filter({ createdBy: user.email });
             const demographicIds = userDemographics.map(d => d.id);
             
             let responded = false;
@@ -224,7 +224,17 @@ export default function Survey() {
         
         setIsSubmitting(true);
         try {
+            const tagSubmissionError = (error, step) => {
+                if (!error) return { message: 'Unknown error', step };
+                if (!error.step) {
+                    error.step = step;
+                }
+                return error;
+            };
+            const createdBy = user?.email;
+            const createdById = user?.id;
             const demographicData = {
+                id: crypto.randomUUID(),
                 membershipType: user.membershipType,
                 sector: user.sector,
                 subsector: user.subsector,
@@ -236,10 +246,17 @@ export default function Survey() {
                 country: user.country,
                 trainingRefreshFrequency: user.training_refresh_frequency,
                 receivesSupervision: user.receives_supervision || false,
-                hasOrganisationalMembership: user.organisationId ? true : false
+                hasOrganisationalMembership: user.organisationId ? true : false,
+                ...(createdBy ? { createdBy } : {}),
+                ...(createdById ? { createdById } : {})
             };
 
-            const demographicRecord = await base44.entities.SurveyDemographic.create(demographicData);
+            let demographicRecord;
+            try {
+                demographicRecord = await base44.entities.SurveyDemographic.create(demographicData);
+            } catch (error) {
+                throw tagSubmissionError(error, 'create_demographic');
+            }
 
             const finalResponses = {};
             survey.questions.forEach(q => {
@@ -260,47 +277,70 @@ export default function Survey() {
                 }
             });
 
-            await base44.entities.SurveyResponse.create({
-                surveyId: survey.id,
-                surveyTitle: survey.title,
-                demographicId: demographicRecord.id,
-                responses: finalResponses,
-                completed: true,
-                submittedDate: new Date().toISOString()
-            });
+            try {
+                await base44.entities.SurveyResponse.create({
+                    id: crypto.randomUUID(),
+                    surveyId: survey.id,
+                    surveyTitle: survey.title,
+                    demographicId: demographicRecord.id,
+                    responses: finalResponses,
+                    completed: true,
+                    submittedDate: new Date().toISOString(),
+                    ...(createdBy ? { createdBy } : {}),
+                    ...(createdById ? { createdById } : {})
+                });
+            } catch (error) {
+                throw tagSubmissionError(error, 'create_response');
+            }
 
             const completedTitle = survey.title;
+            let completionHandled = false;
 
             if (user.membershipType === 'Associate' || user.membershipType === 'Full') {
                 const cpdHoursReward = 0.1;
                 const currentBalance = user.cpdHours || 0;
                 const newBalance = currentBalance + cpdHoursReward;
 
-                await base44.entities.User.update(user.id, {
-                    cpdHours: newBalance,
-                    totalCpdEarned: (user.totalCpdEarned || 0) + cpdHoursReward
-                });
+                try {
+                    await base44.entities.User.update(user.id, {
+                        cpdHours: newBalance,
+                        totalCpdEarned: (user.totalCpdEarned || 0) + cpdHoursReward
+                    });
 
-                await base44.entities.CreditTransaction.create({
-                    userId: user.id,
-                    userEmail: user.email,
-                    transactionType: 'allocation',
-                    amount: cpdHoursReward,
-                    balanceAfter: newBalance,
-                    description: `Survey completion reward: ${completedTitle}`,
-                    relatedEntityType: 'Manual',
-                    relatedEntityName: `Survey: ${completedTitle}`
-                });
-                
-                setCompletedSurveyTitle(completedTitle);
-                setShowRewardModal(true);
-            } else {
+                    await base44.entities.CreditTransaction.create({
+                        userId: user.id,
+                        userEmail: user.email,
+                        transactionType: 'allocation',
+                        amount: cpdHoursReward,
+                        balanceAfter: newBalance,
+                        description: `Survey completion reward: ${completedTitle}`,
+                        relatedEntityType: 'Manual',
+                        relatedEntityName: `Survey: ${completedTitle}`
+                    });
+                    
+                    setCompletedSurveyTitle(completedTitle);
+                    setShowRewardModal(true);
+                    completionHandled = true;
+                } catch (rewardError) {
+                    console.error('Failed to award survey reward:', rewardError);
+                    toast({
+                        title: "Response submitted",
+                        description: "Your response was saved, but we could not apply your CPD reward yet.",
+                        duration: 6000
+                    });
+                    setTimeout(() => {
+                        window.location.href = createPageUrl('YourVoice');
+                    }, 1500);
+                    completionHandled = true;
+                }
+            }
+
+            if (!completionHandled) {
                 toast({
                     title: "Response submitted",
                     description: "Thank you for your feedback.",
                     duration: 5000
                 });
-                // Wait a moment then redirect
                 setTimeout(() => {
                     window.location.href = createPageUrl('YourVoice');
                 }, 1500);
@@ -310,10 +350,12 @@ export default function Survey() {
             await refreshUser();
 
         } catch (error) {
-            console.error('Failed to submit survey:', error);
+            const message = error?.message || error?.details || error?.hint || 'Please try again.';
+            const step = error?.step ? ` (${error.step})` : '';
+            console.error('Failed to submit survey:', message, error);
             toast({
                 title: "Submission failed",
-                description: "Please try again.",
+                description: `${message}${step}`,
                 variant: "destructive"
             });
         } finally {

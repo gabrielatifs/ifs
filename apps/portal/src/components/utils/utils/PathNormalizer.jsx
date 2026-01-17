@@ -13,7 +13,7 @@ const validPageNames = [
     'PortalMembershipTiers', 'RefresherCourses', 'RequestOrgPayment', 'ResearchAndAdvocacy', 
     'SignpostingService', 'SupervisionServices', 'SupervisionServicesMarketing', 'Team', 'Training', 
     'TrainingCourseDetails', 'TrusteeElections', 'WhyJoinUs', 'WorkshopDetails', 'Conferences', 'Jobs', 'SpecialistCourses',
-    'Login', 'Register', 'ForgotPassword', 'VerifyEmail', 'verify-email', 'ResetPassword', 'reset-password'
+    'Login', 'Register', 'ForgotPassword', 'VerifyEmail', 'verify-email', 'ResetPassword', 'reset-password', 'VerifyCode', 'verify-code', 'SetPassword', 'set-password'
 ];
 
 export default function PathNormalizer() {

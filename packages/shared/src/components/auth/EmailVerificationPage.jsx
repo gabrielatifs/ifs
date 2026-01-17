@@ -89,7 +89,7 @@ export default function EmailVerificationPage() {
             </div>
             <Button
               onClick={() => navigate("/Dashboard")}
-              className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(15,118,110,0.7)] hover:shadow-[0_18px_45px_-20px_rgba(15,118,110,0.8)] transition-all duration-200"
+              className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)] transition-all duration-200"
             >
               Go to Dashboard
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -110,7 +110,7 @@ export default function EmailVerificationPage() {
             <div className="flex flex-col gap-3 pt-2">
               <Button
                 onClick={() => navigate("/Register")}
-                className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(15,118,110,0.7)] hover:shadow-[0_18px_45px_-20px_rgba(15,118,110,0.8)] transition-all duration-200"
+                className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] rounded-xl shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)] transition-all duration-200"
               >
                 <RefreshCw className="mr-2 h-5 w-5" />
                 Try signing up again

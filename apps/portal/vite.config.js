@@ -21,6 +21,7 @@ const portalVersion = getPortalVersion()
 
 // https://vite.dev/config/
 export default defineConfig({
+  appType: 'spa',
   define: {
     'import.meta.env.VITE_PORTAL_VERSION': JSON.stringify(portalVersion),
   },

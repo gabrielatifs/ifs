@@ -4,6 +4,21 @@
 -- Replace all admin check subqueries with the is_admin() SECURITY DEFINER function
 -- ============================================================================
 
+-- Helper function to get current user's email (bypasses RLS)
+CREATE OR REPLACE FUNCTION public.get_user_email()
+RETURNS TEXT AS $$
+DECLARE
+    user_email TEXT;
+BEGIN
+    SELECT email INTO user_email
+    FROM public.profiles
+    WHERE auth_id = auth.uid()
+    LIMIT 1;
+
+    RETURN user_email;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
+
 -- ============================================================================
 -- COURSES
 -- ============================================================================
@@ -85,9 +100,26 @@ DROP POLICY IF EXISTS "Admins can view demographics" ON public.survey_demographi
 CREATE POLICY "Admins can view demographics" ON public.survey_demographics
     FOR SELECT USING (public.is_admin());
 
+-- Allow users to read their own survey demographics (needed for tracking completed surveys)
+DROP POLICY IF EXISTS "Users can view own demographics" ON public.survey_demographics;
+CREATE POLICY "Users can view own demographics" ON public.survey_demographics
+    FOR SELECT USING (
+        created_by_email = public.get_user_email()
+    );
+
 DROP POLICY IF EXISTS "Admins can view responses" ON public.survey_responses;
 CREATE POLICY "Admins can view responses" ON public.survey_responses
     FOR SELECT USING (public.is_admin());
+
+-- Allow users to read their own survey responses (needed for tracking completed surveys)
+DROP POLICY IF EXISTS "Users can view own responses" ON public.survey_responses;
+CREATE POLICY "Users can view own responses" ON public.survey_responses
+    FOR SELECT USING (
+        demographic_id IN (
+            SELECT id FROM public.survey_demographics
+            WHERE created_by_email = public.get_user_email()
+        )
+    );
 
 -- ============================================================================
 -- SUPPORT TICKETS

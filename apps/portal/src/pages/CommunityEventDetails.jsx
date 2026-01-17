@@ -487,7 +487,7 @@ export default function CommunityEventDetails() {
                         </div>
                     </Card>
 
-                    {event.tags && event.tags.length > 0 && (
+                    {Array.isArray(event.tags) && event.tags.length > 0 && (
                         <Card>
                             <div className="p-6">
                                 <h3 className="font-bold text-lg mb-3">Topics</h3>
@@ -772,7 +772,7 @@ export default function CommunityEventDetails() {
                                         </div>
                                     )}
 
-                                    {event.tags && event.tags.length > 0 && (
+                                    {Array.isArray(event.tags) && event.tags.length > 0 && (
                                         <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border border-slate-200 overflow-hidden">
                                             <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-slate-200">
                                                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center">

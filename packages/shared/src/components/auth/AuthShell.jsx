@@ -5,63 +5,83 @@ export default function AuthShell({
   subtitle,
   heroTitle = "Welcome",
   heroSubtitle = "Sign in to continue.",
-  showPlayButton = true,
+  heroBadge = "Member Portal Access",
   maxWidthClass = "max-w-md",
   children,
 }) {
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100"
+      className="min-h-screen bg-slate-50"
       style={{
-        "--auth-accent": "#0f766e",
-        "--auth-accent-2": "#0d9488",
+        "--auth-accent": "#2563eb",
+        "--auth-accent-2": "#1d4ed8",
+        "--auth-ink": "#0f172a",
+        "--auth-muted": "#475569",
+        "--auth-panel": "#ffffff",
+        "--auth-shadow": "0 25px 55px -35px rgba(15, 23, 42, 0.35)",
+        "--auth-border": "#e2e8f0",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
       }}
     >
-      <div className="min-h-screen flex flex-col md:flex-row">
-        <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-teal-700 via-teal-600 to-emerald-500 text-white p-10 lg:p-16 relative overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
-          <div className="relative z-10 flex flex-col justify-between w-full">
-            <div>
-              <div className="text-xs uppercase tracking-[0.3em] text-white/70">
-                Independent Federation for Safeguarding
-              </div>
-              <h1 className="mt-4 text-3xl lg:text-4xl font-semibold">
-                {heroTitle}
-              </h1>
-              <p className="mt-3 text-white/80 text-base lg:text-lg max-w-lg">
-                {heroSubtitle}
-              </p>
-            </div>
-            {showPlayButton ? (
-              <div className="mt-10 inline-flex items-center gap-3 text-sm font-medium">
-                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/20">
-                  ▶
-                </span>
-                Watch a quick walkthrough
-              </div>
-            ) : null}
+      <style>{`
+        .auth-title {
+          letter-spacing: -0.01em;
+        }
+        .auth-rise {
+          animation: auth-rise 600ms ease-out both;
+        }
+        .auth-reveal {
+          animation: auth-reveal 900ms ease-out both;
+        }
+        @keyframes auth-rise {
+          0% { opacity: 0; transform: translateY(18px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes auth-reveal {
+          0% { opacity: 0; transform: translateY(22px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      <div className="min-h-screen grid lg:grid-cols-[1fr_1fr]">
+        <div className="relative h-56 sm:h-72 lg:h-auto auth-reveal">
+          <img
+            src="/auth-left.jpg"
+            alt="IFS member portal"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-slate-900/45" />
+          <div className="relative z-10 flex h-full flex-col justify-end gap-3 p-8 text-white">
+            <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/85">
+              {heroBadge}
+            </span>
+            <h1 className="auth-title text-3xl font-semibold lg:text-4xl">
+              {heroTitle}
+            </h1>
+            <p className="max-w-xl text-sm text-white/85 lg:text-base">
+              {heroSubtitle}
+            </p>
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className={`w-full ${maxWidthClass}`}>
-            {(title || subtitle) && (
-              <div className="mb-6 text-center">
-                {title && (
-                  <h2 className="text-2xl font-semibold text-slate-900">
-                    {title}
-                  </h2>
-                )}
-                {subtitle && (
-                  <p className="mt-2 text-sm text-slate-500">{subtitle}</p>
-                )}
-              </div>
-            )}
-            <div className="bg-white/95 backdrop-blur rounded-2xl border border-slate-200 shadow-[0_25px_60px_-35px_rgba(15,23,42,0.45)] p-6 md:p-8">
+        <div className="relative flex items-center justify-center px-6 py-12 lg:px-10">
+          <div className={`w-full ${maxWidthClass} auth-rise`}>
+            <div className="mb-6 text-center lg:text-left">
+              {title && (
+                <h2 className="auth-title text-3xl text-[color:var(--auth-ink)]">
+                  {title}
+                </h2>
+              )}
+              {subtitle && (
+                <p className="mt-2 text-sm text-[color:var(--auth-muted)]">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+            <div className="rounded-2xl border border-[color:var(--auth-border)] bg-[color:var(--auth-panel)] px-6 py-7 shadow-[var(--auth-shadow)] md:px-8 md:py-9">
               {children}
             </div>
-            <p className="mt-6 text-center text-xs text-slate-400">
+            <p className="mt-6 text-center text-xs text-slate-500 lg:text-left">
               Need help? Email support at info@ifs-safeguarding.co.uk
             </p>
           </div>
