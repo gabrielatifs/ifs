@@ -1,0 +1,16 @@
+{
+  "name": "@ifs/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./components": "./src/components/index.js",
+    "./hooks": "./src/hooks/index.js",
+    "./lib": "./src/lib/index.js",
+    "./utils": "./src/utils/index.js",
+    "./api": "./src/api/index.js",
+    "./index.css": "./src/index.css"
+  }
+}

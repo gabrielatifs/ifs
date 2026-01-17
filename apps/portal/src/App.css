@@ -1,0 +1,11 @@
+/* Portal specific styles */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Style for required field indicators (asterisks) */
+.label-required {
+  color: hsl(var(--destructive));
+  font-weight: 500;
+}

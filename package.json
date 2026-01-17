@@ -1,0 +1,31 @@
+{
+  "name": "ifs-app-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:main": "cd apps/main-site && npm run dev",
+    "dev:portal": "cd apps/portal && npm run dev",
+    "build:main": "cd apps/main-site && npm run build",
+    "build:portal": "cd apps/portal && npm run build",
+    "dev": "concurrently \"npm run dev:main\" \"npm run dev:portal\"",
+    "build": "npm run build:main && npm run build:portal",
+    "migration:list": "node scripts/import-legacy-data.js list",
+    "migration:import": "node scripts/import-legacy-data.js import",
+    "seed": "node scripts/import-legacy-data.js import",
+    "db:seed": "node scripts/import-legacy-data.js import"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
+    "csv-parse": "^6.1.0",
+    "dotenv": "^17.2.3",
+    "pg": "^8.17.1"
+  }
+}

@@ -1,0 +1,5 @@
+-- ============================================================================
+-- LEGACY DATA IMPORT PLACEHOLDER
+-- ============================================================================
+-- Data import is handled by `node scripts/import-legacy-data.js`.
+-- This file is intentionally empty to keep migrations schema-only.
