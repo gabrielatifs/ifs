@@ -253,7 +253,7 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
                 {/* Footer - Fixed */}
                 <div className="p-3 border-t border-slate-200 space-y-0.5 flex-shrink-0">
                     <NavLink
-                        to={createPageUrl('Home')}
+                        to={import.meta.env.VITE_MAIN_SITE_URL || 'https://www.join-ifs.org'}
                         icon={<ExternalLink />}
                         external={true}
                     >

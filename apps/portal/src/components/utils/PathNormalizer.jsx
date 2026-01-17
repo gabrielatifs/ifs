@@ -3,16 +3,23 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 // A canonical list of all valid page names in the correct case.
 const validPageNames = [
-    'About', 'AdminDashboard', 'AdvancedCourses', 'ApplicationPending', 'ApplicationProcessing', 
-    'ArticlesOfAssociation', 'AssociateMembership', 'Contact', 'CourseDetails', 'CPDTraining', 
-    'CPDTrainingMarketing', 'Dashboard', 'EditCourse', 'EditEvent', 'EditJob', 'EditUser', 
-    'EventDetails', 'Events', 'ForumsAndWorkshops', 'FullMembership', 'Governance', 'Home', 
-    'IfSBoard', 'IntroductoryCourses', 'JobDetails', 'JobsBoard', 'JobsBoardMarketing', 'JoinUs', 
-    'MemberAccessRequired', 'MemberBenefits', 'MemberWorkshops', 'Membership', 'MembershipTiers', 
-    'MyCertificates', 'MyProfile', 'MyWorkshopBookings', 'NotFound', 'Onboarding', 'OrgPayment', 
-    'PortalMembershipTiers', 'RefresherCourses', 'RequestOrgPayment', 'ResearchAndAdvocacy', 
-    'SignpostingService', 'SupervisionServices', 'SupervisionServicesMarketing', 'Team', 'Training', 
-    'TrainingCourseDetails', 'TrusteeElections', 'WhyJoinUs', 'WorkshopDetails', 'Conferences', 'Jobs', 'SpecialistCourses'
+    // Portal pages
+    'AdminDashboard', 'AdminSupport', 'ApplicationProcessing', 'CommunityEventDetails', 'CommunityEvents',
+    'CourseDetails', 'CPDTraining', 'Dashboard', 'EditCourse', 'EditEvent', 'EditJob', 'EditSurvey', 'EditUser',
+    'Forum', 'ForumPostDetails', 'Job', 'JobDetails', 'JobsBoard', 'ManageOrganisation', 'ManageOrgSubscription',
+    'MasterclassDetails', 'MemberMasterclasses', 'MyCertificates', 'MyCreditHistory', 'MyMasterclassBookings',
+    'MyProfile', 'News', 'Onboarding', 'OrgAnalytics', 'Organisation', 'OrganisationMembership', 'OrgInvoices',
+    'OrgJobs', 'OrgMembers', 'OrgPayment', 'OrgProfile', 'PortalMembershipTiers', 'RequestOrgPayment',
+    'SupervisionServices', 'Support', 'Survey', 'SurveyResponses', 'TrusteeElections', 'YourVoice',
+    // Main site pages
+    'About', 'AdvancedCourses', 'ApplicationPending', 'ArticlesOfAssociation', 'AssociateMembership',
+    'Conferences', 'Contact', 'CookiePolicy', 'CPDTrainingMarketing', 'EventDetails', 'EventRegistrationSuccess',
+    'Events', 'Fellowship', 'ForumsAndWorkshops', 'FullMembership', 'Governance', 'Home', 'IfSBoard',
+    'IntroductoryCourses', 'Jobs', 'JobsBoardMarketing', 'JoinUs', 'MemberAccessRequired', 'MemberBenefits',
+    'Membership', 'MembershipPlans', 'MembershipTiers', 'MemberWorkshops', 'NotFound', 'PrivacyPolicy',
+    'RefresherCourses', 'RegisteredOrganisation', 'ResearchAndAdvocacy', 'SignpostingService',
+    'SpecialistCourses', 'SupervisionServicesMarketing', 'Team', 'TermsAndConditions', 'Training',
+    'TrainingCourseDetails', 'VerifyCredential', 'WhyJoinUs', 'WorkshopDetails'
 ];
 
 export default function PathNormalizer() {
