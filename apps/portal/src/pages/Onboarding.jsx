@@ -485,9 +485,6 @@ export default function Onboarding() {
     };
 
     const validateStep1 = () => {
-        // Organisation name can be pre-filled from invite, check for that too
-        const orgName = inviteOrgName || (authUser && authUser.organisationName) || formData.organisationName;
-
         const errors = {};
         if (!formData.firstName.trim()) {
             form.setError('firstName', { type: 'manual', message: 'First name is required' });
@@ -501,31 +498,44 @@ export default function Onboarding() {
             form.setError('phoneNumber', { type: 'manual', message: 'Phone number is required' });
             errors.phoneNumber = true;
         }
-        if (!orgName.trim()) {
-            form.setError('organisationName', { type: 'manual', message: 'Organisation name is required' });
-            errors.organisationName = true;
-        }
-        if (!formData.jobRole.trim()) {
-            form.setError('jobRole', { type: 'manual', message: 'Job role is required' });
-            errors.jobRole = true;
-        }
 
         return Object.keys(errors).length === 0;
     };
 
     const validateStep2 = () => {
+        // Organisation name can be pre-filled from invite, check for that too
+        const orgName = inviteOrgName || (authUser && authUser.organisationName) || formData.organisationName;
+
         const errors = {};
+        if (!orgName.trim()) {
+            form.setError('organisationName', { type: 'manual', message: 'Organisation name is required' });
+            errors.organisationName = true;
+        }
+        return Object.keys(errors).length === 0;
+    };
+
+    const validateStep3 = () => {
+        const errors = {};
+        if (!formData.jobRole.trim()) {
+            form.setError('jobRole', { type: 'manual', message: 'Job role is required' });
+            errors.jobRole = true;
+        }
         if (!formData.sector) {
             form.setError('sector', { type: 'manual', message: 'Sector is required' });
             errors.sector = true;
         }
-        if (!formData.safeguarding_role) {
-            form.setError('safeguarding_role', { type: 'manual', message: 'Safeguarding role is required' });
-            errors.safeguarding_role = true;
-        }
         if (formData.sector === 'Other' && !formData.other_sector.trim()) {
             form.setError('other_sector', { type: 'manual', message: 'Please specify your sector' });
             errors.other_sector = true;
+        }
+        return Object.keys(errors).length === 0;
+    };
+
+    const validateStep4 = () => {
+        const errors = {};
+        if (!formData.safeguarding_role) {
+            form.setError('safeguarding_role', { type: 'manual', message: 'Safeguarding role is required' });
+            errors.safeguarding_role = true;
         }
         if (formData.subsector === 'Other' && !formData.other_sub_sector.trim()) {
             form.setError('other_sub_sector', { type: 'manual', message: 'Please specify your sub-sector' });
@@ -534,11 +544,15 @@ export default function Onboarding() {
         return Object.keys(errors).length === 0;
     };
 
-    const validateStep3 = () => {
+    const validateStep5 = () => {
         return true;
     };
 
-    const validateStep4 = () => {
+    const validateStep6 = () => {
+        return true;
+    };
+
+    const validateStep7 = () => {
         const errors = {};
         if (!policyAcceptance.terms) {
             form.setError('terms', { type: 'manual', message: 'You must accept the Terms and Conditions' });
@@ -563,6 +577,12 @@ export default function Onboarding() {
             isValid = validateStep2();
         } else if (currentStep === 3) {
             isValid = validateStep3();
+        } else if (currentStep === 4) {
+            isValid = validateStep4();
+        } else if (currentStep === 5) {
+            isValid = validateStep5();
+        } else if (currentStep === 6) {
+            isValid = validateStep6();
         }
 
         if (isValid) {
@@ -572,11 +592,14 @@ export default function Onboarding() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (currentStep === 4) {
+        if (currentStep === 7) {
              if (!validateStep1()) { setCurrentStep(1); return; }
              if (!validateStep2()) { setCurrentStep(2); return; }
-             if (!validateStep3()) { return; }
-             if (!validateStep4()) { return; }
+             if (!validateStep3()) { setCurrentStep(3); return; }
+             if (!validateStep4()) { setCurrentStep(4); return; }
+             if (!validateStep5()) { setCurrentStep(5); return; }
+             if (!validateStep6()) { setCurrentStep(6); return; }
+             if (!validateStep7()) { return; }
         }
         if (!authUser) {
             toast({ title: "Authentication Error", description: "User not logged in. Please refresh and try again.", variant: "destructive" });
@@ -689,12 +712,15 @@ export default function Onboarding() {
         );
     }
 
-    const totalSteps = 4;
+    const totalSteps = 7;
     const steps = [
-        { number: 1, title: "Personal Information" },
-        { number: 2, title: "Professional Background" },
-        { number: 3, title: "Training & Development" },
-        { number: 4, title: "Review & Submit" }
+        { number: 1, title: "Personal Details" },
+        { number: 2, title: "Organisation" },
+        { number: 3, title: "Role" },
+        { number: 4, title: "Safeguarding" },
+        { number: 5, title: "Training" },
+        { number: 6, title: "Development" },
+        { number: 7, title: "Review & Submit" }
     ];
 
     if (redirectingToCheckout) {
@@ -722,7 +748,6 @@ export default function Onboarding() {
                 subtitle=""
                 maxWidthClass="max-w-3xl"
                 pageClassName="h-screen"
-                panelClassName="max-h-[calc(100vh-240px)] overflow-y-auto pr-1 lg:max-h-[calc(100vh-220px)]"
             >
                 {/* Multi-step Progress Bar */}
                 <div className="mb-8 flex items-center justify-between px-4">
@@ -768,11 +793,11 @@ export default function Onboarding() {
 
                 <Form {...form}>
                 <form onSubmit={handleSubmit} className="space-y-8">
-                            {/* Step 1: Personal Information */}
+                            {/* Step 1: Personal Details */}
                             {currentStep === 1 && (
                                 <div className="space-y-6">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Personal Information</h3>
+                                        <h3 className="text-xl font-bold text-gray-900">Personal Details</h3>
                                         <p className="text-sm text-gray-600">Let's start with your basic details</p>
                                     </div>
 
@@ -845,6 +870,17 @@ export default function Onboarding() {
                                             </FormItem>
                                         )}
                                     />
+                                </div>
+                            )}
+
+                            {/* Step 2: Organisation */}
+                            {currentStep === 2 && (
+                                <div className="space-y-6">
+                                    <div className="space-y-1 pb-4 border-b border-gray-200">
+                                        <h3 className="text-xl font-bold text-gray-900">Organisation</h3>
+                                        <p className="text-sm text-gray-600">Share your organisation details</p>
+                                    </div>
+
                                     <FormField
                                         control={form.control}
                                         name="organisationName"
@@ -900,6 +936,17 @@ export default function Onboarding() {
                                             />
                                         </div>
                                     </div>
+                                </div>
+                            )}
+
+                            {/* Step 3: Role */}
+                            {currentStep === 3 && (
+                                <div className="space-y-6">
+                                    <div className="space-y-1 pb-4 border-b border-gray-200">
+                                        <h3 className="text-xl font-bold text-gray-900">Role</h3>
+                                        <p className="text-sm text-gray-600">Tell us about your current role</p>
+                                    </div>
+
                                     <FormField
                                         control={form.control}
                                         name="jobRole"
@@ -923,18 +970,6 @@ export default function Onboarding() {
                                             </FormItem>
                                         )}
                                     />
-
-                                    </div>
-                                    )}
-
-                            {/* Step 2: Professional Background */}
-                            {currentStep === 2 && (
-                                <div className="space-y-6">
-                                    <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Professional Background</h3>
-                                        <p className="text-sm text-gray-600">Tell us about your role and organisation</p>
-                                    </div>
-
                                     <FormField
                                         control={form.control}
                                         name="sector"
@@ -983,6 +1018,17 @@ export default function Onboarding() {
                                             )}
                                         />
                                     )}
+                                </div>
+                            )}
+
+                            {/* Step 4: Safeguarding */}
+                            {currentStep === 4 && (
+                                <div className="space-y-6">
+                                    <div className="space-y-1 pb-4 border-b border-gray-200">
+                                        <h3 className="text-xl font-bold text-gray-900">Safeguarding</h3>
+                                        <p className="text-sm text-gray-600">Share your safeguarding focus</p>
+                                    </div>
+
                                     <div className="space-y-2">
                                         <Label htmlFor="subsector" className="text-slate-700">Sub-sector</Label>
                                         <Input
@@ -1044,12 +1090,12 @@ export default function Onboarding() {
                                 </div>
                             )}
 
-                            {/* Step 3: Training & Development */}
-                            {currentStep === 3 && (
+                            {/* Step 5: Training */}
+                            {currentStep === 5 && (
                                 <div className="space-y-6">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Training & Development</h3>
-                                        <p className="text-sm text-gray-600">Tell us about your professional development (all fields optional)</p>
+                                        <h3 className="text-xl font-bold text-gray-900">Training</h3>
+                                        <p className="text-sm text-gray-600">Tell us about your training so far (optional)</p>
                                     </div>
 
                                     <div className="space-y-2">
@@ -1083,6 +1129,16 @@ export default function Onboarding() {
                                             className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             placeholder="Enter training refresh frequency"
                                         />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 6: Development */}
+                            {currentStep === 6 && (
+                                <div className="space-y-6">
+                                    <div className="space-y-1 pb-4 border-b border-gray-200">
+                                        <h3 className="text-xl font-bold text-gray-900">Development</h3>
+                                        <p className="text-sm text-gray-600">Tell us about recent learning (optional)</p>
                                     </div>
 
                                     <div className="space-y-2">
@@ -1121,8 +1177,8 @@ export default function Onboarding() {
                                 </div>
                             )}
 
-                            {/* Step 4: Review & Submit */}
-                            {currentStep === 4 && (
+                            {/* Step 7: Review & Submit */}
+                            {currentStep === 7 && (
                                 <div className="space-y-6">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
                                         <h3 className="text-xl font-bold text-gray-900">Review & Submit</h3>
