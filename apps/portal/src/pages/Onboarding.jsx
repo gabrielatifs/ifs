@@ -734,6 +734,7 @@ export default function Onboarding() {
                 subtitle=""
                 maxWidthClass="max-w-3xl"
                 pageClassName="h-screen"
+                panelClassName="min-h-[calc(100vh-220px)] flex flex-col"
             >
                 {/* Multi-step Progress Bar */}
                 <div className="mb-8 flex items-center justify-between px-4">
@@ -778,7 +779,10 @@ export default function Onboarding() {
                 </div>
 
                 <Form {...form}>
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form
+                    onSubmit={handleSubmit}
+                    className={currentStep === 5 ? "space-y-8 flex-1 flex flex-col" : "space-y-8"}
+                >
                             {/* Step 1: Personal Details */}
                             {currentStep === 1 && (
                                 <div className="space-y-6">
@@ -1078,7 +1082,7 @@ export default function Onboarding() {
 
                             {/* Step 5: Review */}
                             {currentStep === 5 && (
-                                <div className="space-y-6 min-h-[calc(100vh-320px)]">
+                                <div className="space-y-6 flex-1">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
                                         <h3 className="text-xl font-bold text-gray-900">Review</h3>
                                         <p className="text-sm text-gray-600">Please review your application and accept our policies</p>
