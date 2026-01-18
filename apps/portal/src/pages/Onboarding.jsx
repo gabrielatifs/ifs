@@ -597,6 +597,8 @@ export default function Onboarding() {
         toast({ title: "Finalizing your application..." });
 
         try {
+            const resolvedOrganisationName =
+                inviteOrgName || authUser?.organisationName || formData.organisationName;
             const displayName = `${formData.firstName} ${formData.lastName}`.trim();
             const membershipTypeForProfile = formData.membershipTier === 'full' ? 'Full' : 'Associate';
             const isAssociate = formData.membershipTier === 'associate';
@@ -609,11 +611,22 @@ export default function Onboarding() {
             let dataToSubmit = {
                 ...formData,
                 displayName: displayName,
+                organisation: resolvedOrganisationName,
+                other_subsector: formData.other_sub_sector,
+                completed_training: Array.isArray(formData.completed_training)
+                    ? formData.completed_training.join(', ')
+                    : formData.completed_training,
+                attended_training_topics: Array.isArray(formData.attended_training_topics)
+                    ? formData.attended_training_topics.join(', ')
+                    : formData.attended_training_topics,
                 membershipType: isAssociate ? 'Associate' : undefined, // Only set for Associates
                 membershipStatus: isAssociate ? 'active' : undefined, // Only set for Associates
                 needsApplicationProcessing: isAssociate ? true : false, // Only for Associates
                 onboarding_completed: false, // Will be set to true in ApplicationProcessing
             };
+            delete dataToSubmit.organisationName;
+            delete dataToSubmit.other_sub_sector;
+            delete dataToSubmit.membershipTier;
 
             console.log('[Onboarding] Updating user profile:', { 
                 membershipType: membershipTypeForProfile, 
