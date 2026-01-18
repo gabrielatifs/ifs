@@ -545,14 +545,6 @@ export default function Onboarding() {
     };
 
     const validateStep5 = () => {
-        return true;
-    };
-
-    const validateStep6 = () => {
-        return true;
-    };
-
-    const validateStep7 = () => {
         const errors = {};
         if (!policyAcceptance.terms) {
             form.setError('terms', { type: 'manual', message: 'You must accept the Terms and Conditions' });
@@ -581,8 +573,6 @@ export default function Onboarding() {
             isValid = validateStep4();
         } else if (currentStep === 5) {
             isValid = validateStep5();
-        } else if (currentStep === 6) {
-            isValid = validateStep6();
         }
 
         if (isValid) {
@@ -592,14 +582,12 @@ export default function Onboarding() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (currentStep === 7) {
+        if (currentStep === 5) {
              if (!validateStep1()) { setCurrentStep(1); return; }
              if (!validateStep2()) { setCurrentStep(2); return; }
              if (!validateStep3()) { setCurrentStep(3); return; }
              if (!validateStep4()) { setCurrentStep(4); return; }
-             if (!validateStep5()) { setCurrentStep(5); return; }
-             if (!validateStep6()) { setCurrentStep(6); return; }
-             if (!validateStep7()) { return; }
+             if (!validateStep5()) { return; }
         }
         if (!authUser) {
             toast({ title: "Authentication Error", description: "User not logged in. Please refresh and try again.", variant: "destructive" });
@@ -712,15 +700,13 @@ export default function Onboarding() {
         );
     }
 
-    const totalSteps = 7;
+    const totalSteps = 5;
     const steps = [
         { number: 1, title: "Personal Details" },
         { number: 2, title: "Organisation" },
         { number: 3, title: "Role" },
         { number: 4, title: "Safeguarding" },
-        { number: 5, title: "Training" },
-        { number: 6, title: "Development" },
-        { number: 7, title: "Review & Submit" }
+        { number: 5, title: "Review" }
     ];
 
     if (redirectingToCheckout) {
@@ -1090,98 +1076,11 @@ export default function Onboarding() {
                                 </div>
                             )}
 
-                            {/* Step 5: Training */}
+                            {/* Step 5: Review */}
                             {currentStep === 5 && (
-                                <div className="space-y-6">
+                                <div className="space-y-6 min-h-[calc(100vh-320px)]">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Training</h3>
-                                        <p className="text-sm text-gray-600">Tell us about your training so far (optional)</p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-700">I have completed the following safeguarding training or qualifications:</Label>
-                                        <Input
-                                            id="completed_training"
-                                            value={Array.isArray(formData.completed_training) ? formData.completed_training.join(', ') : formData.completed_training || ''}
-                                            onChange={(e) => handleInputChange('completed_training', e.target.value)}
-                                            className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter training completed (comma separated)"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-700">I have had an induction in relation to my safeguarding role and responsibilities</Label>
-                                        <Input
-                                            id="had_induction"
-                                            value={formData.had_induction ? 'Yes' : 'No'}
-                                            onChange={(e) => handleInputChange('had_induction', e.target.value === 'Yes')}
-                                            className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter Yes or No"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-700">How often is your safeguarding training refreshed?</Label>
-                                        <Input
-                                            id="training_refresh_frequency"
-                                            value={formData.training_refresh_frequency}
-                                            onChange={(e) => handleInputChange('training_refresh_frequency', e.target.value)}
-                                            className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter training refresh frequency"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 6: Development */}
-                            {currentStep === 6 && (
-                                <div className="space-y-6">
-                                    <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Development</h3>
-                                        <p className="text-sm text-gray-600">Tell us about recent learning (optional)</p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-700">In the past 2 years, have you attended any training on the following topics?</Label>
-                                        <Input
-                                            id="attended_training_topics"
-                                            value={Array.isArray(formData.attended_training_topics) ? formData.attended_training_topics.join(', ') : formData.attended_training_topics || ''}
-                                            onChange={(e) => handleInputChange('attended_training_topics', e.target.value)}
-                                            className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter topics (comma separated)"
-                                        />
-                                    </div>
-
-                                    {formData.attended_training_topics?.includes("Other (please provide details below)") && (
-                                        <div className="space-y-2">
-                                            <Label htmlFor="other_training_details" className="text-slate-700">Please provide details of other training attended</Label>
-                                            <Textarea
-                                                id="other_training_details"
-                                                value={formData.other_training_details}
-                                                onChange={e => handleInputChange('other_training_details', e.target.value)}
-                                                className="min-h-[100px] border-slate-200"
-                                            />
-                                        </div>
-                                    )}
-
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-700">I receive regular supervision which covers safeguarding practice</Label>
-                                        <Input
-                                            id="receives_supervision"
-                                            value={formData.receives_supervision ? 'Yes' : 'No'}
-                                            onChange={(e) => handleInputChange('receives_supervision', e.target.value === 'Yes')}
-                                            className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter Yes or No"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 7: Review & Submit */}
-                            {currentStep === 7 && (
-                                <div className="space-y-6">
-                                    <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Review & Submit</h3>
+                                        <h3 className="text-xl font-bold text-gray-900">Review</h3>
                                         <p className="text-sm text-gray-600">Please review your application and accept our policies</p>
                                     </div>
 
