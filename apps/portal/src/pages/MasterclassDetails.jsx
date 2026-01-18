@@ -160,7 +160,10 @@ export default function MasterclassDetails() {
                 if (data.success) {
                     setUserSignup(data.booking);
                     
-                    // Send confirmation email
+                    console.log('[MasterclassDetails] Sending confirmation email (credits)', {
+                        signupId: data.booking?.id,
+                        userEmail: user?.email
+                    });
                     await sendConfirmationEmail(data.booking);
                     
                     toast({ 
@@ -194,7 +197,10 @@ export default function MasterclassDetails() {
             const newSignup = await base44.entities.EventSignup.create(signupData);
             setUserSignup(newSignup);
             
-            // Send confirmation email
+            console.log('[MasterclassDetails] Sending confirmation email (free)', {
+                signupId: newSignup?.id,
+                userEmail: user?.email
+            });
             await sendConfirmationEmail(newSignup);
             
             toast({ title: "Booking Confirmed!", description: `You're all set for "${event.title}". Check your email for details.`, duration: 2000 });
@@ -251,6 +257,10 @@ export default function MasterclassDetails() {
                 </td>
             `;
 
+            console.log('[MasterclassDetails] Invoking sendEmail function', {
+                to: user?.email,
+                subject: `Registration Confirmed: ${event.title}`
+            });
             await sendEmail({
                 to: user.email,
                 subject: `Registration Confirmed: ${event.title}`,

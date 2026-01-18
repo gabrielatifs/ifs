@@ -15,6 +15,7 @@ import EditEvent from "./EditEvent";
 import EditJob from "./EditJob";
 import EditSurvey from "./EditSurvey";
 import EditUser from "./EditUser";
+import EventRegistrationSuccess from "./EventRegistrationSuccess";
 import Forum from "./Forum";
 import ForumPostDetails from "./ForumPostDetails";
 import Job from "./Job";
@@ -90,6 +91,7 @@ export default function Pages() {
                             <Route path="/editjob" element={<EditJob />} />
                             <Route path="/editsurvey" element={<EditSurvey />} />
                             <Route path="/edituser" element={<EditUser />} />
+                            <Route path="/eventregistrationsuccess" element={<EventRegistrationSuccess />} />
                             <Route path="/forum" element={<Forum />} />
                             <Route path="/forumpostdetails" element={<ForumPostDetails />} />
                             <Route path="/job" element={<Job />} />
