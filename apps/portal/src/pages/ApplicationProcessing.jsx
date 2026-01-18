@@ -285,17 +285,13 @@ export default function ApplicationProcessing() {
                 try {
                     await updateUserProfile({
                         onboarding_completed: true,
-                        welcomeEmailSent: true,
-                        needsApplicationProcessing: false,
-                        welcomeBonusAwarded: false
+                        needsApplicationProcessing: false
                     });
                 } catch (updateError) {
                     console.error('[ApplicationProcessing] Failed to update user profile, attempting direct update:', updateError);
                     await base44.asServiceRole.entities.User.update(user.id, {
                         onboarding_completed: true,
-                        welcomeEmailSent: true,
-                        needsApplicationProcessing: false,
-                        welcomeBonusAwarded: false
+                        needsApplicationProcessing: false
                     });
                 }
 
@@ -508,17 +504,13 @@ export default function ApplicationProcessing() {
                 try {
                     await updateUserProfile({
                         onboarding_completed: true,
-                        welcomeEmailSent: true,
-                        needsApplicationProcessing: false,
-                        welcomeBonusAwarded: false
+                        needsApplicationProcessing: false
                     });
                 } catch (updateError) {
                     console.error('[ApplicationProcessing] Failed to update user profile, attempting direct update:', updateError);
                     await base44.asServiceRole.entities.User.update(user.id, {
                         onboarding_completed: true,
-                        welcomeEmailSent: true,
-                        needsApplicationProcessing: false,
-                        welcomeBonusAwarded: false
+                        needsApplicationProcessing: false
                     });
                 }
 
@@ -545,8 +537,7 @@ export default function ApplicationProcessing() {
                 try {
                     await updateUserProfile({
                         needsApplicationProcessing: false,
-                        onboarding_completed: true,
-                        welcomeBonusAwarded: false
+                        onboarding_completed: true
                     });
                 } catch (finalError) {
                     console.error('[ApplicationProcessing] Final update failed:', finalError);
