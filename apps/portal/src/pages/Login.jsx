@@ -75,14 +75,32 @@ export default function Login() {
                 }
             }
 
+            const normalizedEmail = email.trim();
+
+            if (mode === 'login') {
+                const result = await auth.signIn(normalizedEmail, password);
+                if (result?.recoverySent) {
+                    setError('We found your account, but it needs to be claimed. Check your email to set a password.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl')
+                    || searchParams.get('redirect')
+                    || '/';
+                sessionStorage.removeItem('postLoginRedirectUrl');
+                window.location.href = redirectUrl;
+                return;
+            }
+
             const pendingAuth = {
-                email: email.trim(),
+                email: normalizedEmail,
                 password: mode === 'forgot' ? '' : password,
                 mode,
             };
             sessionStorage.setItem('pendingAuth', JSON.stringify(pendingAuth));
 
-            await auth.sendOtp(pendingAuth.email, { shouldCreateUser: true });
+            await auth.sendOtp(pendingAuth.email, { shouldCreateUser: mode === 'signup' });
             navigate('/verify-code');
         } catch (err) {
             console.error('Auth error:', err);
