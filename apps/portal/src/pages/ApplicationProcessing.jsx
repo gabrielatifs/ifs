@@ -119,8 +119,20 @@ export default function ApplicationProcessing() {
                     });
                 }
                 
+                setStatus('Syncing your account...');
+                try {
+                    console.log('[ApplicationProcessing] Syncing user to Supabase database (with Associate ID)...');
+                    const supabaseResult = await syncToSupabase();
+                    if (supabaseResult?.data?.success) {
+                        console.log('[ApplicationProcessing] Successfully synced to Supabase');
+                    } else {
+                        console.error('[ApplicationProcessing] Supabase sync returned non-success:', supabaseResult);
+                    }
+                } catch (supabaseError) {
+                    console.error('[ApplicationProcessing] Supabase sync failed:', supabaseError);
+                }
+
                 setStatus('Generating your digital credential...');
-                // CRITICAL: Generate credential BEFORE Supabase sync so Associate ID exists
                 let credentialCreated = false;
                 try {
                     await generateDigitalCredential({
@@ -132,23 +144,9 @@ export default function ApplicationProcessing() {
                     console.log('[ApplicationProcessing] Digital credential generated successfully');
                 } catch (certError) {
                     console.error('[ApplicationProcessing] Digital credential generation failed, but continuing with registration:', certError);
-                    // Don't throw - continue with the rest of the process
-                }
-                
-                // Sync to Supabase database - AFTER credential generation
-                try {
-                    console.log('[ApplicationProcessing] 🚀 Syncing user to Supabase database (with Associate ID)...');
-                    const supabaseResult = await syncToSupabase();
-                    if (supabaseResult?.data?.success) {
-                        console.log('[ApplicationProcessing] ✅ Successfully synced to Supabase');
-                    } else {
-                        console.error('[ApplicationProcessing] ⚠️ Supabase sync returned non-success:', supabaseResult);
-                    }
-                } catch (supabaseError) {
-                    console.error('[ApplicationProcessing] ⚠️ Supabase sync failed:', supabaseError);
                 }
 
-                setStatus(`Registering you for "${event.title}"...`);
+setStatus(`Registering you for "${event.title}"...`);
                 
                 let zoomJoinUrl = null;
                 let zoomRegistrationFailed = false;
@@ -405,13 +403,25 @@ export default function ApplicationProcessing() {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
                 
+                setStatus('Syncing your account...');
+                try {
+                    console.log('[ApplicationProcessing] Syncing user to Supabase database...');
+                    const supabaseResult = await syncToSupabase();
+                    if (supabaseResult?.data?.success) {
+                        console.log('[ApplicationProcessing] Successfully synced to Supabase');
+                    } else {
+                        console.error('[ApplicationProcessing] Supabase sync returned non-success:', supabaseResult);
+                    }
+                } catch (supabaseError) {
+                    console.error('[ApplicationProcessing] Supabase sync failed:', supabaseError);
+                }
+
                 setStatus('Generating your digital credential...');
-                // Generate credential based on membership type
                 let credentialCreated = false;
                 try {
                     const credentialType = isFullMember ? 'Full Membership' : 'Associate Membership';
                     console.log('[ApplicationProcessing] Generating', credentialType, 'credential...');
-                    
+
                     await generateDigitalCredential({
                         userId: user.id,
                         credentialType: credentialType,
@@ -421,23 +431,9 @@ export default function ApplicationProcessing() {
                     console.log('[ApplicationProcessing] Digital credential generated successfully');
                 } catch (certError) {
                     console.error('[ApplicationProcessing] Digital credential generation failed, but continuing with registration:', certError);
-                    // Don't throw - continue with the rest of the process
-                }
-                
-                // Sync to Supabase database - AFTER credential generation
-                try {
-                    console.log('[ApplicationProcessing] 🚀 Syncing user to Supabase database...');
-                    const supabaseResult = await syncToSupabase();
-                    if (supabaseResult?.data?.success) {
-                        console.log('[ApplicationProcessing] ✅ Successfully synced to Supabase');
-                    } else {
-                        console.error('[ApplicationProcessing] ⚠️ Supabase sync returned non-success:', supabaseResult);
-                    }
-                } catch (supabaseError) {
-                    console.error('[ApplicationProcessing] ⚠️ Supabase sync failed:', supabaseError);
                 }
 
-                // Send welcome email ONLY for Associates (webhook handles Full Member emails)
+// Send welcome email ONLY for Associates (webhook handles Full Member emails)
                 if (!isFullMember || !paymentSuccess) {
                     setStatus('Sending your welcome email...');
                     try {
