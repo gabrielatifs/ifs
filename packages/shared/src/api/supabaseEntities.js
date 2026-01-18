@@ -178,6 +178,10 @@ const createSupabaseEntity = (tableName) => ({
 
     create: async (data) => {
         const normalizedData = {};
+        if (!Object.prototype.hasOwnProperty.call(data, 'id')) {
+            const generatedId = globalThis.crypto?.randomUUID?.();
+            normalizedData.id = generatedId || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        }
         Object.entries(data).forEach(([key, value]) => {
             const normalizedKey = normalizeKey(key);
             normalizedData[normalizedKey] = serializeValue(normalizedKey, value);
