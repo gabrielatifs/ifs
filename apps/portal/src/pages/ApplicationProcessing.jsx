@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { Event } from '@ifs/shared/api/entities';
 import { EventSignup } from '@ifs/shared/api/entities';
-import { generateDigitalCredential } from '@ifs/shared/api/functions';
 import { sendEmail } from '@ifs/shared/api/functions';
 import { addZoomRegistrant } from '@ifs/shared/api/functions';
 import { syncToSupabase } from '@ifs/shared/api/functions';
@@ -13,6 +12,7 @@ import { addToMailerLite } from '@ifs/shared/api/functions';
 import { addToApollo } from '@ifs/shared/api/functions';
 import { base44 } from '@ifs/shared/api/base44Client';
 import { OrgInvite } from '@ifs/shared/api/entities';
+import { supabase } from '@ifs/shared/lib/supabase';
 
 const getEmailWrapper = (content) => {
     const year = new Date().getFullYear();
@@ -55,6 +55,16 @@ const getEmailWrapper = (content) => {
 export default function ApplicationProcessing() {
     const { user, loading, updateUserProfile } = useUser();
     const [status, setStatus] = useState('Initializing...');
+
+    const generateCredential = async (payload) => {
+        const { data, error } = await supabase.functions.invoke('generateDigitalCredential', {
+            body: payload,
+        });
+        if (error) {
+            throw error;
+        }
+        return data;
+    };
 
     useEffect(() => {
         if (loading || !user) return;
@@ -135,11 +145,21 @@ export default function ApplicationProcessing() {
                 setStatus('Generating your digital credential...');
                 let credentialCreated = false;
                 try {
-                    await generateDigitalCredential({
+                    const credentialResponse = await generateCredential({
                         userId: user.id,
+                        authId: user.authId,
+                        userName: displayName,
+                        userEmail: user.email,
+                        membershipType: user.membershipType,
+                        membershipStatus: user.membershipStatus,
                         credentialType: 'Associate Membership',
                         metadata: {}
                     });
+                    const createdCredential =
+                        credentialResponse?.credential || credentialResponse?.data?.credential;
+                    if (!createdCredential) {
+                        console.warn('[ApplicationProcessing] Credential response missing credential payload:', credentialResponse);
+                    }
                     credentialCreated = true;
                     console.log('[ApplicationProcessing] Digital credential generated successfully');
                 } catch (certError) {
@@ -422,11 +442,21 @@ setStatus(`Registering you for "${event.title}"...`);
                     const credentialType = isFullMember ? 'Full Membership' : 'Associate Membership';
                     console.log('[ApplicationProcessing] Generating', credentialType, 'credential...');
 
-                    await generateDigitalCredential({
+                    const credentialResponse = await generateCredential({
                         userId: user.id,
+                        authId: user.authId,
+                        userName: displayName,
+                        userEmail: user.email,
+                        membershipType: user.membershipType,
+                        membershipStatus: user.membershipStatus,
                         credentialType: credentialType,
                         metadata: {}
                     });
+                    const createdCredential =
+                        credentialResponse?.credential || credentialResponse?.data?.credential;
+                    if (!createdCredential) {
+                        console.warn('[ApplicationProcessing] Credential response missing credential payload:', credentialResponse);
+                    }
                     credentialCreated = true;
                     console.log('[ApplicationProcessing] Digital credential generated successfully');
                 } catch (certError) {
