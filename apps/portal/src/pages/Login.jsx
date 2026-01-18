@@ -12,8 +12,6 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
     const [error, setError] = useState('');
@@ -65,11 +63,6 @@ export default function Login() {
 
         try {
             if (mode === 'signup') {
-                if (!firstName.trim() || !lastName.trim()) {
-                    setError('Please enter your first and last name.');
-                    setIsLoading(false);
-                    return;
-                }
                 if (password.length < 8) {
                     setError('Password must be at least 8 characters.');
                     setIsLoading(false);
@@ -86,9 +79,6 @@ export default function Login() {
                 email: email.trim(),
                 password: mode === 'forgot' ? '' : password,
                 mode,
-                firstName: firstName.trim(),
-                lastName: lastName.trim(),
-                displayName: `${firstName} ${lastName}`.trim(),
             };
             sessionStorage.setItem('pendingAuth', JSON.stringify(pendingAuth));
 
@@ -149,38 +139,6 @@ export default function Login() {
             heroSubtitle={heroSubtitleCopy[mode]}
         >
             <form onSubmit={handleSubmit} className="space-y-5">
-                {mode === 'signup' && (
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <Label htmlFor="firstName" className="text-slate-700 font-medium">
-                                First name
-                            </Label>
-                            <Input
-                                id="firstName"
-                                type="text"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                                placeholder="First name"
-                                required
-                                className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="lastName" className="text-slate-700 font-medium">
-                                Last name
-                            </Label>
-                            <Input
-                                id="lastName"
-                                type="text"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                                placeholder="Last name"
-                                required
-                                className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
-                            />
-                        </div>
-                    </div>
-                )}
                 <div>
                     <Label htmlFor="email" className="text-slate-700 font-medium">
                         Email

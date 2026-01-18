@@ -7,11 +7,13 @@ export default function AuthShell({
   heroSubtitle = "Sign in to continue.",
   heroBadge = "Member Portal Access",
   maxWidthClass = "max-w-md",
+  pageClassName = "",
+  panelClassName = "",
   children,
 }) {
   return (
     <div
-      className="min-h-screen bg-slate-50"
+      className={`min-h-screen bg-slate-50 ${pageClassName}`}
       style={{
         "--auth-accent": "#2563eb",
         "--auth-accent-2": "#1d4ed8",
@@ -78,7 +80,9 @@ export default function AuthShell({
                 </p>
               )}
             </div>
-            <div className="rounded-2xl border border-[color:var(--auth-border)] bg-[color:var(--auth-panel)] px-6 py-7 shadow-[var(--auth-shadow)] md:px-8 md:py-9">
+            <div
+              className={`rounded-2xl border border-[color:var(--auth-border)] bg-[color:var(--auth-panel)] px-6 py-7 shadow-[var(--auth-shadow)] md:px-8 md:py-9 ${panelClassName}`}
+            >
               {children}
             </div>
             <p className="mt-6 text-center text-xs text-slate-500 lg:text-left">

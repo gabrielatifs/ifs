@@ -721,6 +721,8 @@ export default function Onboarding() {
                 title=""
                 subtitle=""
                 maxWidthClass="max-w-3xl"
+                pageClassName="h-screen"
+                panelClassName="max-h-[calc(100vh-240px)] overflow-y-auto pr-1 lg:max-h-[calc(100vh-220px)]"
             >
                 {/* Multi-step Progress Bar */}
                 <div className="mb-8 flex items-center justify-between px-4">
