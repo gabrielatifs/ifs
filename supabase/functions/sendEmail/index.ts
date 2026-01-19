@@ -45,9 +45,10 @@ Deno.serve(async (req) => {
       bcc,
       replyTo,
       template_id: templateIdRaw,
-      templateId,
+      templateId: templateIdField,
       template_data: templateDataRaw,
       templateData,
+      template,
     } = body ?? {};
 
     const recipients = normalizeRecipients(to);
@@ -58,7 +59,7 @@ Deno.serve(async (req) => {
     const resolvedHtml = typeof html === "string" ? html : htmlBody;
     const templateId =
       (typeof templateIdRaw === "string" && templateIdRaw.trim()) ||
-      (typeof templateId === "string" && templateId.trim()) ||
+      (typeof templateIdField === "string" && templateIdField.trim()) ||
       null;
     const resolvedTemplateData =
       (templateDataRaw && typeof templateDataRaw === "object" && !Array.isArray(templateDataRaw))
@@ -66,6 +67,16 @@ Deno.serve(async (req) => {
         : (templateData && typeof templateData === "object" && !Array.isArray(templateData))
           ? templateData
           : undefined;
+    const resolvedTemplate =
+      (template && typeof template === "object" && !Array.isArray(template)) ? template : undefined;
+    const resolvedTemplateId =
+      templateId ||
+      (typeof resolvedTemplate?.id === "string" && resolvedTemplate.id.trim()) ||
+      null;
+    const resolvedTemplateVars =
+      (resolvedTemplate?.variables && typeof resolvedTemplate.variables === "object" && !Array.isArray(resolvedTemplate.variables))
+        ? resolvedTemplate.variables
+        : undefined;
 
     if (!from) {
       return new Response(
@@ -74,7 +85,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!recipients.length || (!templateId && !subject) || (!templateId && !resolvedHtml && !text)) {
+    if (!recipients.length || (!resolvedTemplateId && !subject) || (!resolvedTemplateId && !resolvedHtml && !text)) {
       return new Response(
         JSON.stringify({ error: "to, subject, and html or text are required (unless template_id is provided)" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -89,11 +100,11 @@ Deno.serve(async (req) => {
       reply_to: replyTo,
     };
 
-    if (templateId) {
-      resendPayload.template_id = templateId;
-      if (resolvedTemplateData) {
-        resendPayload.template_data = resolvedTemplateData;
-      }
+    if (resolvedTemplateId) {
+      resendPayload.template = {
+        id: resolvedTemplateId,
+        variables: resolvedTemplateVars || resolvedTemplateData,
+      };
     } else {
       resendPayload.subject = subject;
       resendPayload.html = resolvedHtml;
