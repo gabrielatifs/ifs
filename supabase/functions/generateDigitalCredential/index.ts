@@ -48,6 +48,23 @@ Deno.serve(async (req) => {
     const serviceRoleKey = getEnv("SUPABASE_SERVICE_ROLE_KEY");
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    const authHeader = req.headers.get("Authorization") || "";
+    const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (!jwt) {
+      return new Response(
+        JSON.stringify({ error: "Missing Authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const { data: authData, error: authError } = await supabase.auth.getUser(jwt);
+    if (authError || !authData?.user) {
+      return new Response(
+        JSON.stringify({ error: "Invalid JWT" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const {
       userId,
@@ -62,6 +79,27 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "userId and credentialType are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, role")
+      .eq("auth_id", authData.user.id)
+      .maybeSingle();
+
+    if (profileError || !profile) {
+      return new Response(
+        JSON.stringify({ error: "Profile not found for session" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const isAdmin = profile.role === "admin";
+    if (!isAdmin && profile.id !== userId) {
+      return new Response(
+        JSON.stringify({ error: "Not authorized for requested user" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 

@@ -367,6 +367,20 @@ export default function Onboarding() {
                     } catch (prefError) {
                         console.error("Failed to create notification preference:", prefError);
                     }
+
+                    try {
+                        const credentialPayload = {
+                            userId: authUser.id,
+                            authId: authUser.authId || authUser.id,
+                            userName: authUser.displayName || fullName,
+                            userEmail: authUser.email,
+                            credentialType: 'Associate Membership',
+                            metadata: {}
+                        };
+                        await base44.functions.invoke('generateDigitalCredential', credentialPayload);
+                    } catch (credentialError) {
+                        console.error("Failed to generate credential during auto-onboarding:", credentialError);
+                    }
                     
                     // Clear session storage items
                     sessionStorage.removeItem('pending_job_redirect');
@@ -652,6 +666,20 @@ export default function Onboarding() {
                     throw new Error(data.error || 'Failed to create checkout session.');
                 }
             } else {
+                try {
+                    const credentialPayload = {
+                        userId: authUser.id,
+                        authId: authUser.authId || authUser.id,
+                        userName: displayName,
+                        userEmail: authUser.email,
+                        credentialType: 'Associate Membership',
+                        metadata: {}
+                    };
+                    await base44.functions.invoke('generateDigitalCredential', credentialPayload);
+                } catch (credentialError) {
+                    console.error("Failed to generate credential after onboarding:", credentialError);
+                }
+
                 // Associate members - redirect to ApplicationProcessing
                 console.log('Associate member onboarding complete, redirecting to ApplicationProcessing');
                 window.location.href = createPageUrl('ApplicationProcessing');

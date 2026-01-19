@@ -766,14 +766,73 @@ export default function CourseDetails() {
         );
     };
 
-    const getDisplayContent = (field) => {
-        if (variant && variant[field] && Array.isArray(variant[field]) && variant[field].length > 0) {
-            return variant[field];
+    const normalizeList = (value) => {
+        if (!value) return [];
+        if (Array.isArray(value)) {
+            return value.map((item) => String(item).trim()).filter(Boolean);
         }
-        if (course[field] && Array.isArray(course[field])) {
-            return course[field];
+        if (typeof value === 'object') {
+            const candidate =
+                value.tags || value.items || value.values || value.value || value.list;
+            if (candidate !== undefined) {
+                return normalizeList(candidate);
+            }
+            return normalizeList(Object.values(value));
+        }
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (!trimmed) return [];
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (Array.isArray(parsed)) {
+                    return parsed.map((item) => String(item).trim()).filter(Boolean);
+                }
+            } catch {
+                // ignore JSON parse errors
+            }
+            return trimmed.split(/[\n,;|]+/).map((item) => item.trim()).filter(Boolean);
         }
         return [];
+    };
+
+    const normalizeFaq = (value) => {
+        if (!value) return [];
+        if (Array.isArray(value)) {
+            return value.filter((item) => item?.question || item?.answer);
+        }
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (!trimmed) return [];
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (Array.isArray(parsed)) {
+                    return parsed.filter((item) => item?.question || item?.answer);
+                }
+            } catch {
+                // ignore JSON parse errors
+            }
+        }
+        return [];
+    };
+
+    const getDisplayContent = (field) => {
+        const variantItems = normalizeList(variant?.[field]);
+        if (variantItems.length > 0) {
+            return variantItems;
+        }
+        return normalizeList(course?.[field]);
+    };
+
+    const getDisplayTopics = () => {
+        const variantTopics = normalizeList(variant?.tags);
+        if (variantTopics.length > 0) {
+            return variantTopics;
+        }
+        const courseTopics = normalizeList(course?.tags);
+        if (courseTopics.length > 0) {
+            return courseTopics;
+        }
+        return normalizeList(course?.topicsCovered || course?.topics || course?.topic);
     };
 
     const getDisplayDescription = () => {
@@ -791,20 +850,24 @@ export default function CourseDetails() {
     };
 
     const getDisplayFormat = () => {
-        if (variant && variant.format && variant.format.length > 0) {
-            return Array.isArray(variant.format) ? variant.format : [variant.format];
+        const variantFormat = normalizeList(variant?.format);
+        if (variantFormat.length > 0) {
+            return variantFormat;
         }
-        const courseFormat = course?.format || [];
-        return Array.isArray(courseFormat) ? courseFormat : [courseFormat].filter(Boolean);
+        return normalizeList(course?.format);
     };
 
     const getDisplayGeography = () => {
-        if (variant && variant.supportedGeographies && variant.supportedGeographies.length > 0) {
-            return Array.isArray(variant.supportedGeographies) ? variant.supportedGeographies : [variant.supportedGeographies];
+        const variantGeographies = normalizeList(variant?.supportedGeographies);
+        if (variantGeographies.length > 0) {
+            return variantGeographies;
         }
-        const courseGeography = course?.geography || [];
-        return Array.isArray(courseGeography) ? courseGeography : [courseGeography].filter(Boolean);
+        return normalizeList(course?.geography);
     };
+
+    const displayOverview = (variant?.overview || course?.overview || '').trim();
+    const displayDescription = (variant?.description || course?.description || '').trim();
+    const displayFaq = normalizeFaq(course?.faq);
 
     if (userLoading || loading) {
         return (
@@ -934,17 +997,29 @@ export default function CourseDetails() {
                                             </div>
                                         )}
 
-                                        <div>
-                                            <h3 className="text-lg font-semibold mb-2">Course Overview</h3>
-                                            <p className="text-slate-700 leading-relaxed">{getDisplayDescription()}</p>
-                                        </div>
+                                        {(displayOverview || displayDescription) && (
+                                            <div className="space-y-4">
+                                                {displayOverview && (
+                                                    <div>
+                                                        <h3 className="text-lg font-semibold mb-2">Course Overview</h3>
+                                                        <p className="text-slate-700 leading-relaxed">{displayOverview}</p>
+                                                    </div>
+                                                )}
+                                                {displayDescription && displayDescription !== displayOverview && (
+                                                    <div>
+                                                        <h3 className="text-lg font-semibold mb-2">Course Description</h3>
+                                                        <p className="text-slate-700 leading-relaxed">{displayDescription}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
 
                                         {/* Tags */}
-                                        {course.tags && Array.isArray(course.tags) && course.tags.length > 0 && (
+                                        {getDisplayTopics().length > 0 && (
                                             <div>
                                                 <h3 className="text-lg font-semibold mb-2">Topics Covered</h3>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {course.tags.map((tag, index) => (
+                                                    {getDisplayTopics().map((tag, index) => (
                                                         <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-700">
                                                             {tag}
                                                         </Badge>
@@ -972,7 +1047,7 @@ export default function CourseDetails() {
                                                     </AccordionContent>
                                                 </AccordionItem>
                                             )}
-                                            {getDisplayContent('whoIsItFor').length > 0 && (
+                                            {(getDisplayContent('whoIsItFor').length > 0 || (variant?.targetAudience || course?.targetAudience)) && (
                                                 <AccordionItem value="item-2">
                                                     <AccordionTrigger>
                                                         <div className="flex items-center gap-2">
@@ -981,9 +1056,13 @@ export default function CourseDetails() {
                                                         </div>
                                                     </AccordionTrigger>
                                                     <AccordionContent>
-                                                        <ul className="list-disc pl-5 space-y-2 text-slate-600">
-                                                            {getDisplayContent('whoIsItFor').map((item, index) => <li key={index}>{item}</li>)}
-                                                        </ul>
+                                                        {getDisplayContent('whoIsItFor').length > 0 ? (
+                                                            <ul className="list-disc pl-5 space-y-2 text-slate-600">
+                                                                {getDisplayContent('whoIsItFor').map((item, index) => <li key={index}>{item}</li>)}
+                                                            </ul>
+                                                        ) : (
+                                                            <p className="text-slate-600">{variant?.targetAudience || course?.targetAudience}</p>
+                                                        )}
                                                     </AccordionContent>
                                                 </AccordionItem>
                                             )}
@@ -1002,7 +1081,7 @@ export default function CourseDetails() {
                                                     </AccordionContent>
                                                 </AccordionItem>
                                             )}
-                                            {course.faq && Array.isArray(course.faq) && course.faq.length > 0 && (
+                                            {displayFaq.length > 0 && (
                                                 <AccordionItem value="item-4">
                                                     <AccordionTrigger>
                                                         <div className="flex items-center gap-2">
@@ -1012,7 +1091,7 @@ export default function CourseDetails() {
                                                     </AccordionTrigger>
                                                     <AccordionContent>
                                                         <Accordion type="single" collapsible className="w-full">
-                                                            {course.faq.map((item, index) => (
+                                                            {displayFaq.map((item, index) => (
                                                                 <AccordionItem value={`faq-${index}`} key={index}>
                                                                     <AccordionTrigger>{item.question}</AccordionTrigger>
                                                                     <AccordionContent>{item.answer}</AccordionContent>

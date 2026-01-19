@@ -99,17 +99,50 @@ export default function TrainingCourseDetails() {
         faq: false
     });
 
+    const normalizeList = (value) => {
+        if (!value) return [];
+        if (Array.isArray(value)) {
+            return value.map((item) => String(item).trim()).filter(Boolean);
+        }
+        if (typeof value === 'object') {
+            const candidate =
+                value.tags || value.items || value.values || value.value || value.list;
+            if (candidate !== undefined) {
+                return normalizeList(candidate);
+            }
+            return normalizeList(Object.values(value));
+        }
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (!trimmed) return [];
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (Array.isArray(parsed)) {
+                    return parsed.map((item) => String(item).trim()).filter(Boolean);
+                }
+            } catch {
+                // ignore JSON parse errors
+            }
+            return trimmed.split(/[\n,;|]+/).map((item) => item.trim()).filter(Boolean);
+        }
+        return [];
+    };
+
+    const getUniqueList = (values) => {
+        return [...new Set(values)];
+    };
+
     // Modified to return an array of formats
     const getFormatsArray = useMemo(() => {
         if (!course) return [];
         
         if (variants && variants.length > 0) {
-            const allFormats = [...new Set(variants.flatMap(v => v.format || []))];
-            return [...new Set(allFormats.map(f => f === 'Online Live' ? 'Online' : f))];
+            const allFormats = variants.flatMap((variant) => normalizeList(variant.format));
+            return getUniqueList(allFormats.map((format) => (format === 'Online Live' ? 'Online' : format)));
         }
         
-        const rawFormats = Array.isArray(course.format) ? course.format : (course.format ? [course.format] : []);
-        return [...new Set(rawFormats.map(f => f === 'Online Live' ? 'Online' : f))];
+        const rawFormats = normalizeList(course.format);
+        return getUniqueList(rawFormats.map((format) => (format === 'Online Live' ? 'Online' : format)));
     }, [course, variants]);
 
     const getDuration = useMemo(() => {
@@ -161,12 +194,12 @@ export default function TrainingCourseDetails() {
         };
 
         if (variants && variants.length > 0) {
-            const allGeographies = [...new Set(variants.flatMap(v => v.supportedGeographies || []))];
-            return sortGeographies(allGeographies);
+            const allGeographies = variants.flatMap((variant) => normalizeList(variant.supportedGeographies));
+            return sortGeographies(getUniqueList(allGeographies));
         }
         
         // Fallback to course geography
-        const courseGeographies = Array.isArray(course.geography) ? course.geography : (course.geography ? [course.geography] : []);
+        const courseGeographies = normalizeList(course.geography);
         return sortGeographies(courseGeographies);
     }, [course, variants]);
 
@@ -179,6 +212,85 @@ export default function TrainingCourseDetails() {
             targetAudience: getTargetAudience,
         };
     }, [getDuration, getFormatsArray, getGeographiesArray, getTargetAudience]);
+
+    const displayOverview = (course?.overview || '').trim();
+    const displayDescription = (course?.description || '').trim();
+
+    const displayTopics = useMemo(() => {
+        if (!course) return [];
+        if (variants && variants.length > 0) {
+            const variantTopics = variants.flatMap((variant) => normalizeList(variant.tags));
+            if (variantTopics.length > 0) {
+                return getUniqueList(variantTopics);
+            }
+        }
+        const courseTopics = normalizeList(course.tags);
+        if (courseTopics.length > 0) {
+            return courseTopics;
+        }
+        return normalizeList(course.topicsCovered || course.topics || course.topic);
+    }, [course, variants]);
+
+    const displayObjectives = useMemo(() => {
+        if (!course) return [];
+        if (variants && variants.length > 0) {
+            const variantObjectives = variants.flatMap((variant) => normalizeList(variant.objectives));
+            if (variantObjectives.length > 0) {
+                return getUniqueList(variantObjectives);
+            }
+        }
+        return normalizeList(course.objectives);
+    }, [course, variants]);
+
+    const displayWhatYouWillLearn = useMemo(() => {
+        if (!course) return [];
+        if (variants && variants.length > 0) {
+            const variantLearn = variants.flatMap((variant) => normalizeList(variant.whatYouWillLearn));
+            if (variantLearn.length > 0) {
+                return getUniqueList(variantLearn);
+            }
+        }
+        return normalizeList(course.whatYouWillLearn);
+    }, [course, variants]);
+
+    const displayBenefits = useMemo(() => {
+        if (!course) return [];
+        if (variants && variants.length > 0) {
+            const variantBenefits = variants.flatMap((variant) => normalizeList(variant.benefits));
+            if (variantBenefits.length > 0) {
+                return getUniqueList(variantBenefits);
+            }
+        }
+        return normalizeList(course.benefits);
+    }, [course, variants]);
+
+    const displayWhoIsItFor = useMemo(() => {
+        if (!course) return [];
+        if (variants && variants.length > 0) {
+            const variantAudience = variants.flatMap((variant) => normalizeList(variant.whoIsItFor));
+            if (variantAudience.length > 0) {
+                return getUniqueList(variantAudience);
+            }
+        }
+        return normalizeList(course.whoIsItFor);
+    }, [course, variants]);
+
+    const targetAudienceText = useMemo(() => {
+        if (variants && variants.length > 0) {
+            const variantAudience = variants
+                .map((variant) => variant.targetAudience)
+                .find((value) => typeof value === 'string' && value.trim().length > 0);
+            if (variantAudience) {
+                return variantAudience.trim();
+            }
+        }
+        if (typeof course?.targetAudience === 'string') {
+            return course.targetAudience.trim();
+        }
+        return '';
+    }, [course, variants]);
+
+    const displayLearningObjectives = displayObjectives.length > 0 ? displayObjectives : displayWhatYouWillLearn;
 
 
     // Existing memo to get available geographies for the dropdown
@@ -837,33 +949,43 @@ export default function TrainingCourseDetails() {
                                 <div className="lg:flex-1">
                                     <div className="space-y-8">
                                         {/* Course Overview Card */}
-                                        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                                            <div className="px-8 py-6 border-b border-slate-200">
-                                                <h2 className="text-2xl font-bold text-slate-900 flex items-center">
-                                                    <BookOpen className="w-7 h-7 mr-3 text-purple-600" />
-                                                    Course Overview
-                                                </h2>
+                                        {(displayOverview || displayDescription) && (
+                                            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                                                <div className="px-8 py-6 border-b border-slate-200">
+                                                    <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+                                                        <BookOpen className="w-7 h-7 mr-3 text-purple-600" />
+                                                        Course Overview
+                                                    </h2>
+                                                </div>
+                                                <div className="p-8 space-y-4">
+                                                    {displayOverview && (
+                                                        <p className="text-slate-700 leading-relaxed text-lg">{displayOverview}</p>
+                                                    )}
+                                                    {displayDescription && displayDescription !== displayOverview && (
+                                                        <div>
+                                                            <h3 className="text-lg font-semibold text-slate-900 mb-2">Course Description</h3>
+                                                            <p className="text-slate-700 leading-relaxed text-base">{displayDescription}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="p-8">
-                                                <p className="text-slate-700 leading-relaxed text-lg">{course.overview || course.description}</p>
-                                            </div>
-                                        </div>
+                                        )}
 
                                         {/* What You'll Learn - Always Visible */}
-                                        {course.objectives && course.objectives.length > 0 && (
+                                        {displayLearningObjectives.length > 0 && (
                                             <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                                                 <div className="px-8 py-6 border-b border-slate-200">
                                                     <h2 className="text-2xl font-bold text-slate-900 flex items-center">
                                                         <Target className="w-7 h-7 mr-3 text-purple-600" />
                                                         What You'll Learn
                                                         <span className="ml-3 px-3 py-1 bg-slate-100 text-slate-700 text-sm font-semibold rounded-full">
-                                                            {course.objectives.length} Key Objectives
+                                                            {displayLearningObjectives.length} Key Objectives
                                                         </span>
                                                     </h2>
                                                 </div>
                                                 <div className="p-8">
                                                     <div className="space-y-4">
-                                                        {course.objectives.slice(0, 3).map((objective, index) => (
+                                                        {displayLearningObjectives.slice(0, 3).map((objective, index) => (
                                                             <div key={index} className="flex items-start">
                                                                 <div className="flex-shrink-0 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center mr-4">
                                                                     <span className="text-slate-600 font-bold text-sm">{index + 1}</span>
@@ -875,13 +997,13 @@ export default function TrainingCourseDetails() {
                                                         ))}
                                                     </div>
 
-                                                    {course.objectives.length > 3 && (
+                                                    {displayLearningObjectives.length > 3 && (
                                                         <>
                                                             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
                                                                 expandedSections.objectives ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
                                                             }`}>
                                                                 <div className="space-y-4 pt-4">
-                                                                    {course.objectives.slice(3).map((objective, index) => (
+                                                                    {displayLearningObjectives.slice(3).map((objective, index) => (
                                                                         <div key={index + 3} className="flex items-start">
                                                                             <div className="flex-shrink-0 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center mr-4">
                                                                                 <span className="text-slate-600 font-bold text-sm">{index + 4}</span>
@@ -900,7 +1022,7 @@ export default function TrainingCourseDetails() {
                                                                 <span className="text-slate-600 font-semibold mr-2 text-sm">
                                                                     {expandedSections.objectives 
                                                                         ? 'Show Less' 
-                                                                        : `Show ${course.objectives.length - 3} More Learning Objectives`
+                                                                        : `Show ${displayLearningObjectives.length - 3} More Learning Objectives`
                                                                     }
                                                                 </span>
                                                                 {expandedSections.objectives ? (
@@ -915,21 +1037,64 @@ export default function TrainingCourseDetails() {
                                             </div>
                                         )}
 
+                                        {(displayWhoIsItFor.length > 0 || targetAudienceText) && (
+                                            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                                                <div className="px-8 py-6 border-b border-slate-200">
+                                                    <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+                                                        <Users className="w-7 h-7 mr-3 text-purple-600" />
+                                                        Who This Course Is For
+                                                    </h2>
+                                                </div>
+                                                <div className="p-8">
+                                                    {displayWhoIsItFor.length > 0 ? (
+                                                        <ul className="space-y-3 text-slate-700">
+                                                            {displayWhoIsItFor.map((item, index) => (
+                                                                <li key={index} className="flex items-start gap-3">
+                                                                    <CheckCircleIcon className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                                                                    <span className="leading-relaxed font-medium">{item}</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    ) : (
+                                                        <p className="text-slate-700 leading-relaxed text-base">{targetAudienceText}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {displayTopics.length > 0 && (
+                                            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                                                <div className="px-8 py-6 border-b border-slate-200">
+                                                    <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+                                                        <ListChecks className="w-7 h-7 mr-3 text-purple-600" />
+                                                        Topics Covered
+                                                    </h2>
+                                                </div>
+                                                <div className="p-8 flex flex-wrap gap-2">
+                                                    {displayTopics.map((topic, index) => (
+                                                        <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-700">
+                                                            {topic}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Course Benefits - Preview with Expand */}
-                                        {course.benefits && course.benefits.length > 0 && (
+                                        {displayBenefits.length > 0 && (
                                             <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                                                 <div className="px-8 py-6 border-b border-slate-200">
                                                     <h2 className="text-2xl font-bold text-slate-900 flex items-center">
                                                         <Award className="w-7 h-7 mr-3 text-purple-600" />
                                                         Key Benefits & Outcomes
                                                         <span className="ml-3 px-3 py-1 bg-slate-100 text-slate-700 text-sm font-semibold rounded-full">
-                                                            {course.benefits.length} Benefits
+                                                            {displayBenefits.length} Benefits
                                                         </span>
                                                     </h2>
                                                 </div>
                                                 <div className="p-8">
                                                     <div className="space-y-4">
-                                                        {course.benefits.slice(0, 2).map((benefit, index) => (
+                                                        {displayBenefits.slice(0, 2).map((benefit, index) => (
                                                             <div key={index} className="flex items-start">
                                                                 <CheckCircleIcon className="w-6 h-6 text-purple-600 mr-3 mt-0.5 flex-shrink-0" />
                                                                 <span className="text-slate-700 leading-relaxed font-medium">{benefit}</span>
@@ -937,13 +1102,13 @@ export default function TrainingCourseDetails() {
                                                         ))}
                                                     </div>
 
-                                                    {course.benefits.length > 2 && (
+                                                    {displayBenefits.length > 2 && (
                                                         <>
                                                             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
                                                                 expandedSections.benefits ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
                                                             }`}>
                                                                 <div className="space-y-4 pt-4">
-                                                                    {course.benefits.slice(2).map((benefit, index) => (
+                                                                    {displayBenefits.slice(2).map((benefit, index) => (
                                                                         <div key={index + 2} className="flex items-start">
                                                                             <CheckCircleIcon className="w-6 h-6 text-purple-600 mr-3 mt-0.5 flex-shrink-0" />
                                                                             <span className="text-slate-700 leading-relaxed font-medium">{benefit}</span>
@@ -958,7 +1123,7 @@ export default function TrainingCourseDetails() {
                                                                 <span className="text-slate-600 font-semibold mr-2 text-sm">
                                                                     {expandedSections.benefits 
                                                                         ? 'Show Less Benefits' 
-                                                                        : `View All ${course.benefits.length} Benefits`
+                                                                        : `View All ${displayBenefits.length} Benefits`
                                                                     }
                                                                 </span>
                                                                 {expandedSections.benefits ? (

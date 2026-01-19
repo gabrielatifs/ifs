@@ -22,6 +22,15 @@ CREATE POLICY "Users can update own profile" ON public.profiles
     FOR UPDATE USING (auth.uid() = auth_id)
     WITH CHECK (auth.uid() = auth_id);
 
+-- Users can claim legacy profiles by matching email (set auth_id on first login)
+CREATE POLICY "Users can claim legacy profile" ON public.profiles
+    FOR UPDATE USING (
+        auth_id IS NULL
+        AND status = 'LEGACY'
+        AND public.auth_email_matches(email)
+    )
+    WITH CHECK (auth.uid() = auth_id);
+
 -- Admins can view all profiles
 CREATE POLICY "Admins can view all profiles" ON public.profiles
     FOR SELECT USING (
