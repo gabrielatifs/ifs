@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { bookEventWithCredits } from '@/api/functions';
 import { sendEmail } from '@/api/functions';
+import { wrapEmailHtml } from '../../packages/shared/src/emails/wrapper.js';
 import {
   Dialog,
   DialogContent,
@@ -36,18 +37,7 @@ const InfoItem = ({ icon: Icon, label, children }) => (
     </div>
 );
 
-const getEmailWrapper = (content) => {
-    const year = new Date().getFullYear();
-    return `<!DOCTYPE html><html><body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f7;">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#f4f4f7" style="padding: 20px 0;"><tr><td align="center">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden;">
-    <tr>${content}</tr>
-    <tr><td align="center" style="padding: 20px; background-color: #f4f4f7; font-size: 12px; color: #777;">
-    <p style="margin: 0;">&copy; ${year} Independent Federation for Safeguarding. All rights reserved.</p>
-    <p style="margin: 5px 0 0 0;">6-8 Revenge Road, Chatham, ME5 8UD</p>
-    </td></tr>
-    </table></td></tr></table></body></html>`;
-};
+const getEmailWrapper = (content) => wrapEmailHtml(content);
 
 export default function MasterclassDetails() {
     const { user, loading } = useUser();

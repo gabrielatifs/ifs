@@ -10,39 +10,9 @@ import { Heart, Loader2, CheckCircle, Award, Info } from 'lucide-react';
 import { sendEmail } from '@/api/functions';
 import { Badge } from '@/components/ui/badge';
 import { useUser } from '../providers/UserProvider';
+import { wrapEmailHtml } from '../../../packages/shared/src/emails/wrapper.js';
 
-const getEmailWrapper = (content) => {
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Email</title>
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-            .header { background-color: #5e028f; padding: 20px; text-align: center; color: #ffffff; }
-            .content { padding: 30px 40px; color: #333; line-height: 1.6; }
-            .footer { background-color: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #777; border-top: 1px solid #eee; }
-            h1 { color: #333; font-size: 24px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1 style="color: white; margin: 0; font-size: 24px;">Independent Federation for Safeguarding</h1>
-            </div>
-            <div class="content">
-                ${content}
-            </div>
-            <div class="footer">
-                <p>&copy; ${new Date().getFullYear()} Independent Federation for Safeguarding. All rights reserved.</p>
-                <p>IfS, 128 City Road, London, EC1V 2NX</p>
-            </div>
-        </div>
-    </body>
-    </html>`;
-};
+const getEmailWrapper = (content) => wrapEmailHtml(content);
 
 export default function SupervisionEnquiry() {
     const { user } = useUser();

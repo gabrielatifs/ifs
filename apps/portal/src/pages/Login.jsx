@@ -6,7 +6,6 @@ import { Button } from '@ifs/shared/components/ui/button';
 import { Input } from '@ifs/shared/components/ui/input';
 import { Label } from '@ifs/shared/components/ui/label';
 import AuthShell from '@ifs/shared/components/auth/AuthShell';
-import { Loader2 } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -142,8 +141,8 @@ export default function Login() {
                 heroSubtitle="We are securing your session before you continue."
                 showPlayButton={false}
             >
-                <div className="flex items-center justify-center py-10">
-                    <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+                <div className="flex items-center justify-center py-10 text-sm text-slate-600">
+                    Checking your session...
                 </div>
             </AuthShell>
         );
@@ -221,10 +220,13 @@ export default function Login() {
                     className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)]"
                     disabled={isLoading}
                 >
-                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    {mode === 'login' && 'Sign In'}
-                    {mode === 'signup' && 'Create Account'}
-                    {mode === 'forgot' && 'Send Verification Code'}
+                    {isLoading
+                        ? 'Working...'
+                        : mode === 'login'
+                        ? 'Sign In'
+                        : mode === 'signup'
+                        ? 'Create Account'
+                        : 'Send Verification Code'}
                 </Button>
             </form>
 

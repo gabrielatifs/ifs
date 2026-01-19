@@ -30,23 +30,9 @@ export default function AuthShell({
         .auth-title {
           letter-spacing: -0.01em;
         }
-        .auth-rise {
-          animation: auth-rise 600ms ease-out both;
-        }
-        .auth-reveal {
-          animation: auth-reveal 900ms ease-out both;
-        }
-        @keyframes auth-rise {
-          0% { opacity: 0; transform: translateY(18px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes auth-reveal {
-          0% { opacity: 0; transform: translateY(22px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
       `}</style>
       <div className="min-h-screen grid lg:grid-cols-[1fr_1fr]">
-        <div className="relative h-56 sm:h-72 lg:h-auto auth-reveal">
+        <div className="relative h-56 sm:h-72 lg:h-auto">
           <img
             src="/auth-left.jpg"
             alt="IFS member portal"
@@ -67,7 +53,7 @@ export default function AuthShell({
         </div>
 
         <div className="relative flex items-center justify-center px-6 py-12 lg:px-10">
-          <div className={`w-full ${maxWidthClass} auth-rise`}>
+          <div className={`w-full ${maxWidthClass}`}>
             <div className="mb-6 text-center lg:text-left">
               {title && (
                 <h2 className="auth-title text-3xl text-[color:var(--auth-ink)]">

@@ -28,6 +28,7 @@ import { formatDateRange } from '../components/utils/formatters';
 import { base44 } from '@ifs/shared/api/base44Client';
 import { createDynamicCourseCheckout } from '@ifs/shared/api/functions';
 import { CourseBooking } from '@ifs/shared/api/entities';
+import { wrapEmailHtml } from '@ifs/shared/emails/wrapper';
 import {
   Dialog,
   DialogContent,
@@ -53,12 +54,7 @@ const uiCategories = [
 ];
 
 // Refactored getEmailWrapper function as per outline
-const getEmailWrapper = (content) => {
-    const year = new Date().getFullYear();
-    const emailHeader = `<td align="center" style="padding: 20px; background-color: #5e028f;"><img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b9a3d92daf168696381e05/7b850198a_27May-BoardofTrusteesMeeting6.png" alt="Institute for Safeguarding Logo" style="width: 100%; max-width-250px; height: auto;"></td>`;
-    const emailFooter = `<td align="center" style="padding: 20px; background-color: #f4f4f7; font-size: 12px; color: #777777; border-top: 1px solid #e2e2e2;"><p style="margin: 0;">&copy; ${year} Independent Federation for Safeguarding. All rights reserved.</p><p style="margin: 5px 0 0 0;">This is an automated message, please do not reply to this email.</p></td>`;
-    return `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';background-color:#f4f4f7;"><table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#f4f4f7" style="max-width:600px;margin:0 auto;background-color:#fff;border-radius:8px;overflow:hidden;border:1px solid #e2e2e2;"><tr>${emailHeader}</tr><tr>${content}</tr><tr>${emailFooter}</tr></table></body></html>`;
-};
+const getEmailWrapper = (content) => wrapEmailHtml(content);
 
 export default function TrainingCourseDetails() {
     const [course, setCourse] = useState(null);

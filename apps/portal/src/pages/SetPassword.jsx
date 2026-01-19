@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { supabase } from "@ifs/shared/lib/supabase";
 import { auth } from "@ifs/shared/api/supabaseAuth";
 import { Button } from "@ifs/shared/components/ui/button";
@@ -126,8 +125,7 @@ export default function SetPassword() {
           className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)]"
           disabled={isSubmitting}
         >
-          {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          Set password
+          {isSubmitting ? "Setting password..." : "Set password"}
         </Button>
       </form>
     </AuthShell>

@@ -38,6 +38,7 @@ import { addZoomRegistrant } from '@ifs/shared/api/functions';
 import { registerForCommunityEvent } from '@ifs/shared/api/functions';
 import { cancelCommunityEventRegistration } from '@ifs/shared/api/functions';
 import { sendEmail } from '@ifs/shared/api/functions';
+import { wrapEmailHtml } from '@ifs/shared/emails/wrapper';
 import {
     Dialog,
     DialogContent,
@@ -172,18 +173,7 @@ export default function CommunityEventDetails() {
     };
 
     // This function is no longer called in handleRegister, but kept as it was not explicitly removed in the outline.
-    const getEmailWrapper = (content) => {
-        const year = new Date().getFullYear();
-        const emailFooter = `<td align="center" style="padding: 20px; background-color: #f4f4f7; font-size: 12px; color: #777777; border-top: 1px solid #e2e2e2;"><p style="margin: 0;">&copy; ${year} Independent Federation for Safeguarding. All rights reserved.</p><p style="margin: 5px 0 0 0;">6-8 Revenge Road, Chatham, ME5 8UD</p><p style="margin: 5px 0 0 0;">This is an automated message, please do not reply to this email.</p></td>`;
-
-        return `
-            <!DOCTYPE html><html lang="en"><body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background-color: #f4f4f7;">
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#f4f4f7" style="padding: 20px 0;"><tr><td align="center">
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e2e2;">
-            <tr>${content}</tr><tr>${emailFooter}</tr>
-            </table></td></tr></table></body></html>
-        `;
-    };
+    const getEmailWrapper = (content) => wrapEmailHtml(content);
 
     // Handle guest registration for Membership Info Sessions
     const handleRegister = async () => {

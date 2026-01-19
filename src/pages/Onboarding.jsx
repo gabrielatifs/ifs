@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, CheckCircle2, ArrowLeft, ArrowRight, User as UserIcon, ShieldCheck, Sparkles, Award, Clock } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, ArrowRight, User as UserIcon, ShieldCheck, Sparkles, Award, Clock } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { sendEmail } from '@/api/functions';
 import { createCheckout } from '@/api/functions';
@@ -26,46 +26,9 @@ import { useLocation } from 'react-router-dom';
 import { acceptOrgInvite } from '@/api/functions';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { wrapEmailHtml } from '../../packages/shared/src/emails/wrapper.js';
 
-const getEmailWrapper = (content) => {
-    const year = new Date().getFullYear();
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Email</title>
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; margin: 0; padding: 0; background-color: #f4f4f4; }
-            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-            .header { background-color: #5e028f; padding: 20px; text-align: center; color: #ffffff; }
-            .header img { max-width: 150px; height: auto; }
-            .content { padding: 30px 40px; color: #333; line-height: 1.6; }
-            .footer { background-color: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #777; border-top: 1px solid #eee; }
-            .button { display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: #5e028f; color: #ffffff; text-decoration: none; border-radius: 5px; }
-            h1 { color: #333; font-size: 24px; }
-            p { margin-bottom: 1em; }
-            a { color: #5e028f; text-decoration: none; }
-            a:hover { text-decoration: underline; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1 style="color: white; margin: 0; font-size: 24px;">Independent Federation for Safeguarding</h1>
-            </div>
-            <div class="content">
-                ${content}
-            </div>
-            <div class="footer">
-                <p>&copy; ${new Date().getFullYear()} Independent Federation for Safeguarding. All rights reserved.</p>
-                <p>IfS, 128 City Road, London, EC1V 2NX</p>
-                <p><a href="mailto:info@ifs-safeguarding.co.uk">info@ifs-safeguarding.co.uk</a></p>
-            </div>
-        </div>
-    </body>
-    </html>`;
-};
+const getEmailWrapper = (content) => wrapEmailHtml(content);
 
 
 const sectors = [
@@ -734,7 +697,7 @@ export default function Onboarding() {
     if (userLoading) {
         return (
             <div className="flex h-screen items-center justify-center bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800">
-                <Loader2 className="w-8 h-8 animate-spin text-white" />
+                <p className="text-sm font-semibold text-white">Loading...</p>
             </div>
         );
     }
@@ -762,7 +725,6 @@ export default function Onboarding() {
         return (
             <div className="fixed inset-0 bg-gradient-to-br from-purple-900 to-purple-700 flex items-center justify-center z-50">
                 <div className="text-center">
-                    <Loader2 className="w-16 h-16 animate-spin text-white mx-auto mb-6" />
                     <h2 className="text-2xl font-bold text-white mb-2">Redirecting to secure checkout...</h2>
                     <p className="text-purple-100">Please wait while we prepare your payment</p>
                 </div>
@@ -1404,18 +1366,13 @@ export default function Onboarding() {
                                             disabled={submitting}
                                             className="bg-purple-600 hover:bg-purple-700"
                                         >
-                                            {submitting ? (
-                                                <>
-                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                    Submitting...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                                                    Submit Application
-                                                </>
-                                            )}
-                                        </Button>
+                                        {submitting ? 'Submitting...' : (
+                                            <>
+                                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                                Submit Application
+                                            </>
+                                        )}
+                                    </Button>
                                     )}
                                 </div>
                             </div>

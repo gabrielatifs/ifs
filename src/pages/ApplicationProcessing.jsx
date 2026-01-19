@@ -13,44 +13,9 @@ import { addToMailerLite } from '@/api/functions';
 import { addToApollo } from '@/api/functions';
 import { base44 } from '@/api/base44Client';
 import { OrgInvite } from '@/api/entities';
+import { wrapEmailHtml } from '../../packages/shared/src/emails/wrapper.js';
 
-const getEmailWrapper = (content) => {
-    const year = new Date().getFullYear();
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Email</title>
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; margin: 0; padding: 0; background-color: #f4f4f4; }
-            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-            .header { background-color: #5e028f; padding: 30px; text-align: center; color: #ffffff; }
-            .content { padding: 30px 40px; color: #333; line-height: 1.6; }
-            .footer { background-color: #f4f4f7; padding: 20px; text-align: center; font-size: 12px; color: #777777; border-top: 1px solid #e2e2e2; }
-            p { margin-bottom: 1em; }
-            a { color: #5e028f; text-decoration: none; }
-            a:hover { text-decoration: underline; }
-            h1 { color: #333; font-size: 24px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1 style="color: white; margin: 0; font-size: 28px;">Independent Federation for Safeguarding</h1>
-            </div>
-            <div class="content">
-                ${content}
-            </div>
-            <div class="footer">
-                <p style="margin: 0;">&copy; ${year} Independent Federation for Safeguarding. All rights reserved.</p>
-                <p style="margin: 5px 0 0 0;">6-8 Revenge Road, Chatham, ME5 8UD</p>
-                <p style="margin: 5px 0 0 0;"><a href="mailto:info@ifs-safeguarding.co.uk" style="color: #5e028f;">info@ifs-safeguarding.co.uk</a></p>
-            </div>
-        </div>
-    </body>
-    </html>`;
-};
+const getEmailWrapper = (content) => wrapEmailHtml(content);
 
 export default function ApplicationProcessing() {
     const { user, loading, updateUserProfile } = useUser();

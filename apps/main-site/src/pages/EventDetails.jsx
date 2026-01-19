@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { useToast } from "@ifs/shared/components/ui/use-toast";
 import { Toaster } from "@ifs/shared/components/ui/toaster";
 import { sendEmail } from '@ifs/shared/api/functions';
+import { wrapEmailHtml } from '@ifs/shared/emails/wrapper';
 import {
   Dialog,
   DialogContent,
@@ -123,18 +124,7 @@ const EventDetails = () => {
         fetchUserAndSignupStatus();
     }, [event, loading]); // Dependent on `event` AND `loading` to ensure event data is available and loading state is current.
 
-    const getEmailWrapper = (content) => {
-        const year = new Date().getFullYear();
-        const emailFooter = `<td align="center" style="padding: 20px; background-color: #f4f4f7; font-size: 12px; color: #777777; border-top: 1px solid #e2e2e2;"><p style="margin: 0;">&copy; ${year} Independent Federation for Safeguarding. All rights reserved.</p><p style="margin: 5px 0 0 0;">6-8 Revenge Road, Chatham, ME5 8UD</p><p style="margin: 5px 0 0 0;">This is an automated message, please do not reply to this email.</p></td>`;
-
-        return `
-            <!DOCTYPE html><html lang="en"><body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background-color: #f4f4f7;">
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#f4f4f7" style="padding: 20px 0;"><tr><td align="center">
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e2e2;">
-            <tr>${content}</tr><tr>${emailFooter}</tr>
-            </table></td></tr></table></body></html>
-        `;
-    };
+    const getEmailWrapper = (content) => wrapEmailHtml(content);
 
     const handleSignup = async () => {
         if (!user) {
