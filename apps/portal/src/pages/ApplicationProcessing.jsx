@@ -20,6 +20,7 @@ const getEmailWrapper = (content) => wrapEmailHtml(content);
 export default function ApplicationProcessing() {
     const { user, loading, updateUserProfile } = useUser();
     const [status, setStatus] = useState('Initializing...');
+    const [welcomeInFlight, setWelcomeInFlight] = useState(false);
 
     const RESEND_WELCOME_TEMPLATE_ID = "d642e732-bd83-4e87-a3dd-4a5dbab09d6f";
 
@@ -38,6 +39,33 @@ export default function ApplicationProcessing() {
                 membershipType: membershipType || "Member",
             },
         });
+    };
+
+    const markWelcomeSent = async () => {
+        sessionStorage.setItem('welcome_email_sent', 'true');
+        try {
+            await updateUserProfile({ welcomeEmailSentAt: new Date().toISOString() });
+        } catch (emailStampError) {
+            console.warn('[DEBUG] Failed to record welcome email timestamp:', emailStampError);
+        }
+    };
+
+    const sendWelcomeOnce = async (sendFn) => {
+        const alreadySent =
+            Boolean(user?.welcomeEmailSentAt) ||
+            sessionStorage.getItem('welcome_email_sent') === 'true';
+        if (alreadySent || welcomeInFlight) {
+            return false;
+        }
+        setWelcomeInFlight(true);
+        sessionStorage.setItem('welcome_email_sent', 'true');
+        try {
+            await sendFn();
+            await markWelcomeSent();
+            return true;
+        } finally {
+            setWelcomeInFlight(false);
+        }
     };
 
     const generateCredential = async (payload) => {
@@ -196,10 +224,8 @@ setStatus(`Registering you for "${event.title}"...`);
                     zoomJoinUrl: zoomJoinUrl
                 });
 
-                const welcomeAlreadySent = Boolean(user?.welcomeEmailSentAt) || sessionStorage.getItem('welcome_email_sent') === 'true';
-                if (!welcomeAlreadySent) {
+                const sentCombinedEmail = await sendWelcomeOnce(async () => {
                     setStatus('Sending your welcome and event confirmation email...');
-
                     // Send combined welcome + event confirmation email
                     try {
                     const eventDate = format(new Date(event.date), 'EEEE, d MMMM yyyy');
@@ -265,17 +291,11 @@ setStatus(`Registering you for "${event.title}"...`);
                     });
 
                         console.log('[DEBUG] Combined welcome + event confirmation email sent successfully');
-                        sessionStorage.setItem('welcome_email_sent', 'true');
-                        try {
-                            await updateUserProfile({ welcomeEmailSentAt: new Date().toISOString() });
-                        } catch (emailStampError) {
-                            console.warn('[DEBUG] Failed to record welcome email timestamp:', emailStampError);
-                        }
                     } catch (emailError) {
                         console.error('[DEBUG] Email sending failed, but continuing:', emailError);
                         // Don't throw - continue with profile update
                     }
-                }
+                });
 
                 // Verify organisation membership (should already be set from Onboarding)
                 setStatus('Verifying organisation membership...');
@@ -456,8 +476,7 @@ setStatus(`Registering you for "${event.title}"...`);
                     console.error('[ApplicationProcessing] Digital credential generation failed, but continuing with registration:', certError);
                 }
 
-                const welcomeAlreadySent = Boolean(user?.welcomeEmailSentAt) || sessionStorage.getItem('welcome_email_sent') === 'true';
-                if (!welcomeAlreadySent) {
+                await sendWelcomeOnce(async () => {
                     setStatus('Sending your welcome email...');
                     try {
                         await sendWelcomeEmailFromTemplate({
@@ -466,16 +485,10 @@ setStatus(`Registering you for "${event.title}"...`);
                             membershipType: currentUser.membershipType,
                             email: user.email
                         });
-                        sessionStorage.setItem('welcome_email_sent', 'true');
-                        try {
-                            await updateUserProfile({ welcomeEmailSentAt: new Date().toISOString() });
-                        } catch (emailStampError) {
-                            console.warn('[DEBUG] Failed to record welcome email timestamp:', emailStampError);
-                        }
                     } catch (emailError) {
                         console.error('[DEBUG] Welcome email sending failed, but continuing:', emailError);
                     }
-                }
+                });
 
                 // Verify organisation membership (should already be set from Onboarding)
                 setStatus('Verifying organisation membership...');
