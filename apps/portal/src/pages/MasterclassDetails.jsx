@@ -38,6 +38,7 @@ const InfoItem = ({ icon: Icon, label, children }) => (
 );
 
 const getEmailWrapper = (content) => wrapEmailHtml(content);
+const RESEND_REGISTRATION_TEMPLATE_ID = "516478cf-b7f9-4232-a295-c1a8465ed4ce";
 
 export default function MasterclassDetails() {
     const { user, loading } = useUser();
@@ -212,49 +213,30 @@ export default function MasterclassDetails() {
             setSelectedPaymentMethod(null);
         }
     };
-
     const sendConfirmationEmail = async (signup) => {
         try {
             const displayName = user.displayName || user.firstName || user.full_name || 'Member';
             const eventDate = format(new Date(event.date), 'EEEE, d MMMM yyyy');
-
-            let meetingDetailsHtml = '';
-            if (event.meetingUrl) {
-                meetingDetailsHtml = `
-                    <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                        <h3 style="color: #0369a1; margin: 0 0 15px 0; font-size: 18px;">🔗 Join the Event Online</h3>
-                        <p style="margin: 10px 0;"><strong>Meeting Link:</strong><br><a href="${event.meetingUrl}" style="color: #0369a1; word-break: break-all;">${event.meetingUrl}</a></p>
-                        ${event.meetingId ? `<p style="margin: 10px 0;"><strong>Meeting ID:</strong> ${event.meetingId}</p>` : ''}
-                        ${event.meetingPassword ? `<p style="margin: 10px 0;"><strong>Password:</strong> ${event.meetingPassword}</p>` : ''}
-                        <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;"><em>💡 We recommend joining 5-10 minutes early to test your connection.</em></p>
-                    </div>
-                `;
-            }
-
-            const confirmationEmailBody = `
-                <td style="padding: 30px 40px; color: #333; line-height: 1.6;">
-                    <h1 style="color: #333; font-size: 24px;">✅ Event Registration Confirmed!</h1>
-                    <p>Dear ${displayName},</p>
-                    <p>You're successfully registered for:</p>
-                    <div style="background-color: #fafafa; border-left: 4px solid #5e028f; padding: 20px; margin: 20px 0;">
-                        <h2 style="color: #5e028f; margin: 0 0 10px 0; font-size: 20px;">${event.title}</h2>
-                        <p style="margin: 5px 0;"><strong>📅 Date:</strong> ${eventDate}</p>
-                        <p style="margin: 5px 0;"><strong>🕒 Time:</strong> ${event.time}</p>
-                        <p style="margin: 5px 0;"><strong>📍 Location:</strong> ${event.location}</p>
-                    </div>
-                    ${meetingDetailsHtml}
-                    <p>We look forward to seeing you there!</p>
-                </td>
-            `;
+            const meetingLink = event.meetingUrl || '';
 
             console.log('[MasterclassDetails] Invoking sendEmail function', {
-                to: user?.email,
-                subject: `Registration Confirmed: ${event.title}`
+                to: user?.email
             });
             await sendEmail({
                 to: user.email,
-                subject: `Registration Confirmed: ${event.title}`,
-                html: getEmailWrapper(confirmationEmailBody)
+                template: {
+                    id: RESEND_REGISTRATION_TEMPLATE_ID,
+                    variables: {
+                        firstName: user.firstName || displayName.split(' ')[0] || 'Member',
+                        eventTitle: event.title,
+                        eventDate,
+                        eventTime: event.time || 'Time TBA',
+                        eventLocation: event.location || 'Online',
+                        joinLink: meetingLink || undefined,
+                        meetingId: event.meetingId || undefined,
+                        meetingPassword: event.meetingPassword || undefined,
+                    },
+                },
             });
         } catch (emailError) {
             console.error('Failed to send confirmation email:', emailError);

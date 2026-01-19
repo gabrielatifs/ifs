@@ -74,6 +74,8 @@ const EventTypeIcon = ({ type, className = "w-5 h-5" }) => {
     }
 };
 
+const RESEND_REGISTRATION_TEMPLATE_ID = "516478cf-b7f9-4232-a295-c1a8465ed4ce";
+
 export default function CommunityEventDetails() {
     const { user, loading: userLoading, initialCheckComplete } = useUser();
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -172,6 +174,29 @@ export default function CommunityEventDetails() {
         }
     };
 
+    const sendRegistrationTemplate = async ({ recipientEmail, firstName, joinLink }) => {
+        if (!event) return;
+        const eventDate = format(new Date(event.date), 'EEEE, d MMMM yyyy');
+        const eventTimeDisplay = event.time || (event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : 'Time TBA');
+
+        await sendEmail({
+            to: recipientEmail,
+            template: {
+                id: RESEND_REGISTRATION_TEMPLATE_ID,
+                variables: {
+                    firstName: firstName || 'Member',
+                    eventTitle: event.title,
+                    eventDate,
+                    eventTime: eventTimeDisplay,
+                    eventLocation: event.location || 'Online',
+                    joinLink: joinLink || undefined,
+                    meetingId: event.zoomMeetingId || undefined,
+                    meetingPassword: event.zoomMeetingPassword || undefined,
+                },
+            },
+        });
+    };
+
     // This function is no longer called in handleRegister, but kept as it was not explicitly removed in the outline.
     const getEmailWrapper = (content) => wrapEmailHtml(content);
 
@@ -239,6 +264,17 @@ export default function CommunityEventDetails() {
             // Update local state
             setUserSignup(data.signup);
             setEvent(data.event);
+
+            try {
+                const guestFirstName = guestName.trim().split(' ')[0] || 'Guest';
+                await sendRegistrationTemplate({
+                    recipientEmail: guestEmail,
+                    firstName: guestFirstName,
+                    joinLink: zoomJoinUrl || undefined,
+                });
+            } catch (emailError) {
+                console.error('Guest registration email failed:', emailError);
+            }
 
             toast({
                 title: "Registration Successful!",
@@ -317,6 +353,17 @@ export default function CommunityEventDetails() {
             // Update local state
             setUserSignup(data.signup);
             setEvent(data.event);
+
+            try {
+                const userFirstName = user.firstName || user.displayName?.split(' ')[0] || 'Member';
+                await sendRegistrationTemplate({
+                    recipientEmail: user.email,
+                    firstName: userFirstName,
+                    joinLink: zoomJoinUrl || undefined,
+                });
+            } catch (emailError) {
+                console.error('Registration email failed:', emailError);
+            }
 
             toast({
                 title: "Registration Successful!",

@@ -224,76 +224,42 @@ setStatus(`Registering you for "${event.title}"...`);
                     zoomJoinUrl: zoomJoinUrl
                 });
 
-                const sentCombinedEmail = await sendWelcomeOnce(async () => {
-                    setStatus('Sending your welcome and event confirmation email...');
-                    // Send combined welcome + event confirmation email
-                    try {
+                setStatus('Sending your event confirmation email...');
+                try {
                     const eventDate = format(new Date(event.date), 'EEEE, d MMMM yyyy');
                     const eventTimeDisplay = event.time || (event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : 'Time TBA');
 
-                    let zoomDetailsHtml = '';
-                    if (event.zoomMeetingId) {
-                        zoomDetailsHtml = `
-                            <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                                <h3 style="color: #0369a1; margin: 0 0 15px 0; font-size: 18px;">📺 Join the Workshop Online</h3>
-                                ${zoomJoinUrl ? `<p style="margin: 10px 0;"><strong>🔗 Your Personal Join URL:</strong><br><a href="${zoomJoinUrl}" style="color: #0369a1; word-break: break-all; font-weight: bold;">${zoomJoinUrl}</a></p>` : ''}
-                                <p style="margin: 10px 0;"><strong>🆔 Meeting ID:</strong> ${event.zoomMeetingId}</p>
-                                ${event.zoomMeetingPassword ? `<p style="margin: 10px 0;"><strong>🔐 Password:</strong> ${event.zoomMeetingPassword}</p>` : ''}
-                                ${zoomRegistrationFailed ? `<p style="margin: 15px 0 0 0; font-size: 14px; color: #b45309; background-color: #fef3c7; padding: 10px; border-radius: 4px;"><strong>⚠️ Note:</strong> Automatic registration couldn't be completed, but you can still join using the details above.</p>` : ''}
-                                <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;"><em>💡 We recommend joining 5-10 minutes early to test your connection.</em></p>
-                            </div>
-                        `;
-                    }
-
-                    const credentialNote = credentialCreated
-                        ? '<p style="font-size: 16px; line-height: 1.6;">We\'re delighted to have you as part of our community. Your digital membership credential is now available in your portal, and we look forward to seeing you at the workshop!</p>'
-                        : '<p style="font-size: 16px; line-height: 1.6;">We\'re delighted to have you as part of our community. We look forward to seeing you at the workshop! Your digital membership credential will be available in your portal shortly.</p>';
-
-                    const combinedEmailContent = getEmailWrapper(`
-                        <h1 style="color: #333; font-size: 32px; margin-bottom: 20px;">🎉 Welcome to IfS & Event Confirmed!</h1>
-                        <p style="font-size: 18px; color: #333;">Dear ${displayName},</p>
-                        <p style="font-size: 16px; line-height: 1.6;">Congratulations! You are now officially an <strong>Associate Member</strong> of the Independent Federation for Safeguarding, and you're registered for the workshop:</p>
-                        
-                        <div style="background-color: #fafafa; border-left: 4px solid #5e028f; padding: 20px; margin: 20px 0;">
-                            <h2 style="color: #5e028f; margin: 0 0 10px 0; font-size: 20px;">${event.title}</h2>
-                            <p style="margin: 5px 0;"><strong>📅 Date:</strong> ${eventDate}</p>
-                            <p style="margin: 5px 0;"><strong>🕒 Time:</strong> ${eventTimeDisplay}</p>
-                            <p style="margin: 5px 0;"><strong>📍 Location:</strong> ${event.location}</p>
-                        </div>
-                        
-                        ${zoomDetailsHtml}
-                        
-                        <div style="background-color: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 4px solid #28a745; margin: 25px 0;">
-                            <h2 style="color: #28a745; font-size: 20px; margin-top: 0;">Your Associate Membership Benefits Are Now Active:</h2>
-                            <ul style="color: #333; line-height: 1.8;">
-                                <li><strong>Monthly Professional Development Workshops</strong> - Free access to expert-led sessions</li>
-                                <li><strong>Community Forum Access</strong> - Connect with fellow safeguarding professionals</li>
-                                <li><strong>Essential Resources Library</strong> - Access to key safeguarding guidance and tools</li>
-                                <li><strong>Post-Nominal Designation</strong> - Use AMIFS after your name</li>
-                                <li><strong>Digital Membership Credential</strong> - Verified professional recognition you can share</li>
-                                <li><strong>Career Opportunities Platform</strong> - Access to 3 job views per day</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="https://ifs-safeguarding.co.uk/Dashboard" style="display: inline-block; background-color: #5e028f; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Access Your Portal</a>
-                        </div>
-                        
-                        ${credentialNote}
-                        <p style="font-size: 16px;">Best regards,<br><strong>The IfS Team</strong></p>
-                    `);
-
                     await sendEmail({
                         to: user.email,
-                        subject: `🎉 Welcome to IfS - Event Confirmed: ${event.title}`,
-                        html: combinedEmailContent,
-                        from_name: "Independent Federation for Safeguarding"
+                        template: {
+                            id: '516478cf-b7f9-4232-a295-c1a8465ed4ce',
+                            variables: {
+                                firstName: currentUser.firstName || displayName.split(' ')[0] || 'Member',
+                                eventTitle: event.title,
+                                eventDate,
+                                eventTime: eventTimeDisplay,
+                                eventLocation: event.location || 'Online',
+                                joinLink: zoomJoinUrl || undefined,
+                                meetingId: event.zoomMeetingId || undefined,
+                                meetingPassword: event.zoomMeetingPassword || undefined,
+                            },
+                        },
                     });
+                } catch (emailError) {
+                    console.error('[DEBUG] Event confirmation email failed, but continuing:', emailError);
+                }
 
-                        console.log('[DEBUG] Combined welcome + event confirmation email sent successfully');
+                await sendWelcomeOnce(async () => {
+                    setStatus('Sending your welcome email...');
+                    try {
+                        await sendWelcomeEmailFromTemplate({
+                            displayName,
+                            firstName: currentUser.firstName,
+                            membershipType: currentUser.membershipType,
+                            email: user.email
+                        });
                     } catch (emailError) {
-                        console.error('[DEBUG] Email sending failed, but continuing:', emailError);
-                        // Don't throw - continue with profile update
+                        console.error('[DEBUG] Welcome email sending failed, but continuing:', emailError);
                     }
                 });
 
