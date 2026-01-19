@@ -160,8 +160,6 @@ export default function JobsBoard() {
                     const activeJobs = allJobs.filter(job => {
                         if (!job.applicationDeadline) return true;
                         const deadline = new Date(job.applicationDeadline);
-                        deadline.setHours(0, 0, 0, 0); 
-                        now.setHours(0, 0, 0, 0);
                         return deadline >= now;
                     });
 
