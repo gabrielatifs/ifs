@@ -21,6 +21,55 @@ export default function ApplicationProcessing() {
     const { user, loading, updateUserProfile } = useUser();
     const [status, setStatus] = useState('Initializing...');
 
+    const applyTemplateVariables = (content = '', variables = {}) => {
+        return content.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, key) => {
+            const value = variables[key];
+            return value === undefined || value === null ? '' : String(value);
+        });
+    };
+
+    const getWelcomeTemplate = async () => {
+        try {
+            const templates = await base44.entities.EmailTemplate.filter({ templateType: 'welcome' });
+            return templates && templates.length > 0 ? templates[0] : null;
+        } catch (error) {
+            console.error('[ApplicationProcessing] Failed to load welcome template:', error);
+            return null;
+        }
+    };
+
+    const sendWelcomeEmailFromTemplate = async ({ displayName, firstName, lastName, organisationName, jobRole, email }) => {
+        const template = await getWelcomeTemplate();
+        if (!template) {
+            throw new Error('No welcome email template found');
+        }
+
+        const variables = {
+            firstName: firstName || '',
+            lastName: lastName || '',
+            organisationName: organisationName || '',
+            jobRole: jobRole || '',
+            displayName: displayName || '',
+        };
+
+        const message = applyTemplateVariables(template.message || '', variables);
+        const signature = applyTemplateVariables(template.signature || '', variables);
+        const fullMessage = signature ? `${message}\n\n${signature}` : message;
+
+        const emailContent = getEmailWrapper(`
+            <h1 style="color: #333; font-size: 32px; margin-bottom: 20px;">Welcome to IfS!</h1>
+            <p style="font-size: 18px; color: #333;">Dear ${displayName},</p>
+            <div style="font-size: 16px; line-height: 1.6; white-space: pre-wrap;">${fullMessage}</div>
+        `);
+
+        await sendEmail({
+            to: email,
+            subject: template.subject || "Welcome to the Independent Federation for Safeguarding",
+            html: emailContent,
+            from_name: "Independent Federation for Safeguarding"
+        });
+    };
+
     const generateCredential = async (payload) => {
         const { data, error } = await supabase.functions.invoke('generateDigitalCredential', {
             body: payload,
@@ -432,37 +481,13 @@ setStatus(`Registering you for "${event.title}"...`);
                 if (!isFullMember || !paymentSuccess) {
                     setStatus('Sending your welcome email...');
                     try {
-                        const credentialNote = credentialCreated
-                            ? '<p style="font-size: 16px; line-height: 1.6;">We\'re delighted to have you as part of our community of safeguarding professionals. Your digital membership credential is now available in your portal.</p>'
-                            : '<p style="font-size: 16px; line-height: 1.6;">We\'re delighted to have you as part of our community of safeguarding professionals. Your digital membership credential will be available in your portal shortly.</p>';
-
-                        const emailContent = getEmailWrapper(`
-                            <h1 style="color: #333; font-size: 32px; margin-bottom: 20px;">🎉 Welcome to IfS!</h1>
-                            <p style="font-size: 18px; color: #333;">Dear ${displayName},</p>
-                            <p style="font-size: 16px; line-height: 1.6;">Congratulations! You are now officially an <strong>Associate Member</strong> of the Independent Federation for Safeguarding.</p>
-                            <div style="background-color: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 4px solid #5e028f; margin: 25px 0;">
-                                <h2 style="color: #5e028f; font-size: 20px; margin-top: 0;">Your Associate Membership Benefits Are Now Active:</h2>
-                                <ul style="color: #333; line-height: 1.8;">
-                                    <li><strong>Monthly Professional Development Workshops</strong> - Free access to expert-led sessions</li>
-                                    <li><strong>Community Forum Access</strong> - Connect with fellow safeguarding professionals</li>
-                                    <li><strong>Essential Resources Library</strong> - Access to key safeguarding guidance and tools</li>
-                                    <li><strong>Post-Nominal Designation</strong> - Use AMIFS after your name</li>
-                                    <li><strong>Digital Membership Credential</strong> - Verified professional recognition you can share</li>
-                                    <li><strong>Career Opportunities Platform</strong> - Access to 3 job views per day</li>
-                                </ul>
-                            </div>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="https://ifs-safeguarding.co.uk/Dashboard" style="display: inline-block; background-color: #5e028f; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Access Your Portal</a>
-                            </div>
-                            ${credentialNote}
-                            <p style="font-size: 16px;">Best regards,<br><strong>The IfS Team</strong></p>
-                        `);
-
-                        await sendEmail({
-                            to: user.email,
-                            subject: "🎉 Welcome to IfS - Your Associate Membership is Active!",
-                            html: emailContent,
-                            from_name: "Independent Federation for Safeguarding"
+                        await sendWelcomeEmailFromTemplate({
+                            displayName,
+                            firstName: currentUser.firstName,
+                            lastName: currentUser.lastName,
+                            organisationName: currentUser.organisationName,
+                            jobRole: currentUser.jobRole,
+                            email: user.email
                         });
                     } catch (emailError) {
                         console.error('[DEBUG] Welcome email sending failed, but continuing:', emailError);

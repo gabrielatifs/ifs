@@ -27,13 +27,33 @@ import AuthShell from '@ifs/shared/components/auth/AuthShell';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ifs/shared/components/ui/form';
 import { wrapEmailHtml } from '@ifs/shared/emails/wrapper';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
 
 const getEmailWrapper = (content) => wrapEmailHtml(content);
 
 
-const sectors = [
-    "Education", "Social Care", "Healthcare", "Local Authority", "Charity/Voluntary Sector", "Private Sector", "Faith Organisation", "Sports/Recreation", "Other"
+const sectorOptions = [
+    "Education",
+    "Social Care",
+    "Healthcare",
+    "Local Authority",
+    "Charity/Voluntary Sector",
+    "Private Sector",
+    "Faith Organisation",
+    "Sports/Recreation",
+    "Other"
 ];
+const subsectorOptionsBySector = {
+    "Education": ["Early Years", "Primary", "Secondary", "Further Education", "Higher Education", "Special School", "Alternative Provision", "Other"],
+    "Social Care": ["Children's Residential Care", "Fostering/Adoption", "Adult Social Care", "Other"],
+    "Healthcare": ["NHS Trust", "Primary Care", "Private Healthcare", "Other"],
+    "Local Authority": [],
+    "Charity/Voluntary Sector": [],
+    "Private Sector": [],
+    "Faith Organisation": [],
+    "Sports/Recreation": [],
+    "Other": [],
+};
 const roles = ["Designated Safeguarding Lead", "Designated Safeguarding Officer or Deputy", "I have safeguarding responsibilities in addition to my job role"];
 const trainingRefreshOptions = ["Every year", "Every 2 years", "Every 3 years", "Every 3-5 years", "5 years or more", "I haven't refreshed my training", "None of the above"];
 const trainingOptions = ["Introduction to Child Protection", "Designated Safeguarding Lead Training", "Refresher Training for DSLs", "Safer Recruitment Training", "Online Safety Training", "Adult Safeguarding Training", "None of the above"];
@@ -159,9 +179,9 @@ export default function Onboarding() {
         loadGoogleMaps();
 
         function initAutocomplete() {
-            const input = document.getElementById('onboarding-city-input');
-            if (input && window.google) {
-                const autocomplete = new window.google.maps.places.Autocomplete(input, {
+            const cityInput = document.getElementById('onboarding-city-input');
+            if (cityInput && window.google) {
+                const autocomplete = new window.google.maps.places.Autocomplete(cityInput, {
                     types: ['(cities)'],
                     fields: ['address_components', 'formatted_address', 'name'],
                 });
@@ -197,6 +217,27 @@ export default function Onboarding() {
                             ...prev,
                             city: city || place.name, // Fallback to name if logic fails
                             country: country || prev.country
+                        }));
+                    }
+                });
+            }
+
+            const countryInput = document.getElementById('onboarding-country-input');
+            if (countryInput && window.google) {
+                const countryAutocomplete = new window.google.maps.places.Autocomplete(countryInput, {
+                    types: ['(regions)'],
+                    fields: ['address_components', 'formatted_address', 'name'],
+                });
+
+                countryAutocomplete.addListener('place_changed', () => {
+                    const place = countryAutocomplete.getPlace();
+                    const addressComponents = place.address_components || [];
+                    const countryComponent = addressComponents.find(component => component.types.includes('country'));
+                    const resolvedCountry = countryComponent?.long_name || place.name || '';
+                    if (resolvedCountry) {
+                        setFormData(prev => ({
+                            ...prev,
+                            country: resolvedCountry
                         }));
                     }
                 });
@@ -422,17 +463,7 @@ export default function Onboarding() {
         }));
 
         if (authUser.sector) {
-            const options = {
-                "Education": ["Early Years", "Primary", "Secondary", "Further Education", "Higher Education", "Special School", "Alternative Provision"],
-                "Social Care": ["Children's Residential Care", "Fostering/Adoption", "Adult Social Care"],
-                "Healthcare": ["NHS Trust", "Primary Care", "Private Healthcare"],
-            };
-            const subSectorsForSector = options[authUser.sector] || [];
-            if (subSectorsForSector.length > 0) {
-                setSubsectorOptions([...subSectorsForSector, "Other"]);
-            } else {
-                setSubsectorOptions([]);
-            }
+            setSubsectorOptions(subsectorOptionsBySector[authUser.sector] || []);
         }
     }, [authUser, userLoading, redirectUrl]);
 
@@ -442,17 +473,7 @@ export default function Onboarding() {
 
     const handleSectorChange = (sector) => {
         setFormData(prev => ({ ...prev, sector, subsector: '', other_sector: '', other_sub_sector: '' }));
-        const options = {
-            "Education": ["Early Years", "Primary", "Secondary", "Further Education", "Higher Education", "Special School", "Alternative Provision"],
-            "Social Care": ["Children's Residential Care", "Fostering/Adoption", "Adult Social Care"],
-            "Healthcare": ["NHS Trust", "Primary Care", "Private Healthcare"],
-        };
-        const subSectorsForSector = options[sector] || [];
-        if (subSectorsForSector.length > 0) {
-            setSubsectorOptions([...subSectorsForSector, "Other"]);
-        } else {
-            setSubsectorOptions([]);
-        }
+        setSubsectorOptions(subsectorOptionsBySector[sector] || []);
     };
 
     const openPolicyModal = (e, policyType) => {
@@ -911,7 +932,7 @@ export default function Onboarding() {
                                         <div className="space-y-2">
                                             <Label htmlFor="country" className="text-slate-700">Country</Label>
                                             <Input
-                                                id="country"
+                                                id="onboarding-country-input"
                                                 value={formData.country}
                                                 onChange={(e) => handleInputChange('country', e.target.value)}
                                                 className="h-11"
@@ -919,13 +940,13 @@ export default function Onboarding() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="city" className="text-slate-700">City</Label>
+                                            <Label htmlFor="city" className="text-slate-700">City/Town</Label>
                                             <Input
                                                 id="onboarding-city-input"
                                                 value={formData.city}
                                                 onChange={(e) => handleInputChange('city', e.target.value)}
                                                 className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Start typing your city..."
+                                                placeholder="Start typing your city or town..."
                                             />
                                         </div>
                                     </div>
@@ -970,17 +991,25 @@ export default function Onboarding() {
                                             <FormItem>
                                                 <FormLabel className="text-slate-700">Sector <span className="label-required">*</span></FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        {...field}
+                                                    <Select
                                                         value={formData.sector}
-                                                        onChange={(e) => {
-                                                            handleInputChange('sector', e.target.value);
-                                                            field.onChange(e);
+                                                        onValueChange={(value) => {
+                                                            handleSectorChange(value);
+                                                            field.onChange(value);
                                                             form.clearErrors('sector');
                                                         }}
-                                                        className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                        placeholder="Enter your sector"
-                                                    />
+                                                    >
+                                                        <SelectTrigger className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                            <SelectValue placeholder="Select your sector" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {sectorOptions.map((option) => (
+                                                                <SelectItem key={option} value={option}>
+                                                                    {option}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -1024,13 +1053,24 @@ export default function Onboarding() {
 
                                     <div className="space-y-2">
                                         <Label htmlFor="subsector" className="text-slate-700">Sub-sector</Label>
-                                        <Input
-                                            id="subsector"
+                                        <Select
                                             value={formData.subsector}
-                                            onChange={(e) => handleInputChange('subsector', e.target.value)}
-                                            className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter your sub-sector"
-                                        />
+                                            onValueChange={(value) => handleInputChange('subsector', value)}
+                                            disabled={subsectorOptions.length === 0}
+                                        >
+                                            <SelectTrigger className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <SelectValue
+                                                    placeholder={subsectorOptions.length === 0 ? 'No sub-sector options' : 'Select your sub-sector'}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {subsectorOptions.map((option) => (
+                                                    <SelectItem key={option} value={option}>
+                                                        {option}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                     {formData.subsector === 'Other' && (
                                         <FormField
@@ -1098,7 +1138,7 @@ export default function Onboarding() {
                                                 <div><span className="font-medium text-slate-700">Name:</span> {formData.firstName} {formData.lastName}</div>
                                                 <div><span className="font-medium text-slate-700">Phone:</span> {formData.phoneNumber}</div>
                                                 <div><span className="font-medium text-slate-700">Organisation:</span> {formData.organisationName}</div>
-                                                <div><span className="font-medium text-slate-700">City:</span> {formData.city}</div>
+                                                <div><span className="font-medium text-slate-700">City/Town:</span> {formData.city}</div>
                                                 <div><span className="font-medium text-slate-700">Country:</span> {formData.country}</div>
                                                 <div className="md:col-span-2"><span className="font-medium text-slate-700">Job Role:</span> {formData.jobRole}</div>
                                             </div>
