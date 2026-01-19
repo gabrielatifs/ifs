@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@ifs/shared/api/base44Client';
 import { User } from '@ifs/shared/api/entities';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -18,8 +18,6 @@ import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { customLoginWithRedirect } from '../components/utils/auth';
 import { addToMailerLite } from '@ifs/shared/api/functions';
 import PolicyModal from '../components/modals/PolicyModal';
-import { getCitySuggestions } from '@ifs/shared/api/functions';
-import { getCountries } from '@ifs/shared/api/functions';
 import { OrgInvite } from '@ifs/shared/api/entities';
 import { useLocation } from 'react-router-dom';
 import { acceptOrgInvite } from '@ifs/shared/api/functions';
@@ -82,11 +80,6 @@ export default function Onboarding() {
     const [policyModalOpen, setPolicyModalOpen] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
 
-    // Countries and cities state
-    const [countries, setCountries] = useState([]);
-    const [loadingCountries, setLoadingCountries] = useState(true);
-    const [citySearchValue, setCitySearchValue] = useState('');
-
     // Form state
     const [formData, setFormData] = useState({
         displayName: '',
@@ -111,6 +104,9 @@ export default function Onboarding() {
         membershipTier: '',
     });
     const [subsectorOptions, setSubsectorOptions] = useState([]);
+    const [countryCode, setCountryCode] = useState('');
+    const cityAutocompleteRef = useRef(null);
+    const countryAutocompleteRef = useRef(null);
 
     // Initialize React Hook Form
     const form = useForm({
@@ -125,33 +121,83 @@ export default function Onboarding() {
         }
     }, [authUser, userLoading]);
 
-    useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                const { data } = await getCountries();
-                if (data.fallback) {
-                    console.warn('[Onboarding] Using fallback country list');
-                }
-                setCountries(data.countries);
-            } catch (error) {
-                console.error('[Onboarding] Failed to fetch countries:', error);
-                toast({
-                    title: "Warning",
-                    description: "Could not load full countries list. Using common countries.",
-                    variant: "destructive"
-                });
-                setCountries([
-                    { name: "United Kingdom", code: "GB" },
-                    { name: "United States", code: "US" },
-                    { name: "Ireland", code: "IE" },
-                    { name: "Other", code: "XX" }
-                ]);
-            } finally {
-                setLoadingCountries(false);
+    const initAutocomplete = () => {
+        if (!window.google) return;
+        const cityInput = document.getElementById('onboarding-city-input');
+        if (cityInput && (!cityInput.dataset.autocompleteBound || cityInput.dataset.countryCode !== countryCode)) {
+            if (cityAutocompleteRef.current) {
+                window.google.maps.event.clearInstanceListeners(cityAutocompleteRef.current);
             }
-        };
-        fetchCountries();
-    }, [toast]);
+            const autocompleteOptions = {
+                types: ['(cities)'],
+                fields: ['address_components', 'formatted_address', 'name'],
+            };
+            if (countryCode) {
+                autocompleteOptions.componentRestrictions = { country: countryCode.toLowerCase() };
+            }
+            const autocomplete = new window.google.maps.places.Autocomplete(cityInput, autocompleteOptions);
+
+            cityInput.dataset.autocompleteBound = 'true';
+            cityInput.dataset.countryCode = countryCode;
+            cityAutocompleteRef.current = autocomplete;
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.formatted_address) {
+                    const addressComponents = place.address_components;
+                    let city = '';
+                    let country = '';
+
+                    if (addressComponents) {
+                        for (const component of addressComponents) {
+                            const types = component.types;
+                            if (types.includes('locality') || types.includes('postal_town')) {
+                                city = component.long_name;
+                            }
+                            if (types.includes('country')) {
+                                country = component.long_name;
+                            }
+                        }
+                    }
+
+                    if (!city) {
+                        const cityComponent = addressComponents.find(c => c.types.includes('administrative_area_level_2') || c.types.includes('sublocality_level_1'));
+                        if (cityComponent) city = cityComponent.long_name;
+                    }
+
+                    setFormData(prev => ({
+                        ...prev,
+                        city: city || place.name,
+                        country: country || prev.country
+                    }));
+                }
+            });
+        }
+
+        const countryInput = document.getElementById('onboarding-country-input');
+        if (countryInput && !countryInput.dataset.autocompleteBound) {
+            const countryAutocomplete = new window.google.maps.places.Autocomplete(countryInput, {
+                types: ['(regions)'],
+                fields: ['address_components', 'formatted_address', 'name'],
+            });
+
+            countryInput.dataset.autocompleteBound = 'true';
+            countryAutocompleteRef.current = countryAutocomplete;
+            countryAutocomplete.addListener('place_changed', () => {
+                const place = countryAutocomplete.getPlace();
+                const addressComponents = place.address_components || [];
+                const countryComponent = addressComponents.find(component => component.types.includes('country'));
+                const resolvedCountry = countryComponent?.long_name || place.name || '';
+                const resolvedCode = countryComponent?.short_name || '';
+                if (resolvedCountry) {
+                    setFormData(prev => ({
+                        ...prev,
+                        country: resolvedCountry
+                    }));
+                    setCountryCode(resolvedCode.toLowerCase());
+                }
+            });
+        }
+    };
 
     useEffect(() => {
         const loadGoogleMaps = async () => {
@@ -165,85 +211,21 @@ export default function Onboarding() {
                         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
                         script.async = true;
                         script.defer = true;
-                        script.onload = initAutocomplete;
+                        script.onload = () => {
+                            if (currentStep === 1) initAutocomplete();
+                        };
                         document.head.appendChild(script);
                     }
                 } catch (error) {
                     console.error("Error fetching Google Maps API key:", error);
                 }
-            } else {
+            } else if (currentStep === 1) {
                 initAutocomplete();
             }
         };
 
         loadGoogleMaps();
-
-        function initAutocomplete() {
-            const cityInput = document.getElementById('onboarding-city-input');
-            if (cityInput && window.google) {
-                const autocomplete = new window.google.maps.places.Autocomplete(cityInput, {
-                    types: ['(cities)'],
-                    fields: ['address_components', 'formatted_address', 'name'],
-                });
-
-                autocomplete.addListener('place_changed', () => {
-                    const place = autocomplete.getPlace();
-                    if (place.formatted_address) {
-                        const addressComponents = place.address_components;
-                        let city = '';
-                        let country = '';
-
-                        if (addressComponents) {
-                            for (const component of addressComponents) {
-                                const types = component.types;
-                                if (types.includes('locality') || types.includes('postal_town')) {
-                                    city = component.long_name;
-                                }
-                                if (types.includes('country')) {
-                                    country = component.long_name;
-                                }
-                            }
-                        }
-
-                        // Fallback for city if not found in locality
-                        if (!city) {
-                             const cityComponent = addressComponents.find(c => c.types.includes('administrative_area_level_2') || c.types.includes('sublocality_level_1'));
-                             if (cityComponent) city = cityComponent.long_name;
-                        }
-
-                        // Use functional update to ensure latest state if needed, but handleInputChange wrapper is fine
-                        // We need to call setFormData directly or via handleInputChange
-                        setFormData(prev => ({
-                            ...prev,
-                            city: city || place.name, // Fallback to name if logic fails
-                            country: country || prev.country
-                        }));
-                    }
-                });
-            }
-
-            const countryInput = document.getElementById('onboarding-country-input');
-            if (countryInput && window.google) {
-                const countryAutocomplete = new window.google.maps.places.Autocomplete(countryInput, {
-                    types: ['(regions)'],
-                    fields: ['address_components', 'formatted_address', 'name'],
-                });
-
-                countryAutocomplete.addListener('place_changed', () => {
-                    const place = countryAutocomplete.getPlace();
-                    const addressComponents = place.address_components || [];
-                    const countryComponent = addressComponents.find(component => component.types.includes('country'));
-                    const resolvedCountry = countryComponent?.long_name || place.name || '';
-                    if (resolvedCountry) {
-                        setFormData(prev => ({
-                            ...prev,
-                            country: resolvedCountry
-                        }));
-                    }
-                });
-            }
-        }
-    }, []);
+    }, [currentStep, countryCode]);
 
     useEffect(() => {
         if (userLoading || !authUser || mailerliteAdded) return;
@@ -409,19 +391,6 @@ export default function Onboarding() {
                         console.error("Failed to create notification preference:", prefError);
                     }
 
-                    try {
-                        const credentialPayload = {
-                            userId: authUser.id,
-                            authId: authUser.authId || authUser.id,
-                            userName: authUser.displayName || fullName,
-                            userEmail: authUser.email,
-                            credentialType: 'Associate Membership',
-                            metadata: {}
-                        };
-                        await base44.functions.invoke('generateDigitalCredential', credentialPayload);
-                    } catch (credentialError) {
-                        console.error("Failed to generate credential during auto-onboarding:", credentialError);
-                    }
                     
                     // Clear session storage items
                     sessionStorage.removeItem('pending_job_redirect');
@@ -496,11 +465,32 @@ export default function Onboarding() {
             form.setError('phoneNumber', { type: 'manual', message: 'Phone number is required' });
             errors.phoneNumber = true;
         }
+        if (!formData.country.trim()) {
+            form.setError('country', { type: 'manual', message: 'Country is required' });
+            errors.country = true;
+        }
+        if (!formData.city.trim()) {
+            form.setError('city', { type: 'manual', message: 'City/Town is required' });
+            errors.city = true;
+        }
 
         return Object.keys(errors).length === 0;
     };
 
     const validateStep2 = () => {
+        const errors = {};
+        if (!formData.jobRole.trim()) {
+            form.setError('jobRole', { type: 'manual', message: 'Job role is required' });
+            errors.jobRole = true;
+        }
+        if (!formData.safeguarding_role) {
+            form.setError('safeguarding_role', { type: 'manual', message: 'Safeguarding role is required' });
+            errors.safeguarding_role = true;
+        }
+        return Object.keys(errors).length === 0;
+    };
+
+    const validateStep3 = () => {
         // Organisation name can be pre-filled from invite, check for that too
         const orgName = inviteOrgName || (authUser && authUser.organisationName) || formData.organisationName;
 
@@ -508,15 +498,6 @@ export default function Onboarding() {
         if (!orgName.trim()) {
             form.setError('organisationName', { type: 'manual', message: 'Organisation name is required' });
             errors.organisationName = true;
-        }
-        return Object.keys(errors).length === 0;
-    };
-
-    const validateStep3 = () => {
-        const errors = {};
-        if (!formData.jobRole.trim()) {
-            form.setError('jobRole', { type: 'manual', message: 'Job role is required' });
-            errors.jobRole = true;
         }
         if (!formData.sector) {
             form.setError('sector', { type: 'manual', message: 'Sector is required' });
@@ -526,15 +507,6 @@ export default function Onboarding() {
             form.setError('other_sector', { type: 'manual', message: 'Please specify your sector' });
             errors.other_sector = true;
         }
-        return Object.keys(errors).length === 0;
-    };
-
-    const validateStep4 = () => {
-        const errors = {};
-        if (!formData.safeguarding_role) {
-            form.setError('safeguarding_role', { type: 'manual', message: 'Safeguarding role is required' });
-            errors.safeguarding_role = true;
-        }
         if (formData.subsector === 'Other' && !formData.other_sub_sector.trim()) {
             form.setError('other_sub_sector', { type: 'manual', message: 'Please specify your sub-sector' });
             errors.other_sub_sector = true;
@@ -542,7 +514,7 @@ export default function Onboarding() {
         return Object.keys(errors).length === 0;
     };
 
-    const validateStep5 = () => {
+    const validateStep4 = () => {
         const errors = {};
         if (!policyAcceptance.terms) {
             form.setError('terms', { type: 'manual', message: 'You must accept the Terms and Conditions' });
@@ -569,8 +541,6 @@ export default function Onboarding() {
             isValid = validateStep3();
         } else if (currentStep === 4) {
             isValid = validateStep4();
-        } else if (currentStep === 5) {
-            isValid = validateStep5();
         }
 
         if (isValid) {
@@ -580,12 +550,11 @@ export default function Onboarding() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (currentStep === 5) {
+        if (currentStep === 4) {
              if (!validateStep1()) { setCurrentStep(1); return; }
              if (!validateStep2()) { setCurrentStep(2); return; }
              if (!validateStep3()) { setCurrentStep(3); return; }
              if (!validateStep4()) { setCurrentStep(4); return; }
-             if (!validateStep5()) { return; }
         }
         if (!authUser) {
             toast({ title: "Authentication Error", description: "User not logged in. Please refresh and try again.", variant: "destructive" });
@@ -687,20 +656,6 @@ export default function Onboarding() {
                     throw new Error(data.error || 'Failed to create checkout session.');
                 }
             } else {
-                try {
-                    const credentialPayload = {
-                        userId: authUser.id,
-                        authId: authUser.authId || authUser.id,
-                        userName: displayName,
-                        userEmail: authUser.email,
-                        credentialType: 'Associate Membership',
-                        metadata: {}
-                    };
-                    await base44.functions.invoke('generateDigitalCredential', credentialPayload);
-                } catch (credentialError) {
-                    console.error("Failed to generate credential after onboarding:", credentialError);
-                }
-
                 // Associate members - redirect to ApplicationProcessing
                 console.log('Associate member onboarding complete, redirecting to ApplicationProcessing');
                 window.location.href = createPageUrl('ApplicationProcessing');
@@ -725,13 +680,15 @@ export default function Onboarding() {
         );
     }
 
-    const totalSteps = 5;
+    const resolvedOrganisationName =
+        inviteOrgName || (authUser && authUser.organisationName) || formData.organisationName;
+
+    const totalSteps = 4;
     const steps = [
         { number: 1, title: "Personal Details" },
-        { number: 2, title: "Organisation" },
-        { number: 3, title: "Role" },
-        { number: 4, title: "Safeguarding" },
-        { number: 5, title: "Review" }
+        { number: 2, title: "Role" },
+        { number: 3, title: "Organisation" },
+        { number: 4, title: "Review" }
     ];
 
     if (redirectingToCheckout) {
@@ -757,8 +714,8 @@ export default function Onboarding() {
                 title=""
                 subtitle=""
                 maxWidthClass="max-w-3xl"
-                pageClassName="h-screen"
-                panelClassName="min-h-[calc(100vh-220px)] flex flex-col"
+                pageClassName="h-auto"
+                panelClassName="flex flex-col"
             >
                 {/* Multi-step Progress Bar */}
                 <div className="mb-8 flex items-center justify-between px-4">
@@ -805,7 +762,7 @@ export default function Onboarding() {
                 <Form {...form}>
                 <form
                     onSubmit={handleSubmit}
-                    className={currentStep === 5 ? "space-y-8 flex-1 flex flex-col" : "space-y-8"}
+                    className={currentStep === 4 ? "space-y-8 flex-1 flex flex-col" : "space-y-8"}
                 >
                             {/* Step 1: Personal Details */}
                             {currentStep === 1 && (
@@ -884,11 +841,107 @@ export default function Onboarding() {
                                             </FormItem>
                                         )}
                                     />
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="country" className="text-slate-700">Country <span className="label-required">*</span></Label>
+                                            <Input
+                                                id="onboarding-country-input"
+                                                value={formData.country}
+                                                onChange={(e) => {
+                                                    handleInputChange('country', e.target.value);
+                                                    if (!e.target.value.trim()) {
+                                                        setCountryCode('');
+                                                    }
+                                                    form.clearErrors('country');
+                                                }}
+                                                className="h-11"
+                                                placeholder="Enter your country"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="city" className="text-slate-700">City/Town <span className="label-required">*</span></Label>
+                                            <Input
+                                                id="onboarding-city-input"
+                                                value={formData.city}
+                                                onChange={(e) => {
+                                                    handleInputChange('city', e.target.value);
+                                                    form.clearErrors('city');
+                                                }}
+                                                className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                placeholder="Start typing your city or town..."
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
-                            {/* Step 2: Organisation */}
+                            {/* Step 2: Role */}
                             {currentStep === 2 && (
+                                <div className="space-y-6">
+                                    <div className="space-y-1 pb-4 border-b border-gray-200">
+                                        <h3 className="text-xl font-bold text-gray-900">Role</h3>
+                                        <p className="text-sm text-gray-600">Tell us about your current role</p>
+                                    </div>
+
+                                    <FormField
+                                        control={form.control}
+                                        name="jobRole"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-slate-700">Job Role <span className="label-required">*</span></FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        value={formData.jobRole}
+                                                        onChange={(e) => {
+                                                            handleInputChange('jobRole', e.target.value);
+                                                            field.onChange(e);
+                                                            form.clearErrors('jobRole');
+                                                        }}
+                                                        className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        placeholder="e.g., Designated Safeguarding Lead"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="safeguarding_role"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-slate-700">Safeguarding Role <span className="label-required">*</span></FormLabel>
+                                                <FormControl>
+                                                    <Select
+                                                        value={formData.safeguarding_role}
+                                                        onValueChange={(value) => {
+                                                            handleInputChange('safeguarding_role', value);
+                                                            field.onChange(value);
+                                                            form.clearErrors('safeguarding_role');
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                            <SelectValue placeholder="Select your safeguarding role" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {roles.map((option) => (
+                                                                <SelectItem key={option} value={option}>
+                                                                    {option}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Step 3: Organisation */}
+                            {currentStep === 3 && (
                                 <div className="space-y-6">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
                                         <h3 className="text-xl font-bold text-gray-900">Organisation</h3>
@@ -924,62 +977,6 @@ export default function Onboarding() {
                                                 {inviteOrgName || (authUser && authUser.organisationName) ? (
                                                     <p className="text-xs text-slate-600 mt-1">Organisation set via invite</p>
                                                 ) : null}
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="country" className="text-slate-700">Country</Label>
-                                            <Input
-                                                id="onboarding-country-input"
-                                                value={formData.country}
-                                                onChange={(e) => handleInputChange('country', e.target.value)}
-                                                className="h-11"
-                                                placeholder="Enter your country"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="city" className="text-slate-700">City/Town</Label>
-                                            <Input
-                                                id="onboarding-city-input"
-                                                value={formData.city}
-                                                onChange={(e) => handleInputChange('city', e.target.value)}
-                                                className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Start typing your city or town..."
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 3: Role */}
-                            {currentStep === 3 && (
-                                <div className="space-y-6">
-                                    <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Role</h3>
-                                        <p className="text-sm text-gray-600">Tell us about your current role</p>
-                                    </div>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="jobRole"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-slate-700">Job Role <span className="label-required">*</span></FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        {...field}
-                                                        value={formData.jobRole}
-                                                        onChange={(e) => {
-                                                            handleInputChange('jobRole', e.target.value);
-                                                            field.onChange(e);
-                                                            form.clearErrors('jobRole');
-                                                        }}
-                                                        className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                        placeholder="e.g., Designated Safeguarding Lead"
-                                                    />
-                                                </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -1040,17 +1037,6 @@ export default function Onboarding() {
                                             )}
                                         />
                                     )}
-                                </div>
-                            )}
-
-                            {/* Step 4: Safeguarding */}
-                            {currentStep === 4 && (
-                                <div className="space-y-6">
-                                    <div className="space-y-1 pb-4 border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900">Safeguarding</h3>
-                                        <p className="text-sm text-gray-600">Share your safeguarding focus</p>
-                                    </div>
-
                                     <div className="space-y-2">
                                         <Label htmlFor="subsector" className="text-slate-700">Sub-sector</Label>
                                         <Select
@@ -1097,35 +1083,12 @@ export default function Onboarding() {
                                             )}
                                         />
                                     )}
-                                    <FormField
-                                        control={form.control}
-                                        name="safeguarding_role"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-slate-700">What is your current role in safeguarding? <span className="label-required">*</span></FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        {...field}
-                                                        value={formData.safeguarding_role}
-                                                        onChange={(e) => {
-                                                            handleInputChange('safeguarding_role', e.target.value);
-                                                            field.onChange(e);
-                                                            form.clearErrors('safeguarding_role');
-                                                        }}
-                                                        className="h-12 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                        placeholder="Enter your safeguarding role"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
                                 </div>
                             )}
 
-                            {/* Step 5: Review */}
-                            {currentStep === 5 && (
-                                <div className="space-y-6 flex-1">
+                            {/* Step 4: Review */}
+                            {currentStep === 4 && (
+                                <div className="space-y-6">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
                                         <h3 className="text-xl font-bold text-gray-900">Review</h3>
                                         <p className="text-sm text-gray-600">Please review your application and accept our policies</p>
@@ -1135,38 +1098,35 @@ export default function Onboarding() {
                                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                                             <h4 className="text-base font-bold text-gray-900 mb-3">Personal Information</h4>
                                             <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600">
-                                                <div><span className="font-medium text-slate-700">Name:</span> {formData.firstName} {formData.lastName}</div>
+                                                <div><span className="font-medium text-slate-700">First Name:</span> {formData.firstName}</div>
+                                                <div><span className="font-medium text-slate-700">Last Name:</span> {formData.lastName}</div>
                                                 <div><span className="font-medium text-slate-700">Phone:</span> {formData.phoneNumber}</div>
-                                                <div><span className="font-medium text-slate-700">Organisation:</span> {formData.organisationName}</div>
-                                                <div><span className="font-medium text-slate-700">City/Town:</span> {formData.city}</div>
                                                 <div><span className="font-medium text-slate-700">Country:</span> {formData.country}</div>
-                                                <div className="md:col-span-2"><span className="font-medium text-slate-700">Job Role:</span> {formData.jobRole}</div>
+                                                <div><span className="font-medium text-slate-700">City/Town:</span> {formData.city}</div>
                                             </div>
                                         </div>
 
                                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                            <h4 className="text-base font-bold text-gray-900 mb-3">Professional Background</h4>
+                                            <h4 className="text-base font-bold text-gray-900 mb-3">Role</h4>
                                             <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600">
-                                                <div><span className="font-medium text-gray-700">Sector:</span> {formData.sector === 'Other' ? `Other: ${formData.other_sector}` : formData.sector}</div>
-                                                {formData.subsector && <div><span className="font-medium text-gray-700">Sub-sector:</span> {formData.subsector === 'Other' ? `Other: ${formData.other_sub_sector}` : formData.subsector}</div>}
-                                                <div className="md:col-span-2"><span className="font-medium text-gray-700">Safeguarding Role:</span> {formData.safeguarding_role}</div>
+                                                <div><span className="font-medium text-gray-700">Job Role:</span> {formData.jobRole}</div>
+                                                <div><span className="font-medium text-gray-700">Safeguarding Role:</span> {formData.safeguarding_role}</div>
                                             </div>
                                         </div>
 
                                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                            <h4 className="text-base font-bold text-gray-900 mb-3">Training & Development</h4>
-                                            <div className="space-y-2 text-sm text-gray-600">
-                                                <div><span className="font-medium text-gray-700">Completed Training:</span> {(formData.completed_training || []).join(', ') || 'None selected'}</div>
-                                                <div><span className="font-medium text-gray-700">Had Induction:</span> {formData.had_induction ? 'Yes' : 'No'}</div>
-                                                <div><span className="font-medium text-gray-700">Training Refresh Frequency:</span> {formData.training_refresh_frequency || 'Not specified'}</div>
-                                                <div><span className="font-medium text-gray-700">Attended Training Topics:</span> {(formData.attended_training_topics || []).join(', ') || 'None selected'}</div>
-                                                {formData.other_training_details && <div><span className="font-medium text-gray-700">Other Training Details:</span> {formData.other_training_details}</div>}
-                                                <div><span className="font-medium text-gray-700">Receives Supervision:</span> {formData.receives_supervision ? 'Yes' : 'No'}</div>
+                                            <h4 className="text-base font-bold text-gray-900 mb-3">Organisation</h4>
+                                            <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600">
+                                                <div><span className="font-medium text-gray-700">Organisation:</span> {resolvedOrganisationName}</div>
+                                                <div><span className="font-medium text-gray-700">Sector:</span> {formData.sector === 'Other' ? `Other: ${formData.other_sector}` : formData.sector}</div>
+                                                {formData.subsector && (
+                                                    <div><span className="font-medium text-gray-700">Sub-sector:</span> {formData.subsector === 'Other' ? `Other: ${formData.other_sub_sector}` : formData.subsector}</div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="mt-6 p-5 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="p-5 bg-blue-50 border border-blue-200 rounded-lg">
                                         <h4 className="text-base font-bold text-gray-900 mb-3">Policy Acceptance *</h4>
                                         <p className="text-xs text-slate-600 mb-4">
                                             Please review and accept our policies to continue

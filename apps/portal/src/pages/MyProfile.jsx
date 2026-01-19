@@ -572,7 +572,7 @@ export default function MyProfile() {
                 firstName: user.firstName || '',
                 lastName: user.lastName || '',
                 displayName: user.displayName || '',
-                organisationName: user.organisationName || '',
+                organisationName: user.organisationName || user.organisation || '',
                 organisationRole: user.organisationRole || '',
                 sector: user.sector || '',
                 subsector: user.subsector || '',
@@ -605,6 +605,35 @@ export default function MyProfile() {
             fetchPreferences();
         }
     }, [user]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const fetchOrganisationName = async () => {
+            if (!user?.organisationId || user?.organisationName) {
+                return;
+            }
+
+            try {
+                const organisation = await base44.entities.Organisation.get(user.organisationId);
+                if (!isMounted || !organisation?.name) {
+                    return;
+                }
+
+                setFormData(prev => (
+                    prev.organisationName ? prev : { ...prev, organisationName: organisation.name }
+                ));
+            } catch (error) {
+                console.error("Error fetching organisation name:", error);
+            }
+        };
+
+        fetchOrganisationName();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [user?.organisationId, user?.organisationName]);
 
     const handleFormChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));

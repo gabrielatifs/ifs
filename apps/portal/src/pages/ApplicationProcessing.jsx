@@ -21,52 +21,22 @@ export default function ApplicationProcessing() {
     const { user, loading, updateUserProfile } = useUser();
     const [status, setStatus] = useState('Initializing...');
 
-    const applyTemplateVariables = (content = '', variables = {}) => {
-        return content.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, key) => {
-            const value = variables[key];
-            return value === undefined || value === null ? '' : String(value);
-        });
-    };
+    const RESEND_WELCOME_TEMPLATE_ID = "d642e732-bd83-4e87-a3dd-4a5dbab09d6f";
 
-    const getWelcomeTemplate = async () => {
-        try {
-            const templates = await base44.entities.EmailTemplate.filter({ templateType: 'welcome' });
-            return templates && templates.length > 0 ? templates[0] : null;
-        } catch (error) {
-            console.error('[ApplicationProcessing] Failed to load welcome template:', error);
-            return null;
-        }
-    };
-
-    const sendWelcomeEmailFromTemplate = async ({ displayName, firstName, lastName, organisationName, jobRole, email }) => {
-        const template = await getWelcomeTemplate();
-        if (!template) {
-            throw new Error('No welcome email template found');
+    const sendWelcomeEmailFromTemplate = async ({ displayName, firstName, membershipType, email }) => {
+        if (!RESEND_WELCOME_TEMPLATE_ID) {
+            throw new Error("Missing Resend welcome template id");
         }
 
-        const variables = {
-            firstName: firstName || '',
-            lastName: lastName || '',
-            organisationName: organisationName || '',
-            jobRole: jobRole || '',
-            displayName: displayName || '',
-        };
-
-        const message = applyTemplateVariables(template.message || '', variables);
-        const signature = applyTemplateVariables(template.signature || '', variables);
-        const fullMessage = signature ? `${message}\n\n${signature}` : message;
-
-        const emailContent = getEmailWrapper(`
-            <h1 style="color: #333; font-size: 32px; margin-bottom: 20px;">Welcome to IfS!</h1>
-            <p style="font-size: 18px; color: #333;">Dear ${displayName},</p>
-            <div style="font-size: 16px; line-height: 1.6; white-space: pre-wrap;">${fullMessage}</div>
-        `);
+        const resolvedFirstName = firstName || displayName || "Member";
 
         await sendEmail({
             to: email,
-            subject: template.subject || "Welcome to the Independent Federation for Safeguarding",
-            html: emailContent,
-            from_name: "Independent Federation for Safeguarding"
+            template_id: RESEND_WELCOME_TEMPLATE_ID,
+            template_data: {
+                firstName: resolvedFirstName,
+                membershipType: membershipType || "Member",
+            },
         });
     };
 
@@ -477,25 +447,16 @@ setStatus(`Registering you for "${event.title}"...`);
                     console.error('[ApplicationProcessing] Digital credential generation failed, but continuing with registration:', certError);
                 }
 
-// Send welcome email ONLY for Associates (webhook handles Full Member emails)
-                if (!isFullMember || !paymentSuccess) {
-                    setStatus('Sending your welcome email...');
-                    try {
+                setStatus('Sending your welcome email...');
+                try {
                         await sendWelcomeEmailFromTemplate({
                             displayName,
                             firstName: currentUser.firstName,
-                            lastName: currentUser.lastName,
-                            organisationName: currentUser.organisationName,
-                            jobRole: currentUser.jobRole,
+                            membershipType: currentUser.membershipType,
                             email: user.email
                         });
-                    } catch (emailError) {
-                        console.error('[DEBUG] Welcome email sending failed, but continuing:', emailError);
-                    }
-                } else {
-                    console.log('[ApplicationProcessing] Full Member payment - webhook will send trial/upgrade email');
-                    setStatus('Welcome email will arrive shortly...');
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } catch (emailError) {
+                    console.error('[DEBUG] Welcome email sending failed, but continuing:', emailError);
                 }
 
                 // Verify organisation membership (should already be set from Onboarding)

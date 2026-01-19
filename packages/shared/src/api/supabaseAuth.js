@@ -4,6 +4,7 @@ const PROFILE_TABLE = "profiles";
 
 const toSnake = (key) => {
   if (key.includes("_")) return key;
+  if (key === "organisationName") return "organisation";
   return key.replace(/[A-Z]/g, (match) => `_${match.toLowerCase()}`);
 };
 
@@ -34,6 +35,9 @@ const mergeProfile = (profile, user) => {
     merged.email = user.email;
   }
   const camel = toCamelRecord(merged);
+  if (!camel.organisationName && (camel.organisation || merged.organisation)) {
+    camel.organisationName = camel.organisation || merged.organisation;
+  }
   return { ...merged, ...camel };
 };
 

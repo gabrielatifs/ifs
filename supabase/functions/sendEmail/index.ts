@@ -44,6 +44,10 @@ Deno.serve(async (req) => {
       cc,
       bcc,
       replyTo,
+      template_id: templateIdRaw,
+      templateId,
+      template_data: templateDataRaw,
+      templateData,
     } = body ?? {};
 
     const recipients = normalizeRecipients(to);
@@ -52,6 +56,16 @@ Deno.serve(async (req) => {
       Deno.env.get("RESEND_FROM") ||
       Deno.env.get("RESEND_DEFAULT_FROM");
     const resolvedHtml = typeof html === "string" ? html : htmlBody;
+    const templateId =
+      (typeof templateIdRaw === "string" && templateIdRaw.trim()) ||
+      (typeof templateId === "string" && templateId.trim()) ||
+      null;
+    const resolvedTemplateData =
+      (templateDataRaw && typeof templateDataRaw === "object" && !Array.isArray(templateDataRaw))
+        ? templateDataRaw
+        : (templateData && typeof templateData === "object" && !Array.isArray(templateData))
+          ? templateData
+          : undefined;
 
     if (!from) {
       return new Response(
@@ -60,11 +74,30 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!recipients.length || !subject || (!resolvedHtml && !text)) {
+    if (!recipients.length || (!templateId && !subject) || (!templateId && !resolvedHtml && !text)) {
       return new Response(
-        JSON.stringify({ error: "to, subject, and html or text are required" }),
+        JSON.stringify({ error: "to, subject, and html or text are required (unless template_id is provided)" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
+    }
+
+    const resendPayload: Record<string, unknown> = {
+      from,
+      to: recipients,
+      cc,
+      bcc,
+      reply_to: replyTo,
+    };
+
+    if (templateId) {
+      resendPayload.template_id = templateId;
+      if (resolvedTemplateData) {
+        resendPayload.template_data = resolvedTemplateData;
+      }
+    } else {
+      resendPayload.subject = subject;
+      resendPayload.html = resolvedHtml;
+      resendPayload.text = text;
     }
 
     const resendResponse = await fetch("https://api.resend.com/emails", {
@@ -73,16 +106,7 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from,
-        to: recipients,
-        subject,
-        html: resolvedHtml,
-        text,
-        cc,
-        bcc,
-        reply_to: replyTo,
-      }),
+      body: JSON.stringify(resendPayload),
     });
 
     const resendData = await resendResponse.json().catch(() => ({}));
