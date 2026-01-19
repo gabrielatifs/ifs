@@ -196,10 +196,12 @@ setStatus(`Registering you for "${event.title}"...`);
                     zoomJoinUrl: zoomJoinUrl
                 });
 
-                setStatus('Sending your welcome and event confirmation email...');
+                const welcomeAlreadySent = Boolean(user?.welcomeEmailSentAt) || sessionStorage.getItem('welcome_email_sent') === 'true';
+                if (!welcomeAlreadySent) {
+                    setStatus('Sending your welcome and event confirmation email...');
 
-                // Send combined welcome + event confirmation email
-                try {
+                    // Send combined welcome + event confirmation email
+                    try {
                     const eventDate = format(new Date(event.date), 'EEEE, d MMMM yyyy');
                     const eventTimeDisplay = event.time || (event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : 'Time TBA');
 
@@ -262,10 +264,17 @@ setStatus(`Registering you for "${event.title}"...`);
                         from_name: "Independent Federation for Safeguarding"
                     });
 
-                    console.log('[DEBUG] Combined welcome + event confirmation email sent successfully');
-                } catch (emailError) {
-                    console.error('[DEBUG] Email sending failed, but continuing:', emailError);
-                    // Don't throw - continue with profile update
+                        console.log('[DEBUG] Combined welcome + event confirmation email sent successfully');
+                        sessionStorage.setItem('welcome_email_sent', 'true');
+                        try {
+                            await updateUserProfile({ welcomeEmailSentAt: new Date().toISOString() });
+                        } catch (emailStampError) {
+                            console.warn('[DEBUG] Failed to record welcome email timestamp:', emailStampError);
+                        }
+                    } catch (emailError) {
+                        console.error('[DEBUG] Email sending failed, but continuing:', emailError);
+                        // Don't throw - continue with profile update
+                    }
                 }
 
                 // Verify organisation membership (should already be set from Onboarding)
@@ -447,16 +456,25 @@ setStatus(`Registering you for "${event.title}"...`);
                     console.error('[ApplicationProcessing] Digital credential generation failed, but continuing with registration:', certError);
                 }
 
-                setStatus('Sending your welcome email...');
-                try {
+                const welcomeAlreadySent = Boolean(user?.welcomeEmailSentAt) || sessionStorage.getItem('welcome_email_sent') === 'true';
+                if (!welcomeAlreadySent) {
+                    setStatus('Sending your welcome email...');
+                    try {
                         await sendWelcomeEmailFromTemplate({
                             displayName,
                             firstName: currentUser.firstName,
                             membershipType: currentUser.membershipType,
                             email: user.email
                         });
-                } catch (emailError) {
-                    console.error('[DEBUG] Welcome email sending failed, but continuing:', emailError);
+                        sessionStorage.setItem('welcome_email_sent', 'true');
+                        try {
+                            await updateUserProfile({ welcomeEmailSentAt: new Date().toISOString() });
+                        } catch (emailStampError) {
+                            console.warn('[DEBUG] Failed to record welcome email timestamp:', emailStampError);
+                        }
+                    } catch (emailError) {
+                        console.error('[DEBUG] Welcome email sending failed, but continuing:', emailError);
+                    }
                 }
 
                 // Verify organisation membership (should already be set from Onboarding)
