@@ -8,7 +8,7 @@ const validPageNames = [
     'CourseDetails', 'CPDTraining', 'Dashboard', 'EditCourse', 'EditEvent', 'EditJob', 'EditSurvey', 'EditUser',
     'Forum', 'ForumPostDetails', 'Job', 'JobDetails', 'JobsBoard', 'ManageOrganisation', 'ManageOrgSubscription',
     'MasterclassDetails', 'MemberMasterclasses', 'MyCertificates', 'MyCreditHistory', 'MyMasterclassBookings',
-    'MyProfile', 'News', 'Onboarding', 'OrgAnalytics', 'Organisation', 'OrganisationMembership', 'OrgInvoices',
+    'MyProfile', 'Onboarding', 'OrgAnalytics', 'Organisation', 'OrganisationMembership', 'OrgInvoices',
     'OrgJobs', 'OrgMembers', 'OrgPayment', 'OrgProfile', 'PortalMembershipTiers', 'RequestOrgPayment',
     'SupervisionServices', 'Support', 'Survey', 'SurveyResponses', 'TrusteeElections', 'YourVoice',
     // Main site pages

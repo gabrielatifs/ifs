@@ -7,14 +7,12 @@ import { Job } from '@ifs/shared/api/entities';
 import { EventSignup } from '@ifs/shared/api/entities';
 import { Course } from '@ifs/shared/api/entities';
 import { CourseDate } from '@ifs/shared/api/entities';
-import { NewsItem } from '@ifs/shared/api/entities';
 import { createPageUrl } from '@ifs/shared/utils';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
 import UpgradeSuccessModal from '../components/modals/UpgradeSuccessModal';
 import WelcomeRewardsModal from '../components/modals/WelcomeRewardsModal';
 import PortalTour from '../components/portal/PortalTour';
-import DashboardNewsSection from '../components/dashboard/DashboardNewsSection';
 import DashboardEventsSection from '../components/dashboard/DashboardEventsSection';
 import DashboardTrainingSection from '../components/dashboard/DashboardTrainingSection';
 import DashboardSurveysSection from '../components/dashboard/DashboardSurveysSection';
@@ -39,7 +37,7 @@ export default function Dashboard() {
     const [isApproving, setIsApproving] = useState(false);
     const [showApplicationPending, setShowApplicationPending] = useState(true);
     const [showOrgWelcome, setShowOrgWelcome] = useState(false);
-    const [dashboardData, setDashboardData] = useState({ nextWorkshop: null, latestJobs: [], upcomingBooking: null, allUpcomingEvents: [], upcomingCourses: [], upcomingCommunityEvents: [], latestNews: [] });
+    const [dashboardData, setDashboardData] = useState({ nextWorkshop: null, latestJobs: [], upcomingBooking: null, allUpcomingEvents: [], upcomingCourses: [], upcomingCommunityEvents: [] });
     const [loadingDashboard, setLoadingDashboard] = useState(true);
     const [isUpgrading, setIsUpgrading] = useState(false);
     const [billingPeriod, setBillingPeriod] = useState('monthly');
@@ -245,7 +243,7 @@ export default function Dashboard() {
         const fetchDashboardData = async () => {
             setLoadingDashboard(true);
             try {
-                const [workshops, jobs, signups, allEvents, allCourses, allCourseDates, communityEvents, communitySignups, allNews] = await Promise.all([
+                const [workshops, jobs, signups, allEvents, allCourses, allCourseDates, communityEvents, communitySignups] = await Promise.all([
                     Event.filter({ type: 'Masterclass' }, '-date', 1),
                     Job.filter({ status: 'Active' }, '-created_date', 3),
                     EventSignup.filter({ userId: user.id }, '-eventDate'),
@@ -253,8 +251,7 @@ export default function Dashboard() {
                     Course.list('-created_date', 50),
                     CourseDate.list('date', 200),
                     CommunityEvent.list('date', 50),
-                    CommunityEventSignup.filter({ userId: user.id }),
-                    NewsItem.list()
+                    CommunityEventSignup.filter({ userId: user.id })
                 ]);
 
                 console.log('[Dashboard] Raw community events:', communityEvents);
@@ -319,23 +316,13 @@ export default function Dashboard() {
                 console.log('[Dashboard] Filtered upcoming events:', upcomingEvents.length);
                 console.log('[Dashboard] Filtered community events:', upcomingCommunityEvents.length);
 
-                // Process News
-                const latestNews = (allNews || [])
-                    .filter(item => item.status === 'Published')
-                    .sort((a, b) => {
-                        if (a.displayOrder !== b.displayOrder) return a.displayOrder - b.displayOrder;
-                        return new Date(b.publishedDate) - new Date(a.publishedDate);
-                    })
-                    .slice(0, 3);
-
                 setDashboardData({
                     nextWorkshop: workshops.length > 0 ? workshops[0] : null,
                     latestJobs: jobs,
                     upcomingBooking: upcomingBooking,
                     allUpcomingEvents: upcomingEvents,
                     upcomingCourses: coursesWithDates,
-                    upcomingCommunityEvents: upcomingCommunityEvents,
-                    latestNews: latestNews
+                    upcomingCommunityEvents: upcomingCommunityEvents
                 });
             } catch (error) {
                 console.error("Failed to fetch dashboard data:", error);
@@ -685,8 +672,6 @@ export default function Dashboard() {
                                     loading={loadingDashboard}
                                 />
 
-                                {/* News Section */}
-                                <DashboardNewsSection news={dashboardData.latestNews} loading={loadingDashboard} />
 
                                 <CourseBookingsCard user={user} hideIfEmpty={true} limit={3} />
 

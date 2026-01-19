@@ -29,7 +29,6 @@ import MyCertificates from "./MyCertificates";
 import MyCreditHistory from "./MyCreditHistory";
 import MyMasterclassBookings from "./MyMasterclassBookings";
 import MyProfile from "./MyProfile";
-import News from "./News";
 import Onboarding from "./Onboarding";
 import OrgAnalytics from "./OrgAnalytics";
 import Organisation from "./Organisation";
@@ -107,7 +106,6 @@ export default function Pages() {
                             <Route path="/mycredithistory" element={<MyCreditHistory />} />
                             <Route path="/mymasterclassbookings" element={<MyMasterclassBookings />} />
                             <Route path="/myprofile" element={<MyProfile />} />
-                            <Route path="/news" element={<News />} />
                             <Route path="/onboarding" element={<Onboarding />} />
                             <Route path="/organalytics" element={<OrgAnalytics />} />
                             <Route path="/organisation" element={<Organisation />} />

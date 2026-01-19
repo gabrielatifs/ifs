@@ -5,7 +5,7 @@ import { User } from '@ifs/shared/api/entities';
 import {
     LogOut, ExternalLink, User as UserIcon, Home, GraduationCap, Users2,
     Briefcase, Heart, Award, Settings, X, Shield, BookOpen, Crown, Building2,
-    Coffee, MessageSquare, ChevronDown, ChevronRight, Newspaper
+    Coffee, MessageSquare, ChevronDown, ChevronRight
 } from 'lucide-react';
 import PortalSwitcher from './PortalSwitcher';
 
@@ -188,13 +188,6 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
                     </NavSection>
 
                     <NavSection title="Community & Career">
-                        <NavLink
-                            to={createLinkWithParams('News')}
-                            icon={<Newspaper />}
-                            current={currentPage === 'News'}
-                        >
-                            Briefings
-                        </NavLink>
                          <NavLink
                             to={createLinkWithParams('JobsBoard')}
                             icon={<Briefcase />}

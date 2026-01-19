@@ -55,7 +55,6 @@ export const pageTitles = {
   AdminSupport: 'Support Admin - IfS',
   YourVoice: 'Your Voice - IfS Member Portal',
   Survey: 'Survey - IfS Member Portal',
-  News: 'News & Updates - IfS',
   Onboarding: 'Welcome - IfS Member Portal',
   ApplicationProcessing: 'Application Processing - IfS',
   JoinUs: 'Join Us - Independent Federation for Safeguarding',
