@@ -249,7 +249,7 @@ export default function CommunityEventDetails() {
             }
 
             // Register via backend function
-            const { data } = await registerForCommunityEvent({
+            const data = await registerForCommunityEvent({
                 eventId: event.id,
                 guestName,
                 guestEmail,
@@ -340,7 +340,7 @@ export default function CommunityEventDetails() {
             }
 
             // Register via backend function
-            const { data } = await registerForCommunityEvent({
+            const data = await registerForCommunityEvent({
                 eventId: event.id,
                 registrationNotes,
                 zoomJoinUrl // Pass the generated Zoom join URL if any
