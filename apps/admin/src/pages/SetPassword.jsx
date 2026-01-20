@@ -5,7 +5,8 @@ import { auth } from "@ifs/shared/api/supabaseAuth";
 import { Button } from "@ifs/shared/components/ui/button";
 import { Input } from "@ifs/shared/components/ui/input";
 import { Label } from "@ifs/shared/components/ui/label";
-import AuthShell from "@ifs/shared/components/auth/AuthShell";
+import { Lock } from "lucide-react";
+import AdminAuthShell from "../components/auth/AdminAuthShell";
 
 const getPendingAuth = () => {
   try {
@@ -75,61 +76,48 @@ export default function SetPassword() {
     }
   };
 
-  const adminAuthShellProps = {
-    heroBadge: "Admin Access Only",
-    heroTitle: "Create an admin password",
-    heroSubtitle: "Finish setting up your admin access securely.",
-    pageClassName: "bg-slate-950",
-    heroOverlayClassName: "bg-slate-950/70",
-    themeVars: {
-      "--auth-accent": "#b91c1c",
-      "--auth-accent-2": "#7f1d1d",
-      "--auth-ink": "#0f172a",
-      "--auth-muted": "#475569",
-      "--auth-panel": "#ffffff",
-      "--auth-shadow": "0 30px 70px -45px rgba(15, 23, 42, 0.65)",
-      "--auth-border": "#e2e8f0",
-    },
-  };
-
   return (
-    <AuthShell
+    <AdminAuthShell
       title="Set your admin password"
       subtitle="Choose a secure password to continue."
-      showPlayButton={false}
       heroTitle="Create your password"
       heroSubtitle="Finish setting up your access to the admin portal."
-      {...adminAuthShellProps}
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <Label htmlFor="password" className="text-slate-700 font-medium">
             New password
           </Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="At least 8 characters"
-            required
-            className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
-          />
+          <div className="relative mt-2">
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="At least 8 characters"
+              required
+              className="h-12 rounded-md border-slate-200 bg-slate-50 pl-10 text-slate-900 focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            />
+          </div>
         </div>
 
         <div>
           <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">
             Confirm new password
           </Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            placeholder="Re-enter your password"
-            required
-            className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
-          />
+          <div className="relative mt-2">
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder="Re-enter your password"
+              required
+              className="h-12 rounded-md border-slate-200 bg-slate-50 pl-10 text-slate-900 focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+            />
+          </div>
         </div>
 
         {error && (
@@ -140,12 +128,12 @@ export default function SetPassword() {
 
         <Button
           type="submit"
-          className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)]"
+          className="h-12 w-full rounded-md bg-[#7C3AED] text-base font-bold text-white shadow-lg shadow-purple-500/10 transition-colors hover:bg-[#6D28D9]"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Setting password..." : "Set password"}
         </Button>
       </form>
-    </AuthShell>
+    </AdminAuthShell>
   );
 }

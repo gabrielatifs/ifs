@@ -5,7 +5,8 @@ import { auth } from '@ifs/shared/api/supabaseAuth';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Input } from '@ifs/shared/components/ui/input';
 import { Label } from '@ifs/shared/components/ui/label';
-import AuthShell from '@ifs/shared/components/auth/AuthShell';
+import { ArrowRight, Mail, Lock } from 'lucide-react';
+import AdminAuthShell from '../components/auth/AdminAuthShell';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -109,42 +110,15 @@ export default function Login() {
     };
 
     const titleCopy = {
-        login: 'Admin sign in',
+        login: 'Welcome Back',
         signup: 'Request admin access',
         forgot: 'Reset admin password',
     };
 
     const subtitleCopy = {
-        login: 'Restricted access for approved administrators only.',
+        login: 'Please enter your credentials to access the administrative dashboard.',
         signup: 'Admin access requires approval from IfS leadership.',
         forgot: 'We will email a secure verification code for admin access.',
-    };
-
-    const heroTitleCopy = {
-        login: 'Admin Control Center',
-        signup: 'Request admin access',
-        forgot: 'Restore your admin credentials',
-    };
-
-    const heroSubtitleCopy = {
-        login: 'This console is reserved for authorized IfS administrators.',
-        signup: 'Submit your request and wait for approval before continuing.',
-        forgot: 'Verify your email to reset your admin password.',
-    };
-
-    const adminAuthShellProps = {
-        heroBadge: 'Admin Access Only',
-        pageClassName: 'bg-slate-950',
-        heroOverlayClassName: 'bg-slate-950/70',
-        themeVars: {
-            '--auth-accent': '#b91c1c',
-            '--auth-accent-2': '#7f1d1d',
-            '--auth-ink': '#0f172a',
-            '--auth-muted': '#475569',
-            '--auth-panel': '#ffffff',
-            '--auth-shadow': '0 30px 70px -45px rgba(15, 23, 42, 0.65)',
-            '--auth-border': '#e2e8f0',
-        },
     };
 
     if (checkingAuth) {
@@ -164,46 +138,49 @@ export default function Login() {
     }
 
     return (
-        <AuthShell
+        <AdminAuthShell
             title={titleCopy[mode]}
             subtitle={subtitleCopy[mode]}
-            heroTitle={heroTitleCopy[mode]}
-            heroSubtitle={heroSubtitleCopy[mode]}
-            {...adminAuthShellProps}
         >
-            <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">
+            <div className="mb-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">
                 Restricted system - admin access only
             </div>
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                    <Label htmlFor="email" className="text-slate-700 font-medium">
-                        Email
+                    <Label htmlFor="email" className="text-sm font-semibold text-slate-700">
+                        Email Address
                     </Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        required
-                        className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
-                    />
+                    <div className="relative mt-2">
+                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="admin@ifs-safeguarding.org.uk"
+                            required
+                            className="h-12 rounded-md border-slate-200 bg-slate-50 pl-10 text-slate-900 focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+                        />
+                    </div>
                 </div>
 
                 {mode !== 'forgot' && (
                     <div>
-                        <Label htmlFor="password" className="text-slate-700 font-medium">
+                        <Label htmlFor="password" className="text-sm font-semibold text-slate-700">
                             Password
                         </Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
-                            required
-                            className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
-                        />
+                        <div className="relative mt-2">
+                            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <Input
+                                id="password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                                required
+                                className="h-12 rounded-md border-slate-200 bg-slate-50 pl-10 text-slate-900 focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
+                            />
+                        </div>
                     </div>
                 )}
 
@@ -236,63 +213,60 @@ export default function Login() {
 
                 <Button
                     type="submit"
-                    className="w-full h-12 text-base font-semibold bg-[color:var(--auth-accent)] hover:bg-[color:var(--auth-accent-2)] shadow-[0_18px_45px_-25px_rgba(37,99,235,0.45)] hover:shadow-[0_18px_45px_-20px_rgba(37,99,235,0.55)]"
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#7C3AED] text-base font-bold text-white shadow-lg shadow-purple-500/10 transition-colors hover:bg-[#6D28D9]"
                     disabled={isLoading}
                 >
                     {isLoading
                         ? 'Working...'
                         : mode === 'login'
-                        ? 'Sign In'
+                        ? 'Sign In to Dashboard'
                         : mode === 'signup'
                         ? 'Create Account'
                         : 'Send Verification Code'}
+                    {!isLoading && mode === 'login' && (
+                        <ArrowRight className="h-5 w-5" />
+                    )}
                 </Button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-slate-600">
+            <div className="mt-6 flex flex-wrap items-center justify-between text-sm text-slate-600">
                 {mode === 'login' && (
                     <>
                         <button
                             type="button"
                             onClick={() => setMode('forgot')}
-                            className="text-blue-700 hover:text-blue-800 font-medium"
+                            className="font-semibold text-[#7C3AED] hover:text-[#6D28D9]"
                         >
-                            Forgot password?
+                            Forgot Password?
                         </button>
-                        <div className="mt-4">
-                            Don't have an account?{' '}
-                            <button
-                                type="button"
-                                onClick={() => setMode('signup')}
-                                className="text-blue-700 hover:text-blue-800 font-semibold"
-                            >
-                                Sign up
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setMode('signup')}
+                            className="font-semibold text-slate-500 hover:text-[#7C3AED]"
+                        >
+                            Request Access
+                        </button>
                     </>
                 )}
                 {mode === 'signup' && (
-                    <div>
-                        Already have an account?{' '}
-                        <button
-                            type="button"
-                            onClick={() => setMode('login')}
-                            className="text-blue-700 hover:text-blue-800 font-semibold"
-                        >
-                            Sign in
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setMode('login')}
+                        className="font-semibold text-[#7C3AED] hover:text-[#6D28D9]"
+                    >
+                        Back to sign in
+                    </button>
                 )}
                 {mode === 'forgot' && (
                     <button
                         type="button"
                         onClick={() => setMode('login')}
-                        className="text-blue-700 hover:text-blue-800 font-medium"
+                        className="font-semibold text-[#7C3AED] hover:text-[#6D28D9]"
                     >
                         Back to sign in
                     </button>
                 )}
             </div>
-        </AuthShell>
+        </AdminAuthShell>
     );
 }
