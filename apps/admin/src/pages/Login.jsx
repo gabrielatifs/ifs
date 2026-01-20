@@ -123,17 +123,16 @@ export default function Login() {
 
     if (checkingAuth) {
         return (
-            <AuthShell
+            <AdminAuthShell
                 title="Checking your session"
                 subtitle="Just a moment while we confirm your access."
-                heroTitle="Preparing your member portal"
+                heroTitle="Preparing admin access"
                 heroSubtitle="We are securing your session before you continue."
-                showPlayButton={false}
             >
                 <div className="flex items-center justify-center py-10 text-sm text-slate-600">
                     Checking your session...
                 </div>
-            </AuthShell>
+            </AdminAuthShell>
         );
     }
 
@@ -176,7 +175,7 @@ export default function Login() {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
+                                placeholder="********"
                                 required
                                 className="h-12 rounded-md border-slate-200 bg-slate-50 pl-10 text-slate-900 focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
                             />
@@ -270,3 +269,4 @@ export default function Login() {
         </AdminAuthShell>
     );
 }
+
