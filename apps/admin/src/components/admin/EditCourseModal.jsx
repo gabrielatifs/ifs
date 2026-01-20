@@ -99,7 +99,7 @@ export default function EditCourseModal({ isOpen, onClose, courseToEdit, onCours
     };
 
     const handleArrayChange = (field, value) => {
-        const arr = value.split('\n').filter(item => item.trim());
+        const arr = value.split('\n');
         setCourse(prev => ({ ...prev, [field]: arr }));
     };
 
@@ -176,7 +176,16 @@ export default function EditCourseModal({ isOpen, onClose, courseToEdit, onCours
         setIsSubmitting(true);
 
         try {
-            const courseData = { ...course };
+            const cleanArray = (arr) =>
+                Array.isArray(arr) ? arr.map(item => item.trim()).filter(Boolean) : [];
+
+            const courseData = {
+                ...course,
+                objectives: cleanArray(course.objectives),
+                benefits: cleanArray(course.benefits),
+                faq: cleanArray(course.faq),
+                tags: cleanArray(course.tags),
+            };
 
             let savedCourse;
             if (courseToEdit) {
@@ -192,6 +201,7 @@ export default function EditCourseModal({ isOpen, onClose, courseToEdit, onCours
             for (const variant of variants) {
                 const variantData = { ...variant, courseId: savedCourse.id };
                 delete variantData.isNew;
+                delete variantData.cpdHours;
 
                 if (variant.id) {
                     await CourseVariant.update(variant.id, variantData);

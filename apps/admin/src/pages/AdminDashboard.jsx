@@ -46,6 +46,7 @@ import {
     Activity,
     Clock,
     CheckCircle2,
+    ChevronDown,
     MoreVertical,
     Download,
     Search,
@@ -134,6 +135,7 @@ import NewsSourceModal from '../components/admin/NewsSourceModal';
 import NewsArticleModal from '../components/admin/NewsArticleModal';
 import NewsCategoryModal from '../components/admin/NewsCategoryModal';
 import DeductCpdModal from '../components/admin/DeductCpdModal';
+import EditJob from './EditJob';
 import { NewsSource, NewsItem, NewsCategory, CommunityEvent, CommunityEventSignup } from '@ifs/shared/api/entities';
 import { Globe, Rss, Newspaper, Tag } from 'lucide-react';
 
@@ -170,7 +172,7 @@ const UsersTable = ({ users, onApprove, onReject, onPreview, onManualUpgrade, on
                                 <TableCell>
                                     <Badge variant={user.membershipStatus === 'active' ? 'default' : (user.membershipStatus === 'pending' ? 'outline' : 'destructive')}>{user.membershipStatus}</Badge>
                                 </TableCell>
-                                <TableCell>{format(new Date(user.created_date), 'dd MMM yyyy')}</TableCell>
+                                <TableCell>{formatDate(user.created_date, 'dd MMM yyyy')}</TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -216,6 +218,13 @@ const UsersTable = ({ users, onApprove, onReject, onPreview, onManualUpgrade, on
             </Table>
         </Card>
     );
+};
+
+const formatDate = (value, formatString, fallback = 'N/A') => {
+    if (!value) return fallback;
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return fallback;
+    return format(date, formatString);
 };
 
 
@@ -324,6 +333,9 @@ export default function AdminDashboard() {
 
     // Course Booking Modal
     const [isAddBookingModalOpen, setAddBookingModalOpen] = useState(false);
+    const [isJobModalOpen, setJobModalOpen] = useState(false);
+    const [jobModalKey, setJobModalKey] = useState(0);
+    const [jobModalJobId, setJobModalJobId] = useState(null);
 
     // Counts for related entities (derived from fetched data)
     const [courseDatesCount, setCourseDatesCount] = useState({});
@@ -378,6 +390,24 @@ export default function AdminDashboard() {
     // Community Event Reminders State
     const [isSendingReminders, setIsSendingReminders] = useState(false);
     const [reminderHours, setReminderHours] = useState(24);
+
+    const openAddJobModal = () => {
+        setJobModalKey((prev) => prev + 1);
+        setJobModalJobId(null);
+        setJobModalOpen(true);
+    };
+
+    const openEditJobModal = (jobId) => {
+        setJobModalKey((prev) => prev + 1);
+        setJobModalJobId(jobId);
+        setJobModalOpen(true);
+    };
+
+    const handleJobSaved = () => {
+        setJobModalOpen(false);
+        setActiveTab('jobs');
+        fetchAllDashboardData();
+    };
 
     // Auth redirection
     useEffect(() => {
@@ -699,7 +729,7 @@ export default function AdminDashboard() {
             setEditingCourse(null);
             setEditCourseModalOpen(true);
         } else if (type === 'job') {
-            navigate(createPageUrl('EditJob'));
+            openAddJobModal();
         }
     };
 
@@ -1036,18 +1066,58 @@ export default function AdminDashboard() {
         </TableHead>
     );
 
-    const TabButton = ({ name, label, icon: Icon }) => (
-        <TabsTrigger
-            value={name}
-            className={`rounded-none px-2 pb-3 pt-2 text-sm font-medium tracking-wide data-[state=active]:border-b-4 data-[state=active]:border-[#7C3AED] data-[state=active]:text-[#7C3AED]
-            ${activeTab === name ? 'text-[#7C3AED] font-semibold' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
-        >
-            <span className="inline-flex items-center gap-2">
-                <span className="text-slate-400">{Icon}</span>
+    const navBaseClasses = "relative inline-flex items-center gap-2 px-2 pb-3 pt-2 text-sm font-semibold tracking-wide border-b-4 transition-colors";
+    const navInactiveClasses = "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300";
+    const navActiveClasses = "border-[#7C3AED] text-[#7C3AED]";
+
+    const NavButton = ({ tab, label, icon }) => {
+        const isActive = activeTab === tab;
+        return (
+            <button
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`${navBaseClasses} ${isActive ? navActiveClasses : navInactiveClasses}`}
+            >
+                <span className="text-slate-400">{icon}</span>
                 {label}
-            </span>
-        </TabsTrigger>
-    );
+            </button>
+        );
+    };
+
+    const NavDropdown = ({ label, icon, items }) => {
+        const isActive = items.some((item) => item.tab === activeTab);
+        return (
+            <div className="relative group">
+                <button
+                    type="button"
+                    className={`${navBaseClasses} ${isActive ? navActiveClasses : navInactiveClasses}`}
+                >
+                    <span className="text-slate-400">{icon}</span>
+                    {label}
+                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                </button>
+                <div className="absolute left-0 top-full z-50 w-56 pt-2">
+                    <div className="pointer-events-none translate-y-1 rounded-md border border-slate-200 bg-white py-2 shadow-lg opacity-0 transition group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                        {items.map((item) => (
+                            <button
+                                key={item.tab}
+                                type="button"
+                                onClick={() => setActiveTab(item.tab)}
+                                className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition ${
+                                    activeTab === item.tab
+                                        ? "bg-slate-50 text-[#7C3AED]"
+                                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                }`}
+                            >
+                                {item.icon && <span className="text-slate-400">{item.icon}</span>}
+                                {item.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const handleExportAllUsers = () => {
         try {
@@ -1138,24 +1208,24 @@ export default function AdminDashboard() {
                     user.receives_supervision ? 'Yes' : 'No',
                     user.membershipType || 'N/A',
                     user.membershipStatus || 'N/A',
-                    user.created_date ? format(new Date(user.created_date), 'dd/MM/yyyy HH:mm') : 'N/A',
+                    user.created_date ? formatDate(user.created_date, 'dd/MM/yyyy HH:mm') : 'N/A',
                     user.onboarding_completed ? 'Yes' : 'No',
                     user.stripeCustomerId || 'N/A',
                     user.stripeSubscriptionId || 'N/A',
                     user.stripeSubscriptionStatus || 'N/A',
-                    user.subscriptionStartDate ? format(new Date(user.subscriptionStartDate), 'dd/MM/yyyy HH:mm') : 'N/A',
-                    user.subscriptionEndDate ? format(new Date(user.subscriptionEndDate), 'dd/MM/yyyy HH:mm') : 'N/A',
+                    user.subscriptionStartDate ? formatDate(user.subscriptionStartDate, 'dd/MM/yyyy HH:mm') : 'N/A',
+                    user.subscriptionEndDate ? formatDate(user.subscriptionEndDate, 'dd/MM/yyyy HH:mm') : 'N/A',
                     user.cpdHours || '0',
                     user.totalCpdEarned || '0',
                     user.totalCpdSpent || '0',
                     user.monthlyCpdHours || '0',
-                    user.lastCpdAllocationDate ? format(new Date(user.lastCpdAllocationDate), 'dd/MM/yyyy HH:mm') : 'N/A',
+                    user.lastCpdAllocationDate ? formatDate(user.lastCpdAllocationDate, 'dd/MM/yyyy HH:mm') : 'N/A',
                     user.onboardingChecklistDismissed ? 'Yes' : 'No',
                     user.hasSeenPortalTour ? 'Yes' : 'No',
                     user.needsApplicationProcessing ? 'Yes' : 'No',
                     user.profileImageUrl || 'N/A',
                     user.isUnclaimed ? 'Yes' : 'No',
-                    user.welcomeEmailSentAt ? format(new Date(user.welcomeEmailSentAt), 'dd/MM/yyyy HH:mm') : 'N/A',
+                    user.welcomeEmailSentAt ? formatDate(user.welcomeEmailSentAt, 'dd/MM/yyyy HH:mm') : 'N/A',
                     user.hasPostedIntro ? 'Yes' : 'No',
                     Array.isArray(user.certificates) ? user.certificates.length : 0,
                     user.jobViewTracker?.date || 'N/A',
@@ -1173,7 +1243,7 @@ export default function AdminDashboard() {
             const url = URL.createObjectURL(blob);
 
             link.setAttribute('href', url);
-            link.setAttribute('download', `all-users-detailed-${format(new Date(), 'yyyy-MM-dd-HHmm')}.csv`);
+            link.setAttribute('download', `all-users-detailed-${formatDate(new Date(), 'yyyy-MM-dd-HHmm')}.csv`);
             link.style.visibility = 'hidden';
 
             document.body.appendChild(link);
@@ -1274,7 +1344,7 @@ export default function AdminDashboard() {
                     (member.cpdHours || 0).toFixed(1),
                     (member.totalCpdEarned || 0).toFixed(1),
                     (member.totalCpdSpent || 0).toFixed(1),
-                    member.created_date ? format(new Date(member.created_date), 'dd/MM/yyyy HH:mm') : 'N/A',
+                    member.created_date ? formatDate(member.created_date, 'dd/MM/yyyy HH:mm') : 'N/A',
                     associateCredential?.id || 'N/A',
                     associateCredential?.verificationCode || 'N/A',
                     member.onboarding_completed ? 'Yes' : 'No',
@@ -1292,7 +1362,7 @@ export default function AdminDashboard() {
             const url = URL.createObjectURL(blob);
 
             link.setAttribute('href', url);
-            link.setAttribute('download', `associate-members-detailed-${format(new Date(), 'yyyy-MM-dd-HHmm')}.csv`);
+            link.setAttribute('download', `associate-members-detailed-${formatDate(new Date(), 'yyyy-MM-dd-HHmm')}.csv`);
             link.style.visibility = 'hidden';
 
             document.body.appendChild(link);
@@ -1324,7 +1394,7 @@ export default function AdminDashboard() {
                 member.sector || 'N/A',
                 member.subsector || 'N/A',
                 Array.isArray(member.safeguarding_role) ? member.safeguarding_role.join('; ') : (member.safeguarding_role || 'N/A'),
-                member.created_date ? format(new Date(member.created_date), 'dd/MM/yyyy') : 'N/A',
+                member.created_date ? formatDate(member.created_date, 'dd/MM/yyyy') : 'N/A',
                 member.stripeSubscriptionStatus || 'N/A'
             ]);
 
@@ -1338,7 +1408,7 @@ export default function AdminDashboard() {
             const url = URL.createObjectURL(blob);
 
             link.setAttribute('href', url);
-            link.setAttribute('download', `full-members-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+            link.setAttribute('download', `full-members-${formatDate(new Date(), 'yyyy-MM-dd')}.csv`);
             link.style.visibility = 'hidden';
 
             document.body.appendChild(link);
@@ -1369,7 +1439,7 @@ export default function AdminDashboard() {
                 user.membershipType || 'N/A',
                 user.membershipStatus || 'N/A',
                 user.onboarding_completed ? 'Yes' : 'No',
-                user.created_date ? format(new Date(user.created_date), 'dd/MM/yyyy') : 'N/A'
+                user.created_date ? formatDate(user.created_date, 'dd/MM/yyyy') : 'N/A'
             ]);
 
             const csvContent = [
@@ -1382,7 +1452,7 @@ export default function AdminDashboard() {
             const url = URL.createObjectURL(blob);
 
             link.setAttribute('href', url);
-            link.setAttribute('download', `all-user-emails-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+            link.setAttribute('download', `all-user-emails-${formatDate(new Date(), 'yyyy-MM-dd')}.csv`);
             link.style.visibility = 'hidden';
 
             document.body.appendChild(link);
@@ -1730,29 +1800,48 @@ export default function AdminDashboard() {
                 </header>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-                    <nav className="bg-white border-b border-[#E2E8F0]">
+                    <nav className="sticky top-16 z-40 bg-white border-b border-[#E2E8F0]">
                         <div className="px-6 flex gap-6 h-14 items-end">
-                            <TabsList className="bg-transparent p-0 h-full border-0 justify-start gap-6">
-                                <TabButton name="overview" label="Overview" icon={<Activity className="w-4 h-4" />} />
-                                <TabButton name="all_users" label="All Users" icon={<Users className="w-4 h-4" />} />
-                                <TabButton name="pending_members" label="Pending Applications" icon={<Clock className="w-4 h-4" />} />
-                                <TabButton name="associates" label="Associate Members" icon={<Users className="w-4 h-4" />} />
-                                <TabButton name="full-members" label="Full Members" icon={<Crown className="w-4 h-4" />} />
-                                <TabButton name="organisations" label="Organisations" icon={<Building2 className="w-4 h-4" />} />
-                                <TabButton name="credentials" label="Credentials" icon={<Award className="w-4 h-4" />} />
-                                <TabButton name="surveys" label="Surveys" icon={<MessageSquare className="w-4 h-4" />} />
-                                <TabButton name="analytics" label="Analytics" icon={<BarChart3 className="w-4 h-4" />} />
-                                <TabButton name="courses" label="Courses" icon={<GraduationCap className="w-4 h-4" />} />
-                                <TabButton name="events" label="Events" icon={<Calendar className="w-4 h-4" />} />
-                                <TabButton name="bookings" label="Course Bookings" icon={<ListChecks className="w-4 h-4" />} />
-                                <TabButton name="community" label="Community Events" icon={<Coffee className="w-4 h-4" />} />
-                                <TabButton name="jobs" label="Jobs" icon={<Briefcase className="w-4 h-4" />} />
-                                <TabButton name="job-review" label="Job Review" icon={<Eye className="w-4 h-4" />} />
-                                <TabButton name="news" label="News" icon={<Newspaper className="w-4 h-4" />} />
-                                <TabButton name="enquiries" label="Enquiries" icon={<Mail className="w-4 h-4" />} />
-                                <TabButton name="welcome-emails" label="Welcome Emails" icon={<Send className="w-4 h-4" />} />
-                                <TabButton name="system" label="System" icon={<Settings className="w-4 h-4" />} />
-                            </TabsList>
+                            <div className="flex h-full items-end gap-6">
+                                <NavButton tab="overview" label="Overview" icon={<Activity className="w-4 h-4" />} />
+                                <NavDropdown
+                                    label="Membership & Organisations"
+                                    icon={<Users className="w-4 h-4" />}
+                                    items={[
+                                        { tab: "all_users", label: "All Users", icon: <Users className="w-4 h-4" /> },
+                                        { tab: "associates", label: "Associate Member", icon: <Users className="w-4 h-4" /> },
+                                        { tab: "full-members", label: "Full Members", icon: <Crown className="w-4 h-4" /> },
+                                        { tab: "organisations", label: "Organisations", icon: <Building2 className="w-4 h-4" /> }
+                                    ]}
+                                />
+                                <NavDropdown
+                                    label="Training"
+                                    icon={<GraduationCap className="w-4 h-4" />}
+                                    items={[
+                                        { tab: "courses", label: "Courses", icon: <GraduationCap className="w-4 h-4" /> },
+                                        { tab: "bookings", label: "Course Bookings", icon: <ListChecks className="w-4 h-4" /> }
+                                    ]}
+                                />
+                                <NavDropdown
+                                    label="Events"
+                                    icon={<Calendar className="w-4 h-4" />}
+                                    items={[
+                                        { tab: "events", label: "Events", icon: <Calendar className="w-4 h-4" /> },
+                                        { tab: "community", label: "Community Events", icon: <Coffee className="w-4 h-4" /> }
+                                    ]}
+                                />
+                                <NavDropdown
+                                    label="Jobs"
+                                    icon={<Briefcase className="w-4 h-4" />}
+                                    items={[
+                                        { tab: "jobs", label: "Jobs", icon: <Briefcase className="w-4 h-4" /> },
+                                        { tab: "job-review", label: "Job Review", icon: <Eye className="w-4 h-4" /> }
+                                    ]}
+                                />
+                                <NavButton tab="analytics" label="Analytics" icon={<BarChart3 className="w-4 h-4" />} />
+                                <NavButton tab="enquiries" label="Enquiries" icon={<Mail className="w-4 h-4" />} />
+                                <NavButton tab="surveys" label="Surveys" icon={<MessageSquare className="w-4 h-4" />} />
+                            </div>
                         </div>
                     </nav>
 
@@ -1792,6 +1881,23 @@ export default function AdminDashboard() {
 
                             <div className="bg-white border border-[#E2E8F0] shadow-sm">
                                 <div className="p-6">
+                                    <Dialog open={isJobModalOpen} onOpenChange={setJobModalOpen}>
+                                        <DialogContent className="max-w-5xl w-full max-h-[90vh] overflow-hidden p-6">
+                                            <DialogHeader>
+                                                <DialogTitle>{jobModalJobId ? 'Edit Job Posting' : 'Add Job Posting'}</DialogTitle>
+                                                <DialogDescription>
+                                                    Update the job details and save to publish to the jobs board.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <EditJob
+                                                key={jobModalKey}
+                                                embedded
+                                                jobId={jobModalJobId}
+                                                onCancel={() => setJobModalOpen(false)}
+                                                onSaved={handleJobSaved}
+                                            />
+                                        </DialogContent>
+                                    </Dialog>
                                     {/* Overview Tab */}
                                     <TabsContent value="overview" className="space-y-6">
                                         {/* Stats Grid */}
@@ -1870,10 +1976,10 @@ export default function AdminDashboard() {
                                                 </Link>
                                             </Button>
                                             <Button asChild variant="outline" className="h-auto py-6 flex-col gap-2">
-                                                <Link to={createPageUrl('EditJob')}>
+                                                <button type="button" onClick={openAddJobModal} className="flex flex-col items-center gap-2">
                                                     <Plus className="w-6 h-6" />
                                                     <span>Post Job</span>
-                                                </Link>
+                                                </button>
                                             </Button>
                                             <Button asChild variant="outline" className="h-auto py-6 flex-col gap-2">
                                                 <Link to={createPageUrl('EditCourse')}>
@@ -1905,7 +2011,7 @@ export default function AdminDashboard() {
                                                                     <p className="font-medium text-sm">{signup.userName}</p>
                                                                     <p className="text-xs text-slate-500">{signup.eventTitle}</p>
                                                                 </div>
-                                                                <Badge variant="outline">{format(new Date(signup.created_date), 'MMM d')}</Badge>
+                                                                <Badge variant="outline">{formatDate(signup.created_date, 'MMM d')}</Badge>
                                                             </div>
                                                         ))}
                                                         {data.signups.length === 0 && (
@@ -2033,7 +2139,7 @@ export default function AdminDashboard() {
                                                                                 )}
                                                                             </TableCell>
                                                                             <TableCell className="text-slate-600">
-                                                                                {member.created_date ? format(new Date(member.created_date), 'dd MMM yyyy') : 'N/A'}
+                                                                                {member.created_date ? formatDate(member.created_date, 'dd MMM yyyy') : 'N/A'}
                                                                             </TableCell>
                                                                             <TableCell className="text-right">
                                                                                 <DropdownMenu>
@@ -2212,12 +2318,12 @@ export default function AdminDashboard() {
                                                                             )}
                                                                         </TableCell>
                                                                         <TableCell className="text-slate-600">
-                                                                            {member.created_date ? format(new Date(member.created_date), 'dd MMM yyyy') : 'N/A'}
+                                                                            {member.created_date ? formatDate(member.created_date, 'dd MMM yyyy') : 'N/A'}
                                                                         </TableCell>
                                                                         <TableCell className="text-slate-600">
                                                                             {(() => {
                                                                                 const cred = data.credentials && data.credentials.find(c => c.userId === member.id && c.credentialType === 'Associate Membership');
-                                                                                return (cred && cred.issuedDate) ? format(new Date(cred.issuedDate), 'dd MMM yyyy') : 'N/A';
+                                                                                return (cred && cred.issuedDate) ? formatDate(cred.issuedDate, 'dd MMM yyyy') : 'N/A';
                                                                             })()}
                                                                         </TableCell>
                                                                         <TableCell className="text-slate-600">
@@ -2343,7 +2449,7 @@ export default function AdminDashboard() {
                                                                             )}
                                                                         </TableCell>
                                                                         <TableCell className="text-slate-600">
-                                                                            {format(new Date(member.created_date), 'dd MMM yyyy')}
+                                                                            {formatDate(member.created_date, 'dd MMM yyyy')}
                                                                         </TableCell>
                                                                         <TableCell className="text-right">
                                                                             <div className="flex gap-1 justify-end">
@@ -2640,7 +2746,7 @@ export default function AdminDashboard() {
                                                                             </div>
                                                                             {!survey.isAlwaysAvailable && survey.endDate && (
                                                                                 <Badge variant="outline" className="text-xs">
-                                                                                    Closes {format(new Date(survey.endDate), 'MMM d')}
+                                                                                    Closes {formatDate(survey.endDate, 'MMM d')}
                                                                                 </Badge>
                                                                             )}
                                                                         </div>
@@ -2747,7 +2853,7 @@ export default function AdminDashboard() {
                                                             data.events.map(event => (
                                                                 <TableRow key={event.id}>
                                                                     <TableCell className="font-medium">{event.title}</TableCell>
-                                                                    <TableCell>{format(new Date(event.date), 'dd MMM yyyy')}</TableCell>
+                                                                    <TableCell>{formatDate(event.date, 'dd MMM yyyy')}</TableCell>
                                                                     <TableCell><Badge variant="outline">{event.type}</Badge></TableCell>
                                                                     <TableCell>{eventSignupsCount[event.id] || 0}</TableCell>
                                                                     <TableCell className="text-right">
@@ -2802,7 +2908,7 @@ export default function AdminDashboard() {
                                                                     </TableCell>
                                                                     <TableCell>{booking.courseTitle}</TableCell>
                                                                     <TableCell>
-                                                                        <div className="text-sm">{format(new Date(booking.selectedDate), 'dd MMM yyyy')}</div>
+                                                                        <div className="text-sm">{formatDate(booking.selectedDate, 'dd MMM yyyy')}</div>
                                                                         <div className="text-xs text-slate-500">{booking.selectedTime}</div>
                                                                     </TableCell>
                                                                     <TableCell>
@@ -2915,7 +3021,7 @@ export default function AdminDashboard() {
                                                                         <TableCell>
                                                                             <Badge variant="outline">{event.type}</Badge>
                                                                         </TableCell>
-                                                                        <TableCell>{format(new Date(event.date), 'dd MMM yyyy')}</TableCell>
+                                                                        <TableCell>{formatDate(event.date, 'dd MMM yyyy')}</TableCell>
                                                                         <TableCell className="text-sm text-slate-600">{event.location}</TableCell>
                                                                         <TableCell>
                                                                             {signupCount}
@@ -2977,7 +3083,7 @@ export default function AdminDashboard() {
                                                     <Button variant="outline" onClick={handleReindexJobs}>
                                                         <RefreshCw className="w-4 h-4 mr-2" /> Reindex Jobs
                                                     </Button>
-                                                    <Button onClick={() => navigate(createPageUrl('EditJob'))}>
+                                                    <Button onClick={openAddJobModal}>
                                                         <Plus className="w-4 h-4 mr-2" /> Add Job
                                                     </Button>
                                                 </div>
@@ -3055,7 +3161,7 @@ export default function AdminDashboard() {
                                                                             </div>
                                                                         </TableCell>
                                                                         <TableCell className="text-right">
-                                                                            <Button variant="outline" size="sm" onClick={() => navigate(`${createPageUrl('EditJob')}?id=${job.id}`)}>
+                                                                            <Button variant="outline" size="sm" onClick={() => openEditJobModal(job.id)}>
                                                                                 <Edit2 className="w-4 h-4 mr-2" /> Edit
                                                                             </Button>
                                                                         </TableCell>
@@ -3122,14 +3228,14 @@ export default function AdminDashboard() {
                                                                             <div className="text-sm">{job.submittedByUserEmail}</div>
                                                                         </TableCell>
                                                                         <TableCell>
-                                                                            {format(new Date(job.created_date), 'dd MMM yyyy, HH:mm')}
+                                                                            {formatDate(job.created_date, 'dd MMM yyyy, HH:mm')}
                                                                         </TableCell>
                                                                         <TableCell className="text-right">
                                                                             <div className="flex gap-2 justify-end">
                                                                                 <Button
                                                                                     variant="outline"
                                                                                     size="sm"
-                                                                                    onClick={() => navigate(`${createPageUrl('EditJob')}?id=${job.id}`)}
+                                                                                    onClick={() => openEditJobModal(job.id)}
                                                                                 >
                                                                                     <Eye className="w-4 h-4 mr-1" />
                                                                                     Review
@@ -3375,7 +3481,7 @@ export default function AdminDashboard() {
                                                                             <TableCell>
                                                                                 {item.category && <Badge variant="outline">{item.category}</Badge>}
                                                                             </TableCell>
-                                                                            <TableCell>{format(new Date(item.publishedDate), 'dd MMM yyyy')}</TableCell>
+                                                                            <TableCell>{formatDate(item.publishedDate, 'dd MMM yyyy')}</TableCell>
                                                                             <TableCell>
                                                                                 <Badge variant={
                                                                                     item.status === 'Published' ? 'default' :
@@ -3441,7 +3547,7 @@ export default function AdminDashboard() {
                                                                             )}
                                                                         </TableCell>
                                                                         <TableCell>
-                                                                            {source.lastFetchedAt ? format(new Date(source.lastFetchedAt), 'dd MMM HH:mm') : 'Never'}
+                                                                            {source.lastFetchedAt ? formatDate(source.lastFetchedAt, 'dd MMM HH:mm') : 'Never'}
                                                                         </TableCell>
                                                                         <TableCell className="text-right">
                                                                             <div className="flex gap-2 justify-end">
@@ -3583,14 +3689,14 @@ export default function AdminDashboard() {
                                                                     <TableCell>
                                                                         {enquiry.selectedDate ? (
                                                                             <>
-                                                                                <div>{format(new Date(enquiry.selectedDate), 'do MMMM yyyy')}</div>
+                                                                                <div>{formatDate(enquiry.selectedDate, 'do MMMM yyyy')}</div>
                                                                                 <div className="text-xs text-gray-500">{enquiry.selectedTime}</div>
                                                                             </>
                                                                         ) : (
                                                                             <span className="text-gray-500">General Enquiry</span>
                                                                         )}
                                                                     </TableCell>
-                                                                    <TableCell>{format(new Date(enquiry.created_date), 'do MMM yyyy, h:mm a')}</TableCell>
+                                                                    <TableCell>{formatDate(enquiry.created_date, 'do MMM yyyy, h:mm a')}</TableCell>
                                                                     <TableCell className="text-right">
                                                                         <Button variant="outline" size="sm" onClick={() => handleEnquiryResolve(enquiry)}>Mark as Resolved</Button>
                                                                     </TableCell>
@@ -3943,7 +4049,7 @@ export default function AdminDashboard() {
                                                 ...credentialForm,
                                                 eventId: value,
                                                 masterclassTitle: selectedEvent?.title || '',
-                                                completionDate: selectedEvent?.date ? format(new Date(selectedEvent.date), 'yyyy-MM-dd') : '',
+                                                completionDate: selectedEvent?.date ? formatDate(selectedEvent.date, 'yyyy-MM-dd') : '',
                                                 hours: selectedEvent?.duration ? (selectedEvent.duration / 60).toString() : ''
                                             });
                                         }}
@@ -3957,7 +4063,7 @@ export default function AdminDashboard() {
                                                 .filter(e => e.type === 'Masterclass')
                                                 .map(event => (
                                                     <SelectItem key={event.id} value={event.id}>
-                                                        {event.title} - {format(new Date(event.date), 'dd MMM yyyy')}
+                                                        {event.title} - {formatDate(event.date, 'dd MMM yyyy')}
                                                     </SelectItem>
                                                 ))}
                                         </SelectContent>

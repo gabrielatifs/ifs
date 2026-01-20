@@ -192,6 +192,7 @@ export default function EditCourseModal({ isOpen, onClose, courseToEdit, onCours
             for (const variant of variants) {
                 const variantData = { ...variant, courseId: savedCourse.id };
                 delete variantData.isNew;
+                delete variantData.cpdHours;
 
                 if (variant.id) {
                     await CourseVariant.update(variant.id, variantData);

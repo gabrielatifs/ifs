@@ -44,6 +44,12 @@ const mergeProfile = (profile, user) => {
   if (!camel.organisationName && (camel.organisation || merged.organisation)) {
     camel.organisationName = camel.organisation || merged.organisation;
   }
+  if (!merged.created_date && (merged.created_at || camel.createdAt)) {
+    merged.created_date = merged.created_at || camel.createdAt;
+  }
+  if (!merged.updated_date && (merged.updated_at || camel.updatedAt)) {
+    merged.updated_date = merged.updated_at || camel.updatedAt;
+  }
   return { ...merged, ...camel };
 };
 

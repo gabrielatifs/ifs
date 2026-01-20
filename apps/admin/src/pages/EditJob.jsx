@@ -64,7 +64,32 @@ const NEW_JOB_TEMPLATE = {
     reviewNotes: ''
     };
 
-export default function EditJob() {
+const normalizeJobData = (jobData) => {
+    const normalizeArray = (value) => {
+        if (Array.isArray(value)) return value;
+        if (typeof value === 'string') {
+            try {
+                const parsed = JSON.parse(value);
+                if (Array.isArray(parsed)) return parsed;
+            } catch {
+                return value ? [value] : [''];
+            }
+        }
+        return [''];
+    };
+
+    return {
+        ...NEW_JOB_TEMPLATE,
+        ...jobData,
+        keyResponsibilities: normalizeArray(jobData?.keyResponsibilities),
+        requirements: normalizeArray(jobData?.requirements),
+        desirableSkills: normalizeArray(jobData?.desirableSkills),
+        benefits: normalizeArray(jobData?.benefits),
+        safeguardingFocus: Array.isArray(jobData?.safeguardingFocus) ? jobData.safeguardingFocus : (jobData?.safeguardingFocus ? [jobData.safeguardingFocus] : [])
+    };
+};
+
+export default function EditJob({ embedded = false, jobId: jobIdOverride, onCancel, onSaved }) {
     const [user, setUser] = useState(null);
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -74,13 +99,17 @@ export default function EditJob() {
     
     const location = useLocation();
     const navigate = useNavigate();
-    const jobId = new URLSearchParams(location.search).get('id');
+    const jobId = jobIdOverride ?? new URLSearchParams(location.search).get('id');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const currentUser = await User.me();
                 if (currentUser.role !== 'admin') {
+                    if (embedded && onCancel) {
+                        onCancel();
+                        return;
+                    }
                     navigate(createPageUrl('Dashboard'));
                     return;
                 }
@@ -89,15 +118,19 @@ export default function EditJob() {
                 if (jobId) {
                     // Editing an existing job
                     const jobData = await Job.get(jobId);
-                    setJob(jobData);
+                    setJob(normalizeJobData(jobData));
                 } else {
                     // Creating a new job
-                    setJob(NEW_JOB_TEMPLATE);
+                    setJob(normalizeJobData(NEW_JOB_TEMPLATE));
                 }
 
             } catch (error) {
                 console.error("Error fetching data:", error);
-                navigateToUrl(navigate, createPageUrl('AdminDashboard'));
+                if (embedded && onCancel) {
+                    onCancel();
+                } else {
+                    navigateToUrl(navigate, createPageUrl('AdminDashboard'));
+                }
             } finally {
                 setLoading(false);
             }
@@ -306,6 +339,14 @@ export default function EditJob() {
                 });
             }
 
+            if (embedded) {
+                if (onSaved) {
+                    onSaved(savedId);
+                } else if (onCancel) {
+                    onCancel();
+                }
+                return;
+            }
             navigateToUrl(navigate, createPageUrl('AdminDashboard') + '?tab=jobs');
         } catch (error) {
             console.error("Error saving job:", error);
@@ -316,7 +357,7 @@ export default function EditJob() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-slate-50">
+            <div className={`flex justify-center items-center ${embedded ? 'min-h-[240px]' : 'min-h-screen bg-slate-50'}`}>
                 <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
             </div>
         );
@@ -326,56 +367,8 @@ export default function EditJob() {
 
     const isNewJob = !jobId;
 
-    return (
-        <div className="flex h-screen bg-slate-50/30">
-            <Toaster />
-            <PortalSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="AdminDashboard" />
-            
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <PortalHeader setSidebarOpen={setSidebarOpen} user={user} />
-
-                <main className="flex-1 overflow-y-auto p-6 md:p-8">
-                    <div className="flex justify-between items-center mb-6">
-                        <Link to={createPageUrl('AdminDashboard')} className="inline-flex items-center text-sm font-medium text-purple-600 hover:text-purple-800">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Admin Dashboard
-                        </Link>
-                        <div className="flex gap-2">
-                            {jobId && job.submittedByUserEmail && (
-                                <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={async () => {
-                                        console.log('[TEST] Testing email send...');
-                                        try {
-                                            const result = await ifs.functions.invoke('sendJobStatusEmail', {
-                                                jobId: jobId,
-                                                jobTitle: job.title,
-                                                companyName: job.companyName,
-                                                toEmail: job.submittedByUserEmail,
-                                                oldStatus: job.status,
-                                                newStatus: 'Rejected',
-                                                reviewNotes: 'Test email'
-                                            });
-                                            console.log('[TEST] Email result:', result);
-                                            alert('Check console for email test results');
-                                        } catch (err) {
-                                            console.error('[TEST] Email error:', err);
-                                            alert('Email test failed - check console');
-                                        }
-                                    }}
-                                >
-                                    Test Email
-                                </Button>
-                            )}
-                            <Button onClick={handleSave} disabled={isSaving}>
-                                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                                Save Changes
-                            </Button>
-                        </div>
-                    </div>
-                    
-                    <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 space-y-8">
+    const formContent = (
+        <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 space-y-8">
                         {/* Basic Information */}
                         <div className="space-y-6">
                             <h3 className="text-lg font-semibold text-slate-900 border-b pb-2">Basic Information</h3>
@@ -911,6 +904,84 @@ export default function EditJob() {
                             </div>
                         )}
                     </div>
+    );
+
+    if (embedded) {
+        return (
+            <div className="space-y-6">
+                <Toaster />
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Admin Portal</p>
+                        <h2 className="text-2xl font-bold text-slate-900">Add Job Posting</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" onClick={() => onCancel && onCancel()} disabled={isSaving}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSave} disabled={isSaving}>
+                            {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                            Save Changes
+                        </Button>
+                    </div>
+                </div>
+                <div className="max-h-[70vh] overflow-y-auto pr-1">
+                    {formContent}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex h-screen bg-slate-50/30">
+            <Toaster />
+            <PortalSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="AdminDashboard" />
+            
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <PortalHeader setSidebarOpen={setSidebarOpen} user={user} />
+
+                <main className="flex-1 overflow-y-auto p-6 md:p-8">
+                    <div className="flex justify-between items-center mb-6">
+                        <Link to={createPageUrl('AdminDashboard')} className="inline-flex items-center text-sm font-medium text-purple-600 hover:text-purple-800">
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Back to Admin Dashboard
+                        </Link>
+                        <div className="flex gap-2">
+                            {jobId && job.submittedByUserEmail && (
+                                <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={async () => {
+                                        console.log('[TEST] Testing email send...');
+                                        try {
+                                            const result = await ifs.functions.invoke('sendJobStatusEmail', {
+                                                jobId: jobId,
+                                                jobTitle: job.title,
+                                                companyName: job.companyName,
+                                                toEmail: job.submittedByUserEmail,
+                                                oldStatus: job.status,
+                                                newStatus: 'Rejected',
+                                                reviewNotes: 'Test email'
+                                            });
+                                            console.log('[TEST] Email result:', result);
+                                            alert('Check console for email test results');
+                                        } catch (err) {
+                                            console.error('[TEST] Email error:', err);
+                                            alert('Email test failed - check console');
+                                        }
+                                    }}
+                                >
+                                    Test Email
+                                </Button>
+                            )}
+                            <Button onClick={handleSave} disabled={isSaving}>
+                                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                                Save Changes
+                            </Button>
+                        </div>
+                    </div>
+                    
+                    {formContent}
                 </main>
             </div>
         </div>

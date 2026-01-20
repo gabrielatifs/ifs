@@ -13,3 +13,8 @@ html {
   color: hsl(var(--destructive));
   font-weight: 500;
 }
+
+/* Ensure Google Places autocomplete appears above modal overlays */
+.pac-container {
+  z-index: 2000 !important;
+}

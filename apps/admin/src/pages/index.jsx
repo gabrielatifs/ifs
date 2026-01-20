@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 // Admin-only pages
 import AdminDashboard from "./AdminDashboard";
+import EditJobModalRoute from "./EditJobModalRoute";
 import Login from "./Login";
 import ResetPassword from "./ResetPassword";
 import VerifyCode from "./VerifyCode";
@@ -26,6 +27,11 @@ export default function Pages() {
                             <Route path="/" element={<AdminDashboard />} />
                             <Route path="*" element={<AdminDashboard />} />
                         </Routes>
+                    </Layout>
+                } />
+                <Route path="/editjob" element={
+                    <Layout currentPageName="AdminDashboard">
+                        <EditJobModalRoute />
                     </Layout>
                 } />
             </Routes>

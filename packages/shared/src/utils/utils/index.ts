@@ -3,7 +3,7 @@
 
 import { isMainSitePage, isPortalPage } from '../../config/pages.js';
 
-const ADMIN_PAGES = new Set(['admindashboard', 'adminsupport']);
+const ADMIN_PAGES = new Set(['admindashboard', 'adminsupport', 'editjob']);
 const ADMIN_URL_FALLBACK = 'https://admin.join-ifs.org';
 const PORTAL_URL_FALLBACK = 'http://localhost:3001';
 const MAIN_SITE_URL_FALLBACK = 'http://localhost:3000';

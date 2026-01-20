@@ -3,7 +3,6 @@
 export const PORTAL_PAGES = [
   'Dashboard',
   'EditEvent',
-  'EditJob',
   'EditCourse',
   'EditSurvey',
   'SurveyResponses',
@@ -46,7 +45,8 @@ export const PORTAL_PAGES = [
 
 export const ADMIN_PAGES = [
   'AdminDashboard',
-  'AdminSupport'
+  'AdminSupport',
+  'EditJob'
 ];
 
 export const MAIN_SITE_PAGES = [
