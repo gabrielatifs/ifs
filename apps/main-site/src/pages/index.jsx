@@ -96,6 +96,7 @@ export default function Pages() {
                     <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
                     <Route path="/Training" element={<Training />} />
                     <Route path="/TrainingCourseDetails" element={<TrainingCourseDetails />} />
+                    <Route path="/trainingcoursedetails" element={<TrainingCourseDetails />} />
                     <Route path="/VerifyCredential" element={<VerifyCredential />} />
                     <Route path="/WhyJoinUs" element={<WhyJoinUs />} />
 
