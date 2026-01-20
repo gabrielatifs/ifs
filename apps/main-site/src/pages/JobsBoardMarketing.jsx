@@ -33,8 +33,8 @@ export default function JobsBoardMarketing() {
         const fetchJobs = async () => {
             setLoading(true);
             try {
-                // Fetch the 8 most recently created, active jobs
-                const recentJobs = await base44.entities.Job.filter({ status: 'Active' }, '-created_date', 8);
+                // Fetch the 8 most recently created jobs (RLS limits to active)
+                const recentJobs = await base44.entities.Job.list('-created_date', 8);
                 
                 // Filter out jobs with expired application deadlines
                 const now = new Date();

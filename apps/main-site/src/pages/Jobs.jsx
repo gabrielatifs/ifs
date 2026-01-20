@@ -44,7 +44,7 @@ export default function Jobs() {
       try {
         setLoading(true);
         const [jobData, userData] = await Promise.all([
-          Job.filter({ status: 'Active' }),
+          Job.list('-created_date'),
           User.me().catch(() => null)
         ]);
         setJobs(jobData);
