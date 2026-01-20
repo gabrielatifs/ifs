@@ -115,16 +115,28 @@ export const fastLogout = () => {
             const storageKey = `sb-${projectRef}-auth-token`;
             localStorage.removeItem(storageKey);
             sessionStorage.removeItem(storageKey);
-            if (authCookieDomain && typeof document !== 'undefined') {
+            if (typeof document !== 'undefined') {
                 const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
-                const attrs = [
+                const baseAttrs = [
                     'path=/',
-                    `domain=${authCookieDomain}`,
                     'SameSite=Lax',
                     isSecure ? 'Secure' : '',
                     'Max-Age=0'
                 ].filter(Boolean);
-                document.cookie = `${storageKey}=; ${attrs.join('; ')}`;
+                const clearCookie = (name, domain) => {
+                    const attrs = domain ? [...baseAttrs, `domain=${domain}`] : baseAttrs;
+                    document.cookie = `${name}=; ${attrs.join('; ')}`;
+                };
+                const cookieNames = document.cookie
+                    .split(';')
+                    .map((item) => item.trim().split('=')[0])
+                    .filter(Boolean);
+                cookieNames
+                    .filter((name) => name.startsWith(storageKey))
+                    .forEach((name) => {
+                        clearCookie(name, authCookieDomain || null);
+                        clearCookie(name, null);
+                    });
             }
         }
     } catch (error) {
