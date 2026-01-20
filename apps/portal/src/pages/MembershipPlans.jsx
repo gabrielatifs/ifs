@@ -249,7 +249,7 @@ export default function MembershipPlans() {
                 }
                 
                 const currentUrl = window.location.origin + createPageUrl('Dashboard');
-                const { data } = await createCheckout({
+                const data = await createCheckout({
                     successUrl: `${currentUrl}?payment=success`,
                     cancelUrl: window.location.href,
                     priceId: priceId,

@@ -107,7 +107,7 @@ export default function PortalMembershipTiers() {
         setIsProcessing(true);
         try {
             const currentUrl = window.location.href;
-            const { data } = await createCheckout({
+            const data = await createCheckout({
                 priceId: 'price_1STErADJm5OJGimXcBgvYoYn',
                 successUrl: `${currentUrl}?payment=success`,
                 cancelUrl: `${currentUrl}?payment=canceled`

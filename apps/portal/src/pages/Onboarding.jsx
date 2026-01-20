@@ -640,7 +640,7 @@ export default function Onboarding() {
 
                 // Use the correct Full Membership price ID
                 // Full Membership: price_1STErADJm5OJGimXcBgvYoYn
-                const { data } = await createCheckout({
+                const data = await createCheckout({
                     successUrl,
                     cancelUrl,
                     priceId: 'price_1STErADJm5OJGimXcBgvYoYn',

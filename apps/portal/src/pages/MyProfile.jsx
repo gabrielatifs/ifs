@@ -48,7 +48,7 @@ const UpgradeCard = ({ user }) => {
             const successUrl = `${productionOrigin}${createPageUrl('MyProfile')}?upgrade_success=true`;
             const cancelUrl = `${productionOrigin}${createPageUrl('MyProfile')}`;
 
-            const { data } = await createCheckout({
+            const data = await createCheckout({
                 priceId: 'price_1STErADJm5OJGimXcBgvYoYn',
                 successUrl,
                 cancelUrl
