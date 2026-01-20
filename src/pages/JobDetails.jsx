@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -57,7 +57,7 @@ export default function JobDetails() {
             }
 
             try {
-                const fetchedJob = await base44.entities.Job.get(jobId);
+                const fetchedJob = await ifs.entities.Job.get(jobId);
                 
                 // Check if job has expired
                 const isExpired = fetchedJob.applicationDeadline && 

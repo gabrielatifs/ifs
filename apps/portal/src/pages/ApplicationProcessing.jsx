@@ -10,7 +10,7 @@ import { Loader2, CheckCircle, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { addToMailerLite } from '@ifs/shared/api/functions';
 import { addToApollo } from '@ifs/shared/api/functions';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { OrgInvite } from '@ifs/shared/api/entities';
 import { wrapEmailHtml } from '@ifs/shared/emails/wrapper';
 import { supabase } from '@ifs/shared/lib/supabase';
@@ -267,7 +267,7 @@ setStatus(`Registering you for "${event.title}"...`);
                 setStatus('Verifying organisation membership...');
                 
                 // Refresh user data to get latest org info
-                const refreshedUser = await base44.auth.me();
+                const refreshedUser = await ifs.auth.me();
                 
                 if (refreshedUser.organisationId) {
                     console.log('[ApplicationProcessing] ✅ User successfully added to organisation:', refreshedUser.organisationName);
@@ -286,7 +286,7 @@ setStatus(`Registering you for "${event.title}"...`);
                     });
                 } catch (updateError) {
                     console.error('[ApplicationProcessing] Failed to update user profile, attempting direct update:', updateError);
-                    await base44.asServiceRole.entities.User.update(user.id, {
+                    await ifs.asServiceRole.entities.User.update(user.id, {
                         onboarding_completed: true,
                         needsApplicationProcessing: false
                     });
@@ -335,7 +335,7 @@ setStatus(`Registering you for "${event.title}"...`);
 
                     while (attempts < maxAttempts) {
                         await new Promise(resolve => setTimeout(resolve, 2000));
-                        currentUser = await base44.auth.me();
+                        currentUser = await ifs.auth.me();
 
                         console.log('[ApplicationProcessing] Attempt', attempts + 1, '- User check:', {
                             membershipType: currentUser.membershipType,
@@ -460,7 +460,7 @@ setStatus(`Registering you for "${event.title}"...`);
                 setStatus('Verifying organisation membership...');
                 
                 // Refresh user data to get latest org info
-                const refreshedUser = await base44.auth.me();
+                const refreshedUser = await ifs.auth.me();
                 
                 if (refreshedUser.organisationId) {
                     console.log('[ApplicationProcessing] ✅ User successfully added to organisation:', refreshedUser.organisationName);
@@ -482,7 +482,7 @@ setStatus(`Registering you for "${event.title}"...`);
                     });
                 } catch (updateError) {
                     console.error('[ApplicationProcessing] Failed to update user profile, attempting direct update:', updateError);
-                    await base44.asServiceRole.entities.User.update(user.id, {
+                    await ifs.asServiceRole.entities.User.update(user.id, {
                         onboarding_completed: true,
                         needsApplicationProcessing: false
                     });

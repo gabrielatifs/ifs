@@ -28,7 +28,7 @@ import { useToast } from "@ifs/shared/components/ui/use-toast";
 import { approveAssociateMembership } from '@ifs/shared/api/functions';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { format } from 'date-fns';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 
 export default function Dashboard() {
     const { user, loading, initialCheckComplete, refreshUser, updateUserProfile } = useUser();
@@ -130,7 +130,7 @@ export default function Dashboard() {
                 if (!user.organisationId) {
                     try {
                         // Use backend function to bypass RLS
-                        const { data } = await base44.functions.invoke('getMyInvites');
+                        const { data } = await ifs.functions.invoke('getMyInvites');
 
                         if (data?.success) {
                             console.log('[Dashboard] 📋 Invites received:', data.invites);
@@ -157,7 +157,7 @@ export default function Dashboard() {
 
             try {
                 // Use backend function to fetch invite with service role
-                const { data } = await base44.functions.invoke('getMyInvites');
+                const { data } = await ifs.functions.invoke('getMyInvites');
 
                 if (!data || !data.success) {
                     throw new Error(data?.error || 'Failed to fetch invites');

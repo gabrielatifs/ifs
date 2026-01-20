@@ -15,7 +15,7 @@ import { Survey } from '@/api/entities';
 import { SurveyResponse } from '@/api/entities';
 import { JobMetric } from '@/api/entities';
 import { createPageUrl } from '@/utils';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -420,8 +420,8 @@ export default function AdminDashboard() {
             ] = await Promise.all([
                 Survey.list('-created_date', 1000),
                 SurveyResponse.list('-created_date', 2000),
-                base44.entities.CommunityEvent.list('-date', 1000),
-                base44.entities.CommunityEventSignup.list('-created_date', 2000),
+                ifs.entities.CommunityEvent.list('-date', 1000),
+                ifs.entities.CommunityEventSignup.list('-created_date', 2000),
                 CourseVariant.list('-created_date', 1000)
             ]);
 
@@ -435,7 +435,7 @@ export default function AdminDashboard() {
                 JobMetric.list('-date', 2000),
                 NewsSource.list('-created_date', 1000),
                 NewsItem.list('-publishedDate', 1000),
-                base44.entities.NewsCategory.list('displayOrder', 1000)
+                ifs.entities.NewsCategory.list('displayOrder', 1000)
             ]);
 
             // Calculate course date counts
@@ -739,7 +739,7 @@ export default function AdminDashboard() {
     const handleReindexJobs = async () => {
         try {
             toast({ title: "Reindexing Jobs", description: "Submitting all active jobs to Google..." });
-            const response = await base44.functions.invoke('reindexJobs');
+            const response = await ifs.functions.invoke('reindexJobs');
             if (response.data && response.data.results) {
                 const successCount = response.data.results.filter(r => r.success).length;
                 toast({ 
@@ -794,7 +794,7 @@ export default function AdminDashboard() {
     const handleBackfillApplicants = async () => {
         try {
             toast({ title: "Backfilling Applicants", description: "Processing user data..." });
-            const response = await base44.functions.invoke('backfillApplicants');
+            const response = await ifs.functions.invoke('backfillApplicants');
             if (response.data && response.data.success) {
                 toast({ 
                     title: "Backfill Complete", 
@@ -816,7 +816,7 @@ export default function AdminDashboard() {
     const handleFetchNews = async () => {
         try {
             toast({ title: "Fetching News", description: "Contacting configured sources (Forcing update)..." });
-            const response = await base44.functions.invoke('fetchNewsFromSources', { force: true });
+            const response = await ifs.functions.invoke('fetchNewsFromSources', { force: true });
             if (response.data) {
                 toast({ 
                     title: "Fetch Complete", 
@@ -891,7 +891,7 @@ export default function AdminDashboard() {
     const handleDeleteNewsCategory = async (id) => {
         if (confirm('Are you sure you want to delete this category?')) {
             try {
-                await base44.entities.NewsCategory.delete(id);
+                await ifs.entities.NewsCategory.delete(id);
                 toast({ title: "Deleted", description: "Category removed." });
                 fetchAllDashboardData();
             } catch (error) {
@@ -974,7 +974,7 @@ export default function AdminDashboard() {
         setIsSendingReminders(true);
         try {
             toast({ title: "Sending Reminders", description: "Processing community event signups..." });
-            const response = await base44.functions.invoke('sendCommunityEventReminders', { 
+            const response = await ifs.functions.invoke('sendCommunityEventReminders', { 
                 hoursBeforeEvent: reminderHours 
             });
             
@@ -1567,7 +1567,7 @@ export default function AdminDashboard() {
             });
 
             // Create transaction record using service role to ensure it's created properly
-            await base44.asServiceRole.entities.CreditTransaction.create({
+            await ifs.asServiceRole.entities.CreditTransaction.create({
                 userId: selectedUser.id,
                 userEmail: selectedUser.email,
                 transactionType: 'allocation',
@@ -1621,7 +1621,7 @@ export default function AdminDashboard() {
 
         setIsGiftingSeats(true);
         try {
-            const response = await base44.functions.invoke('giftOrgSeats', {
+            const response = await ifs.functions.invoke('giftOrgSeats', {
                 organisationId: giftSeatsForm.organisationId,
                 seatsToGift,
                 reason: giftSeatsForm.reason || 'Admin gift allocation'
@@ -3073,7 +3073,7 @@ export default function AdminDashboard() {
                                                                                            await Job.update(job.id, { status: 'Active' });
                                                                                            
                                                                                            if (job.submittedByUserEmail) {
-                                                                                               const emailRes = await base44.functions.invoke('sendJobStatusEmail', {
+                                                                                               const emailRes = await ifs.functions.invoke('sendJobStatusEmail', {
                                                                                                    jobId: job.id,
                                                                                                    jobTitle: job.title,
                                                                                                    companyName: job.companyName,
@@ -3112,7 +3112,7 @@ export default function AdminDashboard() {
                                                                                            await Job.update(job.id, { status: 'Rejected', reviewNotes: reason });
                                                                                            
                                                                                            if (job.submittedByUserEmail) {
-                                                                                               const emailRes = await base44.functions.invoke('sendJobStatusEmail', {
+                                                                                               const emailRes = await ifs.functions.invoke('sendJobStatusEmail', {
                                                                                                    jobId: job.id,
                                                                                                    jobTitle: job.title,
                                                                                                    companyName: job.companyName,
@@ -3694,7 +3694,7 @@ export default function AdminDashboard() {
                                                                 <Button onClick={async () => {
                                                                     try {
                                                                         toast({ title: "Processing...", description: "Syncing users to Salesforce..." });
-                                                                        const res = await base44.functions.invoke('backfillSalesforce', { limit: 1000 });
+                                                                        const res = await ifs.functions.invoke('backfillSalesforce', { limit: 1000 });
                                                                         if (res.data.success) {
                                                                             toast({ 
                                                                                 title: "Sync Complete", 
@@ -3727,7 +3727,7 @@ export default function AdminDashboard() {
                                                                 <Button onClick={async () => {
                                                                     try {
                                                                         toast({ title: "Processing...", description: "Enabling job alerts for members..." });
-                                                                        const res = await base44.functions.invoke('backfillJobAlerts');
+                                                                        const res = await ifs.functions.invoke('backfillJobAlerts');
                                                                         if (res.data.success) {
                                                                             toast({ title: "Success", description: res.data.message });
                                                                         } else {

@@ -12,7 +12,7 @@ import { Toaster } from '@ifs/shared/components/ui/toaster';
 import MainSiteNav from '../components/marketing/MainSiteNav';
 import HeroBreadcrumbs from '../components/marketing/HeroBreadcrumbs';
 import MarketingFooter from '../components/marketing/MarketingFooter';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { FellowshipApplication } from '@ifs/shared/api/entities';
 import { sendEmail } from '@ifs/shared/api/functions';
 import { customLoginWithRedirect } from '../components/utils/auth';
@@ -37,7 +37,7 @@ export default function Fellowship() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await ifs.auth.me();
         setUser(currentUser);
       } catch {
         setUser(null);
@@ -56,7 +56,7 @@ export default function Fellowship() {
     setSubmitting(true);
 
     try {
-      await base44.entities.FellowshipApplication.create({
+      await ifs.entities.FellowshipApplication.create({
         userId: user?.id || null,
         userEmail: user?.email || formData.email,
         userName: user?.displayName || user?.full_name || formData.name,

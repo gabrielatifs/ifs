@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { SupportTicket } from '@ifs/shared/api/entities';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
@@ -128,7 +128,7 @@ export default function AdminSupport() {
             
             // Notify user
             try {
-                await base44.functions.invoke('sendEmail', {
+                await ifs.functions.invoke('sendEmail', {
                     to: selectedTicket.userEmail,
                     subject: `[Support] Update on your ticket: ${selectedTicket.subject}`,
                     html: `

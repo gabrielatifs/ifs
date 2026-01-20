@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,11 +35,11 @@ export default function JobDetailsView({ jobId }) {
                 User.me().then(setUser).catch(() => setUser(null));
 
                 if (jobId) {
-                    const fetchedJob = await base44.entities.Job.get(jobId);
+                    const fetchedJob = await ifs.entities.Job.get(jobId);
                     setJob(fetchedJob);
                     if (fetchedJob) {
                         // Track view - non-blocking
-                        base44.functions.invoke('trackJobAnalytics', { jobId: fetchedJob.id, type: 'view' }).catch(console.error);
+                        ifs.functions.invoke('trackJobAnalytics', { jobId: fetchedJob.id, type: 'view' }).catch(console.error);
                     }
                 } else {
                     setJob(null);
@@ -201,7 +201,7 @@ export default function JobDetailsView({ jobId }) {
 
     const handleLogin = () => {
         const currentUrl = window.location.pathname + window.location.search;
-        base44.auth.redirectToLogin(currentUrl);
+        ifs.auth.redirectToLogin(currentUrl);
     };
 
     const isMember = user && (user.membershipType === 'Associate' || user.membershipType === 'Full') && user.membershipStatus === 'active';
@@ -238,7 +238,7 @@ export default function JobDetailsView({ jobId }) {
     }
 
     const handleApplicationClick = () => {
-        base44.functions.invoke('trackJobAnalytics', { jobId: job.id, type: 'click' }).catch(console.error);
+        ifs.functions.invoke('trackJobAnalytics', { jobId: job.id, type: 'click' }).catch(console.error);
     };
 
     const renderApplicationSection = () => {

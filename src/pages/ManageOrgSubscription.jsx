@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, CreditCard, Users, Calendar, AlertCircle, Download, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { format } from 'date-fns';
 import {
     AlertDialog,
@@ -44,14 +44,14 @@ export default function ManageOrgSubscription() {
             setLoading(true);
             
             // Fetch organisation details
-            const orgs = await base44.entities.Organisation.filter({ id: user.organisationId });
+            const orgs = await ifs.entities.Organisation.filter({ id: user.organisationId });
             const org = orgs[0];
             setOrganisation(org);
             setNewSeats(org.totalSeats || 0);
 
             // Fetch invoices if there's a Stripe customer
             if (org.stripeCustomerId) {
-                const invoicesResponse = await base44.functions.invoke('getInvoices', {
+                const invoicesResponse = await ifs.functions.invoke('getInvoices', {
                     customerId: org.stripeCustomerId
                 });
                 if (invoicesResponse.data?.invoices) {
@@ -84,7 +84,7 @@ export default function ManageOrgSubscription() {
             setUpdating(true);
             
             // Update subscription quantity via Stripe
-            const response = await base44.functions.invoke('updateOrgSubscription', {
+            const response = await ifs.functions.invoke('updateOrgSubscription', {
                 organisationId: user.organisationId,
                 newQuantity: newSeats
             });
@@ -114,7 +114,7 @@ export default function ManageOrgSubscription() {
         try {
             setCancelling(true);
             
-            const response = await base44.functions.invoke('cancelSubscription', {
+            const response = await ifs.functions.invoke('cancelSubscription', {
                 subscriptionId: organisation.stripeSubscriptionId
             });
 
@@ -144,7 +144,7 @@ export default function ManageOrgSubscription() {
         try {
             setUpdating(true);
             
-            const response = await base44.functions.invoke('reactivateSubscription', {
+            const response = await ifs.functions.invoke('reactivateSubscription', {
                 subscriptionId: organisation.stripeSubscriptionId
             });
 
@@ -197,7 +197,7 @@ export default function ManageOrgSubscription() {
         try {
             setUpdating(true);
             
-            const response = await base44.functions.invoke('createOrgMembershipCheckout', {
+            const response = await ifs.functions.invoke('createOrgMembershipCheckout', {
                 organisationId: user.organisationId,
                 seats: 5 // Default to 5 seats
             });

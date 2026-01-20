@@ -10,7 +10,7 @@ import PortalBottomNav from '../components/portal/PortalBottomNav';
 import PathNormalizer from '../components/utils/PathNormalizer';
 import MetaTitleManager from '../components/utils/MetaTitleManager';
 import { Loader2 } from 'lucide-react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { HelmetProvider } from 'react-helmet-async';
 
 const portalPages = ['Dashboard', 'AdminDashboard', 'EditEvent', 'EditJob', 'EditCourse', 'EditSurvey', 'SurveyResponses', 'CPDTraining', 'CourseDetails', 'MemberMasterclasses', 'MasterclassDetails', 'JobsBoard', 'JobDetails', 'SupervisionServices', 'PortalMembershipTiers', 'MyProfile', 'MyCertificates', 'ManageOrganisation', 'OrganisationMembership', 'MyMasterclassBookings', 'RequestOrgPayment', 'Onboarding', 'ApplicationProcessing', 'YourVoice', 'Survey', 'EditUser', 'CommunityEvents', 'CommunityEventDetails', 'Support', 'AdminSupport', 'Forum', 'ForumPostDetails', 'OrgMembers', 'OrgJobs', 'OrgAnalytics', 'ManageOrgSubscription', 'OrgProfile', 'OrgInvoices'];
@@ -172,7 +172,7 @@ function PortalLayout({ children, currentPageName }) {
         if (!user) {
             console.log('[PortalLayout] No user, redirecting to login');
             const currentUrl = location.pathname + location.search + location.hash;
-            base44.auth.redirectToLogin(currentUrl);
+            ifs.auth.redirectToLogin(currentUrl);
         }
     }, [user, initialCheckComplete, location]);
 

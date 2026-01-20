@@ -16,7 +16,7 @@ import PortalHeader from '../components/portal/PortalHeader';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from "@/components/ui/use-toast";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -121,7 +121,7 @@ export default function EditJob() {
         const loadGoogleMaps = async () => {
             if (!window.google) {
                 try {
-                    const response = await base44.functions.invoke('getGoogleMapsApiKey');
+                    const response = await ifs.functions.invoke('getGoogleMapsApiKey');
                     const apiKey = response.data?.key || response.key;
 
                     if (apiKey) {
@@ -245,7 +245,7 @@ export default function EditJob() {
                     if (job.submittedByUserEmail) {
                         try {
                             console.log('[EditJob] Invoking sendJobStatusEmail function...');
-                            const emailResponse = await base44.functions.invoke('sendJobStatusEmail', {
+                            const emailResponse = await ifs.functions.invoke('sendJobStatusEmail', {
                                 jobId: jobId,
                                 jobTitle: job.title,
                                 companyName: job.companyName,
@@ -287,7 +287,7 @@ export default function EditJob() {
 
             try {
                 if (savedId) {
-                    await base44.functions.invoke('submitToGoogle', { 
+                    await ifs.functions.invoke('submitToGoogle', { 
                         jobId: savedId, 
                         action: job.status === 'Active' ? 'update' : 'delete' 
                     });
@@ -348,7 +348,7 @@ export default function EditJob() {
                                     onClick={async () => {
                                         console.log('[TEST] Testing email send...');
                                         try {
-                                            const result = await base44.functions.invoke('sendJobStatusEmail', {
+                                            const result = await ifs.functions.invoke('sendJobStatusEmail', {
                                                 jobId: jobId,
                                                 jobTitle: job.title,
                                                 companyName: job.companyName,

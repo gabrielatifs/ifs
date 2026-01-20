@@ -8,7 +8,7 @@ import { Textarea } from '@ifs/shared/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@ifs/shared/components/ui/card';
 import { Loader2, ArrowLeft, PlusCircle, Trash2, Upload, FileText, X } from 'lucide-react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
@@ -116,7 +116,7 @@ export default function EditEvent() {
         try {
             const newResources = [];
             for (const file of files) {
-                const response = await base44.integrations.Core.UploadFile({
+                const response = await ifs.integrations.Core.UploadFile({
                     file: file,
                 });
                 if (response.file_url) {

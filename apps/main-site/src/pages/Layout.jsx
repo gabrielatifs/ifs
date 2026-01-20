@@ -13,7 +13,7 @@ import PortalBottomNav from '@ifs/shared/components/portal/PortalBottomNav';
 import { Loader2 } from 'lucide-react';
 import IncompleteApplicationModal from '../components/marketing/IncompleteApplicationModal';
 import CookieBanner from '../components/marketing/CookieBanner';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import MetaTitleManager from '../components/utils/MetaTitleManager';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -166,7 +166,7 @@ function PortalLayout({ children, currentPageName }) {
         if (!user) {
             console.log('[PortalLayout] No user, redirecting to login');
             const currentUrl = location.pathname + location.search + location.hash;
-            base44.auth.redirectToLogin(currentUrl);
+            ifs.auth.redirectToLogin(currentUrl);
         }
     }, [user, initialCheckComplete, location]);
 

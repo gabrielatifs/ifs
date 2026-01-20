@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { MessageSquare, Clock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 export default function DashboardSurveysSection() {
     const { data: surveys, isLoading } = useQuery({
         queryKey: ['active-surveys-dashboard'],
         queryFn: async () => {
-            const allSurveys = await base44.entities.Survey.filter({ status: 'active' });
+            const allSurveys = await ifs.entities.Survey.filter({ status: 'active' });
             const now = new Date();
             
             return allSurveys.filter(survey => {

@@ -1,3 +1,3 @@
-import { base44 } from '../base44Client';
+import { ifs } from '../ifsClient';
 
-export const UserProfile = base44.entities.UserProfile;
+export const UserProfile = ifs.entities.UserProfile;

@@ -12,7 +12,7 @@ import PortalHeader from '../components/portal/PortalHeader';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { useToast } from "@ifs/shared/components/ui/use-toast";
 import { Toaster } from "@ifs/shared/components/ui/toaster";
-// import { base44 } from '@ifs/shared/api/base44Client'; // This import is no longer needed after removing generation logic
+// import { ifs } from '@ifs/shared/api/ifsClient'; // This import is no longer needed after removing generation logic
 
 export default function MyCertificates() {
     const { user, loading: userLoading } = useUser();
@@ -89,7 +89,7 @@ export default function MyCertificates() {
             
     //         console.log('[DEBUG] Credential type to generate:', credentialType);
             
-    //         const response = await base44.functions.invoke('generateDigitalCredential', {
+    //         const response = await ifs.functions.invoke('generateDigitalCredential', {
     //             userId: user.id,
     //             credentialType: credentialType,
     //             metadata: {}

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Building2, Save, Upload, X } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 const SECTORS = [
     'Education',
@@ -105,7 +105,7 @@ export default function OrgProfile() {
     const fetchOrganisation = async () => {
         try {
             setLoading(true);
-            const orgs = await base44.entities.Organisation.filter({ id: user.organisationId });
+            const orgs = await ifs.entities.Organisation.filter({ id: user.organisationId });
             const org = orgs[0];
             setOrganisation(org);
             setFormData({
@@ -154,7 +154,7 @@ export default function OrgProfile() {
 
         try {
             setUploadingLogo(true);
-            const { file_url } = await base44.integrations.Core.UploadFile({ file });
+            const { file_url } = await ifs.integrations.Core.UploadFile({ file });
             handleInputChange('logoUrl', file_url);
             toast({ 
                 title: 'Logo uploaded', 
@@ -184,7 +184,7 @@ export default function OrgProfile() {
 
         try {
             setSaving(true);
-            await base44.entities.Organisation.update(organisation.id, formData);
+            await ifs.entities.Organisation.update(organisation.id, formData);
             toast({ 
                 title: 'Profile updated', 
                 description: 'Organisation profile saved successfully.' 

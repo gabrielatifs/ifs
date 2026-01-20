@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { User } from '@/api/entities';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowRight, Briefcase, MapPin, Clock, Loader2, Building2, Star } from 'lucide-react';
 import MainSiteNav from '../components/marketing/MainSiteNav';
@@ -34,7 +34,7 @@ export default function JobsBoardMarketing() {
             setLoading(true);
             try {
                 // Fetch the 8 most recently created, active jobs
-                const recentJobs = await base44.entities.Job.filter({ status: 'Active' }, '-created_date', 8);
+                const recentJobs = await ifs.entities.Job.filter({ status: 'Active' }, '-created_date', 8);
                 
                 // Filter out jobs with expired application deadlines
                 const now = new Date();

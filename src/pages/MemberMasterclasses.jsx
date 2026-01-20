@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import BookingManagement from '../components/portal/BookingManagement';
 import CourseBookingsCard from '../components/portal/CourseBookingsCard';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -181,7 +181,7 @@ export default function MemberMasterclasses() {
             try {
                 const [fetchedEvents, fetchedCommunityEvents] = await Promise.all([
                     Event.list('-date'),
-                    base44.entities.CommunityEvent.list('date', 50)
+                    ifs.entities.CommunityEvent.list('date', 50)
                 ]);
                 if (isMounted) {
                     setEvents(fetchedEvents || []);

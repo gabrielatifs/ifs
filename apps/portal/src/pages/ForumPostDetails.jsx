@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
@@ -202,8 +202,8 @@ export default function ForumPostDetails() {
         try {
             setLoading(true);
             const [postData, repliesData] = await Promise.all([
-                base44.entities.ForumPost.get(id),
-                base44.entities.ForumReply.filter({ postId: id }, 'created_date', 200)
+                ifs.entities.ForumPost.get(id),
+                ifs.entities.ForumReply.filter({ postId: id }, 'created_date', 200)
             ]);
             
             setPost(postData);
@@ -224,7 +224,7 @@ export default function ForumPostDetails() {
 
         setIsSubmitting(true);
         try {
-            await base44.functions.invoke('createForumReply', {
+            await ifs.functions.invoke('createForumReply', {
                 postId: post.id,
                 parentReplyId: replyingTo?.id, // Send parent ID if replying to a reply
                 content: replyContent,
@@ -248,7 +248,7 @@ export default function ForumPostDetails() {
 
     const handleDeletePost = async () => {
         try {
-            await base44.entities.ForumPost.delete(post.id);
+            await ifs.entities.ForumPost.delete(post.id);
             toast({ title: "Post Deleted", description: "The discussion has been removed." });
             navigate(createPageUrl('Forum'));
         } catch (error) {
@@ -260,7 +260,7 @@ export default function ForumPostDetails() {
     const handleUpdatePost = async () => {
         if (!editPostContent.trim()) return;
         try {
-            await base44.entities.ForumPost.update(post.id, { content: editPostContent });
+            await ifs.entities.ForumPost.update(post.id, { content: editPostContent });
             setPost(prev => ({ ...prev, content: editPostContent }));
             setIsEditingPost(false);
             toast({ title: "Post Updated", description: "Your post has been updated." });
@@ -272,7 +272,7 @@ export default function ForumPostDetails() {
 
     const handleDeleteReply = async (replyId) => {
         try {
-            await base44.entities.ForumReply.delete(replyId);
+            await ifs.entities.ForumReply.delete(replyId);
             toast({ title: "Reply Deleted", description: "The reply has been removed." });
             fetchPostData();
         } catch (error) {
@@ -283,7 +283,7 @@ export default function ForumPostDetails() {
 
     const handleUpdateReply = async (replyId, newContent) => {
         try {
-            await base44.entities.ForumReply.update(replyId, { content: newContent });
+            await ifs.entities.ForumReply.update(replyId, { content: newContent });
             // Optimistically update the list or fetch again
             setReplies(prev => prev.map(r => r.id === replyId ? { ...r, content: newContent } : r));
             toast({ title: "Reply Updated", description: "Reply updated successfully." });

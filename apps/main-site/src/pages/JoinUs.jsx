@@ -5,7 +5,7 @@ import { ArrowRight, Users2, Crown, Sparkles, Check, Building2, Shield, BadgeChe
 import { Link } from 'react-router-dom';
 import MainSiteNav from '../components/marketing/MainSiteNav';
 import MembershipTable from '@ifs/shared/components/membership/MembershipTable';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Card, CardContent } from '@ifs/shared/components/ui/card';
 
 export default function JoinUs() {
@@ -16,7 +16,7 @@ export default function JoinUs() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await ifs.auth.me();
         setUser(currentUser);
         if (currentUser?.onboarding_completed) {
           window.location.href = createPageUrl('Dashboard');
@@ -34,12 +34,12 @@ export default function JoinUs() {
 
   const handleJoinAssociate = () => {
     const redirectUrl = window.location.origin + createPageUrl('Onboarding') + '?intent=associate';
-    base44.auth.redirectToLogin(redirectUrl);
+    ifs.auth.redirectToLogin(redirectUrl);
   };
 
   const handleJoinFull = () => {
     const redirectUrl = window.location.origin + createPageUrl('Onboarding') + '?intent=full';
-    base44.auth.redirectToLogin(redirectUrl);
+    ifs.auth.redirectToLogin(redirectUrl);
   };
 
   const handleJoinCorporate = () => {
@@ -48,12 +48,12 @@ export default function JoinUs() {
 
   const handleRegisterOrg = () => {
     const redirectUrl = window.location.origin + createPageUrl('OrganisationMembership') + '?type=registered';
-    base44.auth.redirectToLogin(redirectUrl);
+    ifs.auth.redirectToLogin(redirectUrl);
   };
 
   const handleMemberOrg = () => {
     const redirectUrl = window.location.origin + createPageUrl('OrganisationMembership') + '?type=member';
-    base44.auth.redirectToLogin(redirectUrl);
+    ifs.auth.redirectToLogin(redirectUrl);
   };
 
   if (loading) {

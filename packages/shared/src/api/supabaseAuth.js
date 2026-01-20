@@ -425,7 +425,7 @@ export const auth = {
     window.location.href = loginUrl;
   },
 
-  // Alias for compatibility with base44 SDK naming
+  // Alias for legacy compatibility
   redirectToLogin(redirectUrl) {
     return this.loginWithRedirect(redirectUrl);
   },

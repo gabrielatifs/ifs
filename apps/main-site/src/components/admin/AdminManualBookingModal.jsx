@@ -6,7 +6,7 @@ import { Label } from '@ifs/shared/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
 import { Textarea } from '@ifs/shared/components/ui/textarea';
 import { Checkbox } from '@ifs/shared/components/ui/checkbox';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Loader2, Search, BookOpen, User, Calendar } from 'lucide-react';
 import { useToast } from '@ifs/shared/components/ui/use-toast';
 
@@ -51,7 +51,7 @@ export default function AdminManualBookingModal({ open, onOpenChange, preselecte
 
     const loadUser = async (userId) => {
         try {
-            const userList = await base44.entities.User.filter({ id: userId });
+            const userList = await ifs.entities.User.filter({ id: userId });
             if (userList.length > 0) {
                 setSelectedUser(userList[0]);
             }
@@ -62,7 +62,7 @@ export default function AdminManualBookingModal({ open, onOpenChange, preselecte
 
     const loadCourses = async () => {
         try {
-            const courseList = await base44.entities.Course.list();
+            const courseList = await ifs.entities.Course.list();
             setCourses(courseList);
         } catch (error) {
             console.error('Failed to load courses:', error);
@@ -72,7 +72,7 @@ export default function AdminManualBookingModal({ open, onOpenChange, preselecte
 
     const loadCourseVariants = async (courseId) => {
         try {
-            const variants = await base44.entities.CourseVariant.filter({ courseId });
+            const variants = await ifs.entities.CourseVariant.filter({ courseId });
             setCourseVariants(variants);
         } catch (error) {
             console.error('Failed to load course variants:', error);
@@ -82,7 +82,7 @@ export default function AdminManualBookingModal({ open, onOpenChange, preselecte
     const loadCourseDates = async (courseId, variantId = null) => {
         try {
             const filter = variantId ? { courseId, variantId } : { courseId };
-            const dates = await base44.entities.CourseDate.filter(filter);
+            const dates = await ifs.entities.CourseDate.filter(filter);
             setCourseDates(dates);
         } catch (error) {
             console.error('Failed to load course dates:', error);
@@ -97,7 +97,7 @@ export default function AdminManualBookingModal({ open, onOpenChange, preselecte
         
         setSearchingUsers(true);
         try {
-            const results = await base44.functions.invoke('searchUsers', { query, limit: 10 });
+            const results = await ifs.functions.invoke('searchUsers', { query, limit: 10 });
             setUsers(results.data?.users || []);
         } catch (error) {
             console.error('Failed to search users:', error);
@@ -139,7 +139,7 @@ export default function AdminManualBookingModal({ open, onOpenChange, preselecte
 
         setLoading(true);
         try {
-            const { data } = await base44.functions.invoke('adminBookCourseForUser', formData);
+            const { data } = await ifs.functions.invoke('adminBookCourseForUser', formData);
             
             toast({
                 title: 'Success',

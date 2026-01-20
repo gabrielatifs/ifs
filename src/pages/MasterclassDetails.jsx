@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { createPageUrl } from '@/utils';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
@@ -78,7 +78,7 @@ export default function MasterclassDetails() {
             
             try {
                 console.log('[MasterclassDetails] Fetching event with id:', eventId);
-                const events = await base44.entities.Event.filter({ id: eventId });
+                const events = await ifs.entities.Event.filter({ id: eventId });
                 console.log('[MasterclassDetails] Fetched events:', events);
                 
                 if (events && events.length > 0) {
@@ -109,7 +109,7 @@ export default function MasterclassDetails() {
         const fetchSignup = async () => {
             if (user && eventId) {
                 try {
-                    const signups = await base44.entities.EventSignup.filter({ eventId: eventId, userId: user.id });
+                    const signups = await ifs.entities.EventSignup.filter({ eventId: eventId, userId: user.id });
                     if (signups && signups.length > 0) {
                         setUserSignup(signups[0]);
                     }
@@ -181,7 +181,7 @@ export default function MasterclassDetails() {
                 eventType: event.type,
                 eventLocation: event.location
             };
-            const newSignup = await base44.entities.EventSignup.create(signupData);
+            const newSignup = await ifs.entities.EventSignup.create(signupData);
             setUserSignup(newSignup);
             
             // Send confirmation email
@@ -255,7 +255,7 @@ export default function MasterclassDetails() {
         if (!userSignup) return;
         setIsRemoving(true);
         try {
-            await base44.entities.EventSignup.delete(userSignup.id);
+            await ifs.entities.EventSignup.delete(userSignup.id);
             setUserSignup(null);
             setCancelDialogOpen(false);
             toast({

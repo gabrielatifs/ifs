@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrgInvite } from '@/api/entities';
 
 
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 const CreateOrganisationForm = ({ user, onOrganisationCreated, onCancel }) => {
     const [formData, setFormData] = useState({ 

@@ -1,3 +1,3 @@
-import { base44 } from '../base44Client';
+import { ifs } from '../ifsClient';
 
-export const CourseCategory = base44.entities.CourseCategory;
+export const CourseCategory = ifs.entities.CourseCategory;

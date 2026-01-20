@@ -4,7 +4,7 @@ import { Input } from '@ifs/shared/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
 import { createPageUrl } from '@ifs/shared/utils';
 import { Building2, ArrowRight, ArrowLeft, CheckCircle2, Loader2, Shield, BadgeCheck, Mail, Plus, X, User, Users, CreditCard, Sparkles, Award, MapPin, Search, Pencil } from 'lucide-react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useToast } from "@ifs/shared/components/ui/use-toast";
 import { Toaster } from "@ifs/shared/components/ui/toaster";
 import { getGoogleMapsApiKey } from '@ifs/shared/api/functions';
@@ -76,7 +76,7 @@ export default function OrganisationMembership() {
   useEffect(() => {
     const initPage = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await ifs.auth.me();
         setUser(currentUser);
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -122,7 +122,7 @@ export default function OrganisationMembership() {
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        base44.auth.redirectToLogin(window.location.href);
+        ifs.auth.redirectToLogin(window.location.href);
       } finally {
         setLoading(false);
       }
@@ -295,9 +295,9 @@ export default function OrganisationMembership() {
         totalSeats: numberOfSeats
       };
 
-      const newOrg = await base44.entities.Organisation.create(orgData);
+      const newOrg = await ifs.entities.Organisation.create(orgData);
 
-      await base44.auth.updateMe({
+      await ifs.auth.updateMe({
         organisationId: newOrg.id,
         organisationName: newOrg.name,
         organisationRole: 'Admin'
@@ -310,7 +310,7 @@ export default function OrganisationMembership() {
       const successUrl = `${productionOrigin}${createPageUrl('OrganisationMembership')}?type=member&step=invite&org_id=${newOrg.id}`;
       const cancelUrl = `${productionOrigin}${createPageUrl('OrganisationMembership')}?type=member`;
 
-      const { data } = await base44.functions.invoke('createOrgMembershipCheckout', {
+      const { data } = await ifs.functions.invoke('createOrgMembershipCheckout', {
         organisationId: newOrg.id,
         numberOfSeats: numberOfSeats,
         billingPeriod: billingPeriod,
@@ -348,9 +348,9 @@ export default function OrganisationMembership() {
           isPubliclyVisible: true
         };
 
-        const newOrg = await base44.entities.Organisation.create(orgData);
+        const newOrg = await ifs.entities.Organisation.create(orgData);
 
-        await base44.auth.updateMe({
+        await ifs.auth.updateMe({
           organisationId: newOrg.id,
           organisationName: newOrg.name,
           organisationRole: 'Admin'
@@ -359,7 +359,7 @@ export default function OrganisationMembership() {
         const validEmails = teamInvites.filter(email => email.trim() && email.includes('@'));
         if (validEmails.length > 0) {
           try {
-            await base44.functions.invoke('inviteOrgMember', {
+            await ifs.functions.invoke('inviteOrgMember', {
               organisationId: newOrg.id,
               inviteeEmails: validEmails
             });
@@ -394,7 +394,7 @@ export default function OrganisationMembership() {
         const validEmails = teamInvites.filter(email => email.trim() && email.includes('@'));
         if (validEmails.length > 0 && orgId) {
           try {
-            await base44.functions.invoke('inviteOrgMember', {
+            await ifs.functions.invoke('inviteOrgMember', {
               organisationId: orgId,
               inviteeEmails: validEmails
             });

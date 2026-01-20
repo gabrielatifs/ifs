@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { createPageUrl } from '@ifs/shared/utils';
 import PortalSidebar from '../components/portal/PortalSidebar';
@@ -61,7 +61,7 @@ export default function Survey() {
         setLoading(true);
         try {
             // Fetch survey
-            const surveyData = await base44.entities.Survey.get(surveyId);
+            const surveyData = await ifs.entities.Survey.get(surveyId);
             if (!surveyData) {
                 throw new Error('Survey not found');
             }
@@ -69,11 +69,11 @@ export default function Survey() {
             // Check if user has already responded (may fail if no demographics exist yet)
             let responded = false;
             try {
-                const userDemographics = await base44.entities.SurveyDemographic.filter({ createdBy: user.email });
+                const userDemographics = await ifs.entities.SurveyDemographic.filter({ createdBy: user.email });
                 const demographicIds = userDemographics.map(d => d.id);
 
                 if (demographicIds.length > 0) {
-                    const userResponses = await base44.entities.SurveyResponse.list();
+                    const userResponses = await ifs.entities.SurveyResponse.list();
                     const response = userResponses.find(r => r.surveyId === surveyId && demographicIds.includes(r.demographicId));
                     if (response) responded = true;
                 }
@@ -256,7 +256,7 @@ export default function Survey() {
 
             let demographicRecord;
             try {
-                demographicRecord = await base44.entities.SurveyDemographic.create(demographicData);
+                demographicRecord = await ifs.entities.SurveyDemographic.create(demographicData);
             } catch (error) {
                 throw tagSubmissionError(error, 'create_demographic');
             }
@@ -281,7 +281,7 @@ export default function Survey() {
             });
 
             try {
-                await base44.entities.SurveyResponse.create({
+                await ifs.entities.SurveyResponse.create({
                     id: crypto.randomUUID(),
                     surveyId: survey.id,
                     surveyTitle: survey.title,
@@ -305,12 +305,12 @@ export default function Survey() {
                 const newBalance = currentBalance + cpdHoursReward;
 
                 try {
-                    await base44.entities.User.update(user.id, {
+                    await ifs.entities.User.update(user.id, {
                         cpdHours: newBalance,
                         totalCpdEarned: (user.totalCpdEarned || 0) + cpdHoursReward
                     });
 
-                    await base44.entities.CreditTransaction.create({
+                    await ifs.entities.CreditTransaction.create({
                         userId: user.id,
                         userEmail: user.email,
                         transactionType: 'allocation',

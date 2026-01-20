@@ -15,7 +15,7 @@ import { useToast } from "@ifs/shared/components/ui/use-toast";
 import { Loader2, Upload, X, PlusCircle, Trash2, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { UploadFile } from '@ifs/shared/api/integrations';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 
 const formatTime = (time) => {
     if (!time) return '';
@@ -291,13 +291,13 @@ export default function AddEventModal({ isOpen, onClose, onEventSaved, eventToEd
             let savedEvent;
             if (eventToEdit?.id) {
                 const { id, ...updateData } = dataToSave;
-                savedEvent = await base44.entities.Event.update(eventToEdit.id, updateData);
+                savedEvent = await ifs.entities.Event.update(eventToEdit.id, updateData);
                 toast({
                     title: "Event Updated!",
                     description: `"${dataToSave.title}" has been updated successfully.`,
                 });
             } else {
-                savedEvent = await base44.entities.Event.create(dataToSave);
+                savedEvent = await ifs.entities.Event.create(dataToSave);
                 toast({
                     title: "Event Created!",
                     description: `"${dataToSave.title}" has been created successfully.`,

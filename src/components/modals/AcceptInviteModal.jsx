@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Building2, Loader2, CheckCircle } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useToast } from '@/components/ui/use-toast';
 import { createPageUrl } from '@/utils';
 import { customLoginWithRedirect } from '../utils/auth';
@@ -21,13 +21,13 @@ export default function AcceptInviteModal({ open, onClose, invite, user }) {
             sessionStorage.setItem('pending_invite_id', invite.id);
             // Redirect to auth, which will come back to Onboarding after registration
             const onboardingUrl = createPageUrl('Onboarding') + `?intent=associate&invite=${invite.id}`;
-            base44.auth.redirectToLogin(onboardingUrl);
+            ifs.auth.redirectToLogin(onboardingUrl);
             return;
         }
         
         // Existing user flow
         try {
-            const { data } = await base44.functions.invoke('acceptInvite', {
+            const { data } = await ifs.functions.invoke('acceptInvite', {
                 inviteId: invite.id
             });
 
@@ -61,7 +61,7 @@ export default function AcceptInviteModal({ open, onClose, invite, user }) {
     const handleDecline = async () => {
         try {
             // Update the invite status to revoked
-            await base44.entities.OrgInvite.update(invite.id, {
+            await ifs.entities.OrgInvite.update(invite.id, {
                 status: 'revoked'
             });
 

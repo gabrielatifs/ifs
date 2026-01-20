@@ -31,7 +31,7 @@ export default function WelcomeRewardsModal({ open, onClose, user: propUser }) {
 
         setIsAwarding(true);
         try {
-            const { base44 } = await import('@/api/base44Client');
+            const { ifs } = await import('@/api/ifsClient');
             
             const bonusAmount = 0.1;
             const newBalance = (user.cpdHours || 0) + bonusAmount;
@@ -45,7 +45,7 @@ export default function WelcomeRewardsModal({ open, onClose, user: propUser }) {
             });
             
             // Create transaction record
-            await base44.entities.CreditTransaction.create({
+            await ifs.entities.CreditTransaction.create({
                 userId: user.id,
                 userEmail: user.email,
                 transactionType: 'allocation',

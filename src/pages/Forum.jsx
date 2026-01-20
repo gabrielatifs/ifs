@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
 import { useUser } from '../components/providers/UserProvider';
@@ -66,7 +66,7 @@ export default function Forum() {
         setIsLoading(true);
         try {
             // Fetch posts filtered by category
-            const fetchedPosts = await base44.entities.ForumPost.filter({ category: currentCategory }, '-lastActivityAt', 50);
+            const fetchedPosts = await ifs.entities.ForumPost.filter({ category: currentCategory }, '-lastActivityAt', 50);
             setPosts(fetchedPosts);
         } catch (error) {
             console.error("Failed to fetch posts", error);
@@ -80,7 +80,7 @@ export default function Forum() {
             const counts = {};
             await Promise.all(CATEGORIES.map(async (cat) => {
                 // Fetching with a higher limit to get a better count estimate, though exact total might require a different API if available
-                const posts = await base44.entities.ForumPost.filter({ category: cat.id }, '', 100); 
+                const posts = await ifs.entities.ForumPost.filter({ category: cat.id }, '', 100); 
                 counts[cat.id] = posts.length;
             }));
             setCategoryCounts(counts);

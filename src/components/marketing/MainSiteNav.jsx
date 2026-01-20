@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Menu, X, User as UserIcon, ChevronDown, ChevronUp } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { Button }
 from '@/components/ui/button';
 import IndividualsMegaMenu from './IndividualsMegaMenu';
@@ -41,7 +41,7 @@ export default function MainSiteNav({ onLogin, variant = 'default', onMobileMenu
   React.useEffect(() => {
     const checkUser = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await ifs.auth.me();
         console.log('[MainSiteNav] User detected:', currentUser);
         setUser(currentUser);
       } catch (e) {
@@ -94,8 +94,8 @@ export default function MainSiteNav({ onLogin, variant = 'default', onMobileMenu
   };
 
   const handleLogin = () => {
-    console.log('[MainSiteNav] Login clicked - calling base44.auth.redirectToLogin()');
-    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+    console.log('[MainSiteNav] Login clicked - calling ifs.auth.redirectToLogin()');
+    ifs.auth.redirectToLogin(createPageUrl('Dashboard'));
   };
 
   const toggleMobileSubmenu = (menu) => {

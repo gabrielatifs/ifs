@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { createPageUrl } from '@ifs/shared/utils';
 import PortalSidebar from '../components/portal/PortalSidebar';
@@ -168,8 +168,8 @@ export default function CommunityEvents() {
             setLoading(true);
             try {
                 const [fetchedEvents, signups] = await Promise.all([
-                    base44.entities.CommunityEvent.list('date', 50),
-                    user ? base44.entities.CommunityEventSignup.filter({ userId: user.id }) : Promise.resolve([])
+                    ifs.entities.CommunityEvent.list('date', 50),
+                    user ? ifs.entities.CommunityEventSignup.filter({ userId: user.id }) : Promise.resolve([])
                 ]);
 
                 setEvents(fetchedEvents || []);

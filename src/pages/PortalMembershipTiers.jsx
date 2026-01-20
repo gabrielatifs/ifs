@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useQuery } from '@tanstack/react-query';
 import { User } from '@/api/entities';
 import { createPageUrl } from '@/utils';
@@ -74,7 +74,7 @@ export default function PortalMembershipTiers() {
     const { data: transactions, isLoading: isLoadingTransactions, refetch } = useQuery({
         queryKey: ['cpdTransactions', user?.id],
         queryFn: async () => {
-            const txns = await base44.entities.CreditTransaction.filter(
+            const txns = await ifs.entities.CreditTransaction.filter(
                 { userId: user.id },
                 '-created_date'
             );

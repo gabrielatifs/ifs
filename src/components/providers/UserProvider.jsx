@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 const UserContext = createContext();
 
@@ -19,7 +19,7 @@ export const UserProvider = ({ children }) => {
   const fetchUser = async () => {
     console.log('[UserProvider] fetchUser called');
     try {
-      const currentUser = await base44.auth.me();
+      const currentUser = await ifs.auth.me();
       console.log('[UserProvider] User fetched:', currentUser?.email);
       setUser(currentUser);
     } catch (error) {
@@ -44,7 +44,7 @@ export const UserProvider = ({ children }) => {
 
   const updateUserProfile = async (data) => {
     try {
-      await base44.auth.updateMe(data);
+      await ifs.auth.updateMe(data);
       // Refresh user data after update
       await fetchUser();
     } catch (error) {

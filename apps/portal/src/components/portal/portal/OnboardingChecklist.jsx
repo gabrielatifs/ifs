@@ -8,7 +8,7 @@ import { Progress } from '@ifs/shared/components/ui/progress';
 import { CheckCircle2, Circle, X, Building2, Users, Linkedin, Calendar, Gift, ExternalLink, Sparkles, Award } from 'lucide-react';
 import { EventSignup } from '@ifs/shared/api/entities';
 import { Organisation } from '@ifs/shared/api/entities';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 
 const ChecklistItem = ({ icon: Icon, title, description, completed, actionText, actionLink, isExternal, onClick }) => (
     <div className={`group relative flex items-start gap-3 p-3 rounded-lg transition-all duration-200 ${
@@ -113,7 +113,7 @@ export default function OnboardingChecklist({ user, onDismiss }) {
                 actionLink: createPageUrl('MyCertificates'),
                 onClick: async () => {
                     try {
-                        await base44.auth.updateMe({
+                        await ifs.auth.updateMe({
                             onboardingChecklistCompleted: [...(user.onboardingChecklistCompleted || []), 'add_credential_linkedin']
                         });
                         // The action link navigates internally, so we don't open a new window here.
@@ -136,7 +136,7 @@ export default function OnboardingChecklist({ user, onDismiss }) {
                 isExternal: true,
                 onClick: async () => {
                     try {
-                        await base44.auth.updateMe({
+                        await ifs.auth.updateMe({
                             onboardingChecklistCompleted: [...(user.onboardingChecklistCompleted || []), 'follow_linkedin']
                         });
                         window.open('https://www.linkedin.com/company/institute-for-safeguarding', '_blank');
@@ -172,7 +172,7 @@ export default function OnboardingChecklist({ user, onDismiss }) {
 
     const handleDismiss = async () => {
         try {
-            await base44.auth.updateMe({
+            await ifs.auth.updateMe({
                 onboardingChecklistDismissed: true
             });
             if (onDismiss) onDismiss();

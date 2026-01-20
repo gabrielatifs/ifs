@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@ifs/shared/components/ui/dialog';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Input } from '@ifs/shared/components/ui/input';
@@ -144,13 +144,13 @@ export default function CommunityEventModal({ open, onOpenChange, event, onSave 
             };
 
             if (event) {
-                await base44.entities.CommunityEvent.update(event.id, dataToSave);
+                await ifs.entities.CommunityEvent.update(event.id, dataToSave);
                 toast({
                     title: "Event Updated",
                     description: "Community event has been updated successfully."
                 });
             } else {
-                await base44.entities.CommunityEvent.create(dataToSave);
+                await ifs.entities.CommunityEvent.create(dataToSave);
                 toast({
                     title: "Event Created",
                     description: "Community event has been created successfully."

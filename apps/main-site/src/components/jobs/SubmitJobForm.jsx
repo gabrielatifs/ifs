@@ -9,7 +9,7 @@ import { submitJobForReview } from '@ifs/shared/api/functions';
 import { useToast } from '@ifs/shared/components/ui/use-toast';
 import LocationSearchInput from '@ifs/shared/components/ui/LocationSearchInput';
 import ReactQuill from 'react-quill';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 
 export default function SubmitJobForm({ organisationName, onSuccess, onCancel }) {
   const { toast } = useToast();
@@ -92,7 +92,7 @@ export default function SubmitJobForm({ organisationName, onSuccess, onCancel })
 
     setUploadingFile(true);
     try {
-      const response = await base44.integrations.Core.UploadFile({ file });
+      const response = await ifs.integrations.Core.UploadFile({ file });
 
       const attachment = {
         name: file.name,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useUser } from '../components/providers/UserProvider';
 import { createPageUrl } from '@/utils';
 import PortalSidebar from '../components/portal/PortalSidebar';
@@ -125,14 +125,14 @@ export default function YourVoice() {
     const fetchSurveys = async () => {
         setLoading(true);
         try {
-            const allSurveys = await base44.entities.Survey.filter({ status: 'active' }, '-created_date');
+            const allSurveys = await ifs.entities.Survey.filter({ status: 'active' }, '-created_date');
             
-            const userDemographics = await base44.entities.SurveyDemographic.filter({ created_by: user.email });
+            const userDemographics = await ifs.entities.SurveyDemographic.filter({ created_by: user.email });
             const demographicIds = userDemographics.map(d => d.id);
             
             let respondedSurveyIds = new Set();
             if (demographicIds.length > 0) {
-                const userResponses = await base44.entities.SurveyResponse.list();
+                const userResponses = await ifs.entities.SurveyResponse.list();
                 const filteredResponses = userResponses.filter(r => demographicIds.includes(r.demographicId));
                 respondedSurveyIds = new Set(filteredResponses.map(r => r.surveyId));
             }

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { createPageUrl, navigateToUrl } from '@ifs/shared/utils';
 import PortalSidebar from '../components/portal/PortalSidebar';
@@ -326,7 +326,7 @@ export default function EditSurvey() {
 
     const fetchSurvey = async () => {
         try {
-            const survey = await base44.entities.Survey.get(surveyId);
+            const survey = await ifs.entities.Survey.get(surveyId);
             if (survey) {
                 setFormData({
                     ...survey,
@@ -481,13 +481,13 @@ export default function EditSurvey() {
         setSaving(true);
         try {
             if (isEditMode) {
-                await base44.entities.Survey.update(surveyId, formData);
+                await ifs.entities.Survey.update(surveyId, formData);
                 toast({
                     title: "Survey Updated",
                     description: "Your changes have been saved successfully"
                 });
             } else {
-                await base44.entities.Survey.create(formData);
+                await ifs.entities.Survey.create(formData);
                 toast({
                     title: "Survey Created",
                     description: "Your survey has been created successfully"
@@ -508,7 +508,7 @@ export default function EditSurvey() {
 
     const handleDelete = async () => {
         try {
-            await base44.entities.Survey.delete(surveyId);
+            await ifs.entities.Survey.delete(surveyId);
             toast({
                 title: "Survey Deleted",
                 description: "The survey has been permanently deleted"

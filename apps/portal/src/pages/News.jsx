@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Card, CardContent } from '@ifs/shared/components/ui/card';
 import { Badge } from '@ifs/shared/components/ui/badge';
 import { Input } from '@ifs/shared/components/ui/input';
@@ -391,11 +391,11 @@ export default function NewsPage() {
         const fetchNews = async () => {
             try {
                 // Fetch categories
-                const categoryItems = await base44.entities.NewsCategory.list('displayOrder');
+                const categoryItems = await ifs.entities.NewsCategory.list('displayOrder');
                 setCategories(categoryItems);
 
                 // Fetch more items to populate hub and category pages
-                const items = await base44.entities.NewsItem.list('-publishedDate', 200);
+                const items = await ifs.entities.NewsItem.list('-publishedDate', 200);
                 const published = items.filter(i => i.status === 'Published');
                 
                 // Sort by published date descending

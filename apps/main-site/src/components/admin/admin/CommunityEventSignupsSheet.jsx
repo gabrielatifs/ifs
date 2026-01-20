@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@ifs/shared/components/ui/sheet';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Badge } from '@ifs/shared/components/ui/badge';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useUser } from '../components/providers/UserProvider';
 import { createPageUrl } from '@/utils';
 import { useLocation, Link } from 'react-router-dom';
@@ -135,7 +135,7 @@ export default function CommunityEventDetails() {
             }
 
             // Fetch event (no auth required for viewing)
-            const events = await base44.entities.CommunityEvent.filter({ id: eventId });
+            const events = await ifs.entities.CommunityEvent.filter({ id: eventId });
 
             if (!events || events.length === 0) {
                 toast({
@@ -152,7 +152,7 @@ export default function CommunityEventDetails() {
             // CRITICAL FIX: Check signup status when user is available
             if (user) {
                 console.log('[CommunityEventDetails] Checking signup for user:', user.id, 'event:', eventId);
-                const signups = await base44.entities.CommunityEventSignup.filter({ eventId, userId: user.id });
+                const signups = await ifs.entities.CommunityEventSignup.filter({ eventId, userId: user.id });
                 console.log('[CommunityEventDetails] Found signups:', signups);
                 setUserSignup(signups && signups.length > 0 ? signups[0] : null);
             } else {

@@ -26,7 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 const InviteMembersForm = ({ organisationId, onMemberInvited }) => {
     const { toast } = useToast();
@@ -274,7 +274,7 @@ export default function OrgMembers() {
     const handleDeleteInvite = async (inviteId) => {
         setDeletingInviteId(inviteId);
         try {
-            const { data } = await base44.functions.invoke('revokeInvite', {
+            const { data } = await ifs.functions.invoke('revokeInvite', {
                 inviteId: inviteId
             });
 
@@ -321,12 +321,12 @@ export default function OrgMembers() {
 
         setAssigningSeatMemberId(member.id);
         try {
-            await base44.entities.User.update(member.id, {
+            await ifs.entities.User.update(member.id, {
                 membershipType: 'Full',
                 membershipStatus: 'active'
             });
 
-            await base44.entities.Organisation.update(organisation.id, {
+            await ifs.entities.Organisation.update(organisation.id, {
                 usedSeats: usedSeats + 1,
                 availableSeats: availableSeats - 1
             });
@@ -465,11 +465,11 @@ export default function OrgMembers() {
 
         setRemovingSeatMemberId(member.id);
         try {
-            await base44.entities.User.update(member.id, {
+            await ifs.entities.User.update(member.id, {
                 membershipType: 'Associate'
             });
 
-            await base44.entities.Organisation.update(organisation.id, {
+            await ifs.entities.Organisation.update(organisation.id, {
                 usedSeats: Math.max(0, usedSeats - 1),
                 availableSeats: Math.min(totalSeats, availableSeats + 1)
             });
@@ -599,7 +599,7 @@ export default function OrgMembers() {
 
         setRemovingMemberId(member.id);
         try {
-            await base44.entities.User.update(member.id, {
+            await ifs.entities.User.update(member.id, {
                 organisationId: null,
                 organisationRole: null,
                 organisationName: null

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { User } from '@/api/entities';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -140,7 +140,7 @@ export default function Onboarding() {
         const loadGoogleMaps = async () => {
             if (!window.google) {
                 try {
-                    const response = await base44.functions.invoke('getGoogleMapsApiKey');
+                    const response = await ifs.functions.invoke('getGoogleMapsApiKey');
                     const apiKey = response.data?.key || response.key;
 
                     if (apiKey) {
@@ -302,7 +302,7 @@ export default function Onboarding() {
             // Fetch referrer info and show modal
             const fetchReferrerInfo = async () => {
                 try {
-                    const referrers = await base44.entities.User.filter({ referralCode });
+                    const referrers = await ifs.entities.User.filter({ referralCode });
                     if (referrers && referrers.length > 0) {
                         setReferrerEmail(referrers[0].email);
                     }
@@ -382,9 +382,9 @@ export default function Onboarding() {
 
                     // Ensure notification preference exists
                     try {
-                        const prefs = await base44.entities.NotificationPreference.filter({ userId: authUser.id });
+                        const prefs = await ifs.entities.NotificationPreference.filter({ userId: authUser.id });
                         if (prefs.length === 0) {
-                            await base44.entities.NotificationPreference.create({
+                            await ifs.entities.NotificationPreference.create({
                                 userId: authUser.id,
                                 email: authUser.email,
                                 weeklyJobAlerts: true
@@ -602,7 +602,7 @@ export default function Onboarding() {
 
             // Generate referral code for new user
             try {
-                await base44.functions.invoke('generateReferralCode', { userId: authUser.id });
+                await ifs.functions.invoke('generateReferralCode', { userId: authUser.id });
             } catch (refError) {
                 console.error("Failed to generate referral code:", refError);
             }
@@ -611,7 +611,7 @@ export default function Onboarding() {
             const storedReferralCode = sessionStorage.getItem('referral_code') || formData.referralCode;
             if (storedReferralCode) {
                 try {
-                    await base44.functions.invoke('processReferral', { referralCode: storedReferralCode });
+                    await ifs.functions.invoke('processReferral', { referralCode: storedReferralCode });
                     sessionStorage.removeItem('referral_code');
                     toast({ 
                         title: "Referral Applied!", 
@@ -626,7 +626,7 @@ export default function Onboarding() {
 
             // Create/Update Applicant Tracking record
             try {
-                await base44.functions.invoke('trackApplicationSubmission', { 
+                await ifs.functions.invoke('trackApplicationSubmission', { 
                     membershipType: membershipTypeForProfile 
                 });
                 } catch (trackingError) {
@@ -637,9 +637,9 @@ export default function Onboarding() {
                 // Create NotificationPreference for Associate members
                 if (isAssociate) {
                 try {
-                    const prefs = await base44.entities.NotificationPreference.filter({ userId: authUser.id });
+                    const prefs = await ifs.entities.NotificationPreference.filter({ userId: authUser.id });
                     if (prefs.length === 0) {
-                        await base44.entities.NotificationPreference.create({
+                        await ifs.entities.NotificationPreference.create({
                             userId: authUser.id,
                             email: authUser.email,
                             weeklyJobAlerts: true

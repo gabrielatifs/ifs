@@ -4,7 +4,7 @@ import * as entities from './entities';
 import { supabase } from '../lib/supabase';
 
 // Use real Supabase auth and real Supabase entities
-export const base44 = {
+export const ifs = {
   auth,
   entities,
   functions: {

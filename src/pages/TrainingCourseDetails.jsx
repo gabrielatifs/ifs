@@ -25,7 +25,7 @@ import { usePostHog } from '../components/providers/PostHogProvider';
 import { CourseDate } from '@/api/entities';
 import { format as formatDate } from 'date-fns';
 import { formatDateRange } from '../components/utils/formatters';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { createDynamicCourseCheckout } from '@/api/functions';
 import { CourseBooking } from '@/api/entities';
 import { wrapEmailHtml } from '../../packages/shared/src/emails/wrapper.js';
@@ -215,7 +215,7 @@ export default function TrainingCourseDetails() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const currentUser = await base44.auth.me();
+                const currentUser = await ifs.auth.me();
                 setUser(currentUser);
             } catch {
                 setUser(null);
@@ -622,12 +622,12 @@ export default function TrainingCourseDetails() {
                 const hoursToDeduct = breakdown.cpdHoursUsed;
                 const newBalance = user.cpdHours - hoursToDeduct;
                 
-                await base44.auth.updateMe({
+                await ifs.auth.updateMe({
                     cpdHours: newBalance,
                     totalCpdSpent: (user.totalCpdSpent || 0) + hoursToDeduct
                 });
 
-                await base44.entities.CreditTransaction.create({
+                await ifs.entities.CreditTransaction.create({
                     userId: user.id,
                     userEmail: user.email,
                     transactionType: 'spent',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { createPageUrl } from '@ifs/shared/utils';
 import { Button } from '@ifs/shared/components/ui/button';
@@ -45,8 +45,8 @@ export default function EventRegistrationSuccess() {
 
             try {
                 const fetchedEvent = eventType === 'community'
-                    ? await base44.entities.CommunityEvent.get(eventId)
-                    : await base44.entities.Event.get(eventId);
+                    ? await ifs.entities.CommunityEvent.get(eventId)
+                    : await ifs.entities.Event.get(eventId);
 
                 if (fetchedEvent && fetchedEvent.id) {
                     setEvent(fetchedEvent);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@ifs/shared/components/ui/card';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Badge } from '@ifs/shared/components/ui/badge';
@@ -19,7 +19,7 @@ export default function InvitesSection({ user }) {
             console.log('[InvitesSection] 🔍 Fetching invites for user:', user.email, 'User ID:', user.id);
             
             // Use backend function with service role to bypass RLS
-            const { data } = await base44.functions.invoke('getMyInvites');
+            const { data } = await ifs.functions.invoke('getMyInvites');
             
             if (!data.success) {
                 throw new Error(data.error || 'Failed to fetch invites');
@@ -54,7 +54,7 @@ export default function InvitesSection({ user }) {
     const handleAccept = async (invite) => {
         setAccepting(invite.id);
         try {
-            const { data } = await base44.functions.invoke('acceptInvite', {
+            const { data } = await ifs.functions.invoke('acceptInvite', {
                 inviteId: invite.id
             });
 
@@ -85,7 +85,7 @@ export default function InvitesSection({ user }) {
     const handleDecline = async (invite) => {
         setDeclining(invite.id);
         try {
-            const { data } = await base44.functions.invoke('declineInvite', {
+            const { data } = await ifs.functions.invoke('declineInvite', {
                 inviteId: invite.id
             });
 

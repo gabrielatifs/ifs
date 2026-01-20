@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2, TrendingUp, Calendar, GraduationCap, Users, Clock } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -36,7 +36,7 @@ export default function OrgAnalytics() {
             setLoading(true);
             
             // Fetch all analytics data from backend function
-            const response = await base44.functions.invoke('getOrgAnalytics', { 
+            const response = await ifs.functions.invoke('getOrgAnalytics', { 
                 organisationId: user.organisationId 
             });
             
@@ -50,8 +50,8 @@ export default function OrgAnalytics() {
             setMembers(members);
 
             // Fetch events and courses to get CPD hours
-            const allEvents = await base44.entities.Event.list();
-            const allCourses = await base44.entities.Course.list();
+            const allEvents = await ifs.entities.Event.list();
+            const allCourses = await ifs.entities.Course.list();
 
             // Process CPD over time (last 6 months)
             const cpdOverTime = processMonthlyAttendance(orgEventSignups, orgCourseBookings, allEvents, allCourses, members);

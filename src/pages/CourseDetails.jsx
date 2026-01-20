@@ -29,7 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import LoginPrompt from '../components/portal/LoginPrompt';
 import { customLoginWithRedirect } from '../components/utils/auth';
 import { formatDateRange } from '../components/utils/formatters';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import OrgBulkBookingModal from '../components/portal/OrgBulkBookingModal';
 import { wrapEmailHtml } from '../../packages/shared/src/emails/wrapper.js';
 import {
@@ -514,13 +514,13 @@ export default function CourseDetails() {
                 
                 // Deduct CPD hours
                 const newBalance = user.cpdHours - hoursToDeduct;
-                await base44.auth.updateMe({
+                await ifs.auth.updateMe({
                     cpdHours: newBalance,
                     totalCpdSpent: (user.totalCpdSpent || 0) + hoursToDeduct
                 });
 
                 // Create CPD transaction
-                await base44.entities.CreditTransaction.create({
+                await ifs.entities.CreditTransaction.create({
                     userId: user.id,
                     userEmail: user.email,
                     transactionType: 'spent',

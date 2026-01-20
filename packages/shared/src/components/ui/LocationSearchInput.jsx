@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Input } from '@ifs/shared/components/ui/input';
 import { MapPin } from 'lucide-react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 
 // Global promise to track script loading to prevent duplicate scripts
 let googleMapsScriptLoadingPromise = null;
@@ -12,7 +12,7 @@ const loadGoogleMapsScript = async () => {
 
     googleMapsScriptLoadingPromise = new Promise(async (resolve, reject) => {
         try {
-            const response = await base44.functions.invoke('getGoogleMapsApiKey');
+            const response = await ifs.functions.invoke('getGoogleMapsApiKey');
             const apiKey = response.data?.key || response.key;
 
             if (!apiKey) {

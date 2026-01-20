@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, X, Loader2, Crown, Users, Award, ArrowRight, Coins, Receipt, BookOpenCheck, Building2, Minus, Plus, Gift } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 // Updated Price IDs - Back to live £20 monthly pricing
 const PRICE_IDS = {

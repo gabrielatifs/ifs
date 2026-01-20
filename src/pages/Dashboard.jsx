@@ -31,7 +31,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { approveAssociateMembership } from '@/api/functions';
 import { useUser } from '../components/providers/UserProvider';
 import { format } from 'date-fns';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 export default function Dashboard() {
     const { user, loading, initialCheckComplete, refreshUser, updateUserProfile } = useUser();
@@ -138,7 +138,7 @@ export default function Dashboard() {
                 if (!user.organisationId) {
                     try {
                         // Use backend function to bypass RLS
-                        const { data } = await base44.functions.invoke('getMyInvites');
+                        const { data } = await ifs.functions.invoke('getMyInvites');
                         
                         if (data.success) {
                             console.log('[Dashboard] 📋 Invites received:', data.invites);
@@ -165,7 +165,7 @@ export default function Dashboard() {
             
             try {
                 // Use backend function to fetch invite with service role
-                const { data } = await base44.functions.invoke('getMyInvites');
+                const { data } = await ifs.functions.invoke('getMyInvites');
                 
                 if (!data.success) {
                     throw new Error(data.error || 'Failed to fetch invites');
@@ -252,7 +252,7 @@ export default function Dashboard() {
                         setUserReferralCode(user.referralCode);
                     } else {
                         // Generate code if not exists
-                        await base44.functions.invoke('generateReferralCode', { userId: user.id });
+                        await ifs.functions.invoke('generateReferralCode', { userId: user.id });
                         await refreshUser(); // Refresh to get the new code
                     }
                 } catch (error) {
@@ -271,8 +271,8 @@ export default function Dashboard() {
                         Event.filter({ type: 'Masterclass' }, 'date', 50),
                         Course.list('-created_date', 50),
                         CourseDate.list('date', 200),
-                        base44.entities.CommunityEvent.list('date', 50),
-                        base44.entities.CommunityEventSignup.filter({ userId: user.id }),
+                        ifs.entities.CommunityEvent.list('date', 50),
+                        ifs.entities.CommunityEventSignup.filter({ userId: user.id }),
                         NewsItem.list()
                     ]);
 
@@ -386,7 +386,7 @@ export default function Dashboard() {
             setReferralCode(refCode);
             const fetchReferrer = async () => {
                 try {
-                    const referrers = await base44.entities.User.filter({ referralCode: refCode });
+                    const referrers = await ifs.entities.User.filter({ referralCode: refCode });
                     if (referrers && referrers.length > 0) {
                         setReferrerEmail(referrers[0].email);
                     }
@@ -502,7 +502,7 @@ export default function Dashboard() {
 
     const handleAcceptReferral = async () => {
         try {
-            await base44.functions.invoke('processReferral', { referralCode });
+            await ifs.functions.invoke('processReferral', { referralCode });
             setShowReferralModal(false);
             toast({
                 title: "Referral Applied!",
@@ -515,7 +515,7 @@ export default function Dashboard() {
             const successUrl = `${productionOrigin}${createPageUrl('Dashboard')}?payment=success`;
             const cancelUrl = `${productionOrigin}${createPageUrl('Dashboard')}`;
             
-            const { data } = await base44.functions.invoke('createCheckout', {
+            const { data } = await ifs.functions.invoke('createCheckout', {
                 priceId: 'price_1SSiWXDJm5OJGimXguAKyxBN',
                 successUrl,
                 cancelUrl

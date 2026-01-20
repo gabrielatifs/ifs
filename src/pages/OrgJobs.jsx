@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { Job } from '@/api/entities';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,7 @@ export default function OrgJobs() {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const currentUser = await base44.auth.me();
+                const currentUser = await ifs.auth.me();
                 
                 if (!currentUser) {
                     navigate(createPageUrl('Home'));
@@ -50,7 +50,7 @@ export default function OrgJobs() {
                 }
 
                 const [orgData, jobsData] = await Promise.all([
-                    base44.entities.Organisation.filter({ id: currentUser.organisationId }),
+                    ifs.entities.Organisation.filter({ id: currentUser.organisationId }),
                     Job.filter({ submittedByOrganisationId: currentUser.organisationId })
                 ]);
 

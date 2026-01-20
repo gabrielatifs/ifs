@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { getOrganisationMembers } from '@/api/functions';
 import { createOrgBulkCourseBooking } from '@/api/functions';
 import {
@@ -44,7 +44,7 @@ export default function OrgBulkBookingModal({
 
     const fetchVariant = async () => {
         try {
-            const variantData = await base44.entities.CourseVariant.get(variantId);
+            const variantData = await ifs.entities.CourseVariant.get(variantId);
             setVariant(variantData);
         } catch (error) {
             console.error('Failed to fetch variant:', error);

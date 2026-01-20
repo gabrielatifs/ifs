@@ -841,7 +841,7 @@ export default function AdminDashboard() {
     const handleFetchNews = async () => {
         try {
             toast({ title: "Fetching News", description: "Contacting configured sources (Forcing update)..." });
-            const response = await base44.functions.invoke('fetchNewsFromSources', { force: true });
+            const response = await ifs.functions.invoke('fetchNewsFromSources', { force: true });
             if (response.data) {
                 toast({
                     title: "Fetch Complete",
@@ -916,7 +916,7 @@ export default function AdminDashboard() {
     const handleDeleteNewsCategory = async (id) => {
         if (confirm('Are you sure you want to delete this category?')) {
             try {
-                await base44.entities.NewsCategory.delete(id);
+                await ifs.entities.NewsCategory.delete(id);
                 toast({ title: "Deleted", description: "Category removed." });
                 fetchAllDashboardData();
             } catch (error) {
@@ -999,7 +999,7 @@ export default function AdminDashboard() {
         setIsSendingReminders(true);
         try {
             toast({ title: "Sending Reminders", description: "Processing community event signups..." });
-            const response = await base44.functions.invoke('sendCommunityEventReminders', {
+            const response = await ifs.functions.invoke('sendCommunityEventReminders', {
                 hoursBeforeEvent: reminderHours
             });
 
@@ -1592,7 +1592,7 @@ export default function AdminDashboard() {
             });
 
             // Create transaction record using service role to ensure it's created properly
-            await base44.asServiceRole.entities.CreditTransaction.create({
+            await ifs.asServiceRole.entities.CreditTransaction.create({
                 userId: selectedUser.id,
                 userEmail: selectedUser.email,
                 transactionType: 'allocation',
@@ -1646,7 +1646,7 @@ export default function AdminDashboard() {
 
         setIsGiftingSeats(true);
         try {
-            const response = await base44.functions.invoke('giftOrgSeats', {
+            const response = await ifs.functions.invoke('giftOrgSeats', {
                 organisationId: giftSeatsForm.organisationId,
                 seatsToGift,
                 reason: giftSeatsForm.reason || 'Admin gift allocation'
@@ -3098,7 +3098,7 @@ export default function AdminDashboard() {
                                                                                             await Job.update(job.id, { status: 'Active' });
 
                                                                                             if (job.submittedByUserEmail) {
-                                                                                                const emailRes = await base44.functions.invoke('sendJobStatusEmail', {
+                                                                                                const emailRes = await ifs.functions.invoke('sendJobStatusEmail', {
                                                                                                     jobId: job.id,
                                                                                                     jobTitle: job.title,
                                                                                                     companyName: job.companyName,
@@ -3137,7 +3137,7 @@ export default function AdminDashboard() {
                                                                                             await Job.update(job.id, { status: 'Rejected', reviewNotes: reason });
 
                                                                                             if (job.submittedByUserEmail) {
-                                                                                                const emailRes = await base44.functions.invoke('sendJobStatusEmail', {
+                                                                                                const emailRes = await ifs.functions.invoke('sendJobStatusEmail', {
                                                                                                     jobId: job.id,
                                                                                                     jobTitle: job.title,
                                                                                                     companyName: job.companyName,
@@ -3719,7 +3719,7 @@ export default function AdminDashboard() {
                                                                 <Button onClick={async () => {
                                                                     try {
                                                                         toast({ title: "Processing...", description: "Syncing users to Salesforce..." });
-                                                                        const res = await base44.functions.invoke('backfillSalesforce', { limit: 1000 });
+                                                                        const res = await ifs.functions.invoke('backfillSalesforce', { limit: 1000 });
                                                                         if (res.data.success) {
                                                                             toast({
                                                                                 title: "Sync Complete",
@@ -3752,7 +3752,7 @@ export default function AdminDashboard() {
                                                                 <Button onClick={async () => {
                                                                     try {
                                                                         toast({ title: "Processing...", description: "Enabling job alerts for members..." });
-                                                                        const res = await base44.functions.invoke('backfillJobAlerts');
+                                                                        const res = await ifs.functions.invoke('backfillJobAlerts');
                                                                         if (res.data.success) {
                                                                             toast({ title: "Success", description: res.data.message });
                                                                         } else {

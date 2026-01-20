@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { createPageUrl, navigateToUrl } from '@ifs/shared/utils';
 import PortalSidebar from '../components/portal/PortalSidebar';
@@ -473,8 +473,8 @@ export default function SurveyResponses() {
         setLoading(true);
         try {
             const [surveyData, responsesData] = await Promise.all([
-                base44.entities.Survey.get(surveyId),
-                base44.entities.SurveyResponse.filter({ surveyId }, '-submittedDate')
+                ifs.entities.Survey.get(surveyId),
+                ifs.entities.SurveyResponse.filter({ surveyId }, '-submittedDate')
             ]);
 
             setSurvey(surveyData);
@@ -482,7 +482,7 @@ export default function SurveyResponses() {
 
             const demographicIds = [...new Set(responsesData.map(r => r.demographicId))];
             const demographicRecords = await Promise.all(
-                demographicIds.map(id => base44.entities.SurveyDemographic.get(id))
+                demographicIds.map(id => ifs.entities.SurveyDemographic.get(id))
             );
             
             const demographicsMap = {};

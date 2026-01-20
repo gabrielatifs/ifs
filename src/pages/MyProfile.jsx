@@ -30,7 +30,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useUser } from '../components/providers/UserProvider';
 import { UserProfile } from '@/api/entities/UserProfile';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import CourseBookingsCard from '../components/portal/CourseBookingsCard';
 import BookingManagement from '../components/portal/BookingManagement';
 import InvitesSection from '../components/profile/InvitesSection';
@@ -129,7 +129,7 @@ const InvoicesCard = ({ user }) => {
             }
 
             try {
-                const { data } = await base44.functions.invoke('getInvoices');
+                const { data } = await ifs.functions.invoke('getInvoices');
                 if (data?.invoices) {
                     setInvoices(data.invoices);
                 }
@@ -306,7 +306,7 @@ const SubscriptionCard = ({ user, onSubscriptionChange }) => {
     const handleReactivateSubscription = async () => {
         setIsReactivating(true);
         try {
-            const { data } = await base44.functions.invoke('reactivateSubscription');
+            const { data } = await ifs.functions.invoke('reactivateSubscription');
             if (data.success) {
                 toast({
                     title: "Subscription Reactivated",
@@ -470,7 +470,7 @@ const RecentCpdTransactions = ({ userId }) => {
     const { data: transactions, isLoading } = useQuery({
         queryKey: ['recentCpdTransactions', userId],
         queryFn: async () => {
-            const txns = await base44.entities.CreditTransaction.list('-created_date', 5);
+            const txns = await ifs.entities.CreditTransaction.list('-created_date', 5);
             return txns.filter(t => t.userId === userId);
         },
         enabled: !!userId,
@@ -585,7 +585,7 @@ export default function MyProfile() {
             // Fetch notification preferences
             const fetchPreferences = async () => {
                 try {
-                    const result = await base44.entities.NotificationPreference.filter({ userId: user.id });
+                    const result = await ifs.entities.NotificationPreference.filter({ userId: user.id });
                     // Handle both array and paginated response
                     const prefs = Array.isArray(result) ? result : (result.data || []);
                     
@@ -670,17 +670,17 @@ export default function MyProfile() {
                 };
 
                 if (notificationPrefId) {
-                    await base44.entities.NotificationPreference.update(notificationPrefId, prefUpdateData);
+                    await ifs.entities.NotificationPreference.update(notificationPrefId, prefUpdateData);
                 } else {
                     // Check one more time if it exists to avoid race conditions/duplicates
-                    const existing = await base44.entities.NotificationPreference.filter({ userId: user.id });
+                    const existing = await ifs.entities.NotificationPreference.filter({ userId: user.id });
                     const existingPrefs = Array.isArray(existing) ? existing : (existing.data || []);
                     
                     if (existingPrefs.length > 0) {
-                         await base44.entities.NotificationPreference.update(existingPrefs[0].id, prefUpdateData);
+                         await ifs.entities.NotificationPreference.update(existingPrefs[0].id, prefUpdateData);
                          setNotificationPrefId(existingPrefs[0].id);
                     } else {
-                        const newPref = await base44.entities.NotificationPreference.create({
+                        const newPref = await ifs.entities.NotificationPreference.create({
                             userId: user.id,
                             ...prefUpdateData
                         });

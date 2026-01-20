@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useUser } from '../components/providers/UserProvider';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -57,11 +57,11 @@ export default function EventRegistrationSuccess() {
             let fetchedEvent = null;
             
             if (eventType === 'community') {
-                fetchedEvent = await base44.entities.CommunityEvent.get(eventId);
+                fetchedEvent = await ifs.entities.CommunityEvent.get(eventId);
                 console.log('[EventRegistrationSuccess] Community event fetched:', fetchedEvent);
             } else {
                 // For both 'masterclass' and regular 'event' types
-                fetchedEvent = await base44.entities.Event.get(eventId);
+                fetchedEvent = await ifs.entities.Event.get(eventId);
                 console.log('[EventRegistrationSuccess] Event fetched:', fetchedEvent);
             }
 

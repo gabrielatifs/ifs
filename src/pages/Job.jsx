@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import MainSiteNav from '@/components/marketing/MainSiteNav';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 export default function Job() {
     const location = useLocation();

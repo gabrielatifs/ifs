@@ -1,5 +1,5 @@
 
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 
 // Use current origin to support both preview and production
 const APP_DOMAIN = window.location.origin;
@@ -15,12 +15,12 @@ export const customLoginWithRedirect = (redirectPath) => {
         
         console.log('Attempting SDK login with absolute URL:', fullRedirectUrl);
         
-        // Use base44.auth.redirectToLogin instead of User.loginWithRedirect
-        base44.auth.redirectToLogin(fullRedirectUrl);
+        // Use ifs.auth.redirectToLogin instead of User.loginWithRedirect
+        ifs.auth.redirectToLogin(fullRedirectUrl);
     } catch (error) {
         console.error('Login redirect failed:', error);
         // Fallback to regular login
-        base44.auth.redirectToLogin();
+        ifs.auth.redirectToLogin();
     }
 };
 
@@ -28,7 +28,7 @@ export const customLoginWithRedirect = (redirectPath) => {
 
 export const login = async () => {
     try {
-        base44.auth.redirectToLogin();
+        ifs.auth.redirectToLogin();
     } catch (error) {
         console.error('Login failed:', error);
         throw error;
@@ -37,7 +37,7 @@ export const login = async () => {
 
 export const logout = async () => {
     try {
-        await base44.auth.logout();
+        await ifs.auth.logout();
     } catch (error) {
         console.error('Logout failed:', error);
         throw error;

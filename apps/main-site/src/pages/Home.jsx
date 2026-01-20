@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@ifs/shared/components/ui/card';
 import { Link, useLocation } from 'react-router-dom';
@@ -78,7 +78,7 @@ export default function Home() {
         console.log('[Home] 🎯 Invite ID detected in URL:', inviteId);
 
         try {
-            const user = await base44.auth.me().catch(() => null);
+            const user = await ifs.auth.me().catch(() => null);
             console.log('[Home] User status:', user ? `✅ Logged in as ${user.email}` : '❌ Not logged in');
 
             if (!user) {
@@ -231,7 +231,7 @@ export default function Home() {
   const handleLoginRedirect = async () => {
     console.log('[Home] handleLoginRedirect called');
     try {
-      const user = await base44.auth.me();
+      const user = await ifs.auth.me();
       console.log('[Home] User check result:', user);
       if (user) {
         trackEvent('member_portal_accessed', {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useUser } from '@/components/providers/UserProvider';
 import OrgPortalSidebar from '@/components/portal/OrgPortalSidebar';
 import PortalHeader from '@/components/portal/PortalHeader';
@@ -27,11 +27,11 @@ export default function OrgInvoices() {
             setLoading(true);
             
             // Fetch organisation
-            const org = await base44.entities.Organisation.get(user.organisationId);
+            const org = await ifs.entities.Organisation.get(user.organisationId);
             setOrganisation(org);
 
             // Fetch all bookings that have an invoice ID
-            const allBookings = await base44.entities.CourseBooking.list();
+            const allBookings = await ifs.entities.CourseBooking.list();
             
             // Filter bookings that belong to this organisation and have an invoice
             const orgBookings = allBookings.filter(booking => 

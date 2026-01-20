@@ -1,75 +1,75 @@
-import { base44 } from './base44Client';
+import { ifs } from './ifsClient';
 
 
-export const Event = base44.entities.Event;
+export const Event = ifs.entities.Event;
 
-export const EventSignup = base44.entities.EventSignup;
+export const EventSignup = ifs.entities.EventSignup;
 
-export const Job = base44.entities.Job;
+export const Job = ifs.entities.Job;
 
-export const Course = base44.entities.Course;
+export const Course = ifs.entities.Course;
 
-export const TrainingEnquiry = base44.entities.TrainingEnquiry;
+export const TrainingEnquiry = ifs.entities.TrainingEnquiry;
 
-export const FundingRequest = base44.entities.FundingRequest;
+export const FundingRequest = ifs.entities.FundingRequest;
 
-export const CourseVariant = base44.entities.CourseVariant;
+export const CourseVariant = ifs.entities.CourseVariant;
 
-export const MarketingContent = base44.entities.MarketingContent;
+export const MarketingContent = ifs.entities.MarketingContent;
 
-export const TeamMember = base44.entities.TeamMember;
+export const TeamMember = ifs.entities.TeamMember;
 
-export const Organisation = base44.entities.Organisation;
+export const Organisation = ifs.entities.Organisation;
 
-export const CourseDate = base44.entities.CourseDate;
+export const CourseDate = ifs.entities.CourseDate;
 
-export const OrgInvite = base44.entities.OrgInvite;
+export const OrgInvite = ifs.entities.OrgInvite;
 
-export const DigitalCredential = base44.entities.DigitalCredential;
+export const DigitalCredential = ifs.entities.DigitalCredential;
 
-export const CreditTransaction = base44.entities.CreditTransaction;
+export const CreditTransaction = ifs.entities.CreditTransaction;
 
-export const CourseBooking = base44.entities.CourseBooking;
+export const CourseBooking = ifs.entities.CourseBooking;
 
-export const Survey = base44.entities.Survey;
+export const Survey = ifs.entities.Survey;
 
-export const SurveyResponse = base44.entities.SurveyResponse;
+export const SurveyResponse = ifs.entities.SurveyResponse;
 
-export const SurveyDemographic = base44.entities.SurveyDemographic;
+export const SurveyDemographic = ifs.entities.SurveyDemographic;
 
-export const CommunityEvent = base44.entities.CommunityEvent;
+export const CommunityEvent = ifs.entities.CommunityEvent;
 
-export const CommunityEventSignup = base44.entities.CommunityEventSignup;
+export const CommunityEventSignup = ifs.entities.CommunityEventSignup;
 
-export const OrganisationSeat = base44.entities.OrganisationSeat;
+export const OrganisationSeat = ifs.entities.OrganisationSeat;
 
-export const EmailTemplate = base44.entities.EmailTemplate;
+export const EmailTemplate = ifs.entities.EmailTemplate;
 
-export const SupportTicket = base44.entities.SupportTicket;
+export const SupportTicket = ifs.entities.SupportTicket;
 
-export const ForumPost = base44.entities.ForumPost;
+export const ForumPost = ifs.entities.ForumPost;
 
-export const ForumReply = base44.entities.ForumReply;
+export const ForumReply = ifs.entities.ForumReply;
 
-export const ForumVote = base44.entities.ForumVote;
+export const ForumVote = ifs.entities.ForumVote;
 
-export const JobMetric = base44.entities.JobMetric;
+export const JobMetric = ifs.entities.JobMetric;
 
-export const NotificationPreference = base44.entities.NotificationPreference;
+export const NotificationPreference = ifs.entities.NotificationPreference;
 
-export const ApplicantTracking = base44.entities.ApplicantTracking;
+export const ApplicantTracking = ifs.entities.ApplicantTracking;
 
-export const NewsSource = base44.entities.NewsSource;
+export const NewsSource = ifs.entities.NewsSource;
 
-export const NewsItem = base44.entities.NewsItem;
+export const NewsItem = ifs.entities.NewsItem;
 
-export const NewsCategory = base44.entities.NewsCategory;
+export const NewsCategory = ifs.entities.NewsCategory;
 
-export const Referral = base44.entities.Referral;
+export const Referral = ifs.entities.Referral;
 
-export const FellowshipApplication = base44.entities.FellowshipApplication;
+export const FellowshipApplication = ifs.entities.FellowshipApplication;
 
 
 
 // auth sdk:
-export const User = base44.auth;
+export const User = ifs.auth;

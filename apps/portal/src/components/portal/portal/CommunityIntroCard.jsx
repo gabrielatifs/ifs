@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@ifs/shared/components/ui/button';
 import { Textarea } from '@ifs/shared/components/ui/textarea';
 import { MessageSquare, CheckCircle2, Loader2, X } from 'lucide-react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useToast } from "@ifs/shared/components/ui/use-toast";
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -39,7 +39,7 @@ export default function CommunityIntroCard() {
         setIsSubmitting(true);
         try {
             // 1. Create Forum Post
-            const { data: newPost } = await base44.functions.invoke('createForumPost', {
+            const { data: newPost } = await ifs.functions.invoke('createForumPost', {
                 title: `Hello from ${user.firstName}`,
                 content: introContent,
                 category: 'Introductions',

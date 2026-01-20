@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { supabase } from '@ifs/shared/lib/supabase';
 
 const UserContext = createContext();
@@ -21,7 +21,7 @@ export const UserProvider = ({ children }) => {
     console.log('[UserProvider] fetchUser called, session:', session?.user?.email || 'none');
     try {
       if (session) {
-        const currentUser = await base44.auth.me();
+        const currentUser = await ifs.auth.me();
         console.log('[UserProvider] User fetched:', currentUser?.email);
         setUser(currentUser);
       } else {
@@ -74,7 +74,7 @@ export const UserProvider = ({ children }) => {
 
   const updateUserProfile = async (data) => {
     try {
-      await base44.auth.updateMe(data);
+      await ifs.auth.updateMe(data);
       const { data: { session } } = await supabase.auth.getSession();
       await fetchUser(session);
     } catch (error) {

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
 import { User } from '@ifs/shared/api/entities';
 import { customLoginWithRedirect } from '../components/utils/auth';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { Loader2, ArrowRight, Clock, Users, Award, Calendar, Search, Filter, MapPin, Video } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ifs/shared/components/ui/tabs';
@@ -142,8 +142,8 @@ export default function Events() {
             try {
                 // Fetch both Masterclass Events and Community Events
                 const [masterclassEvents, communityEvents] = await Promise.all([
-                    base44.entities.Event.list('-date'),
-                    base44.entities.CommunityEvent.list('-date')
+                    ifs.entities.Event.list('-date'),
+                    ifs.entities.CommunityEvent.list('-date')
                 ]);
 
                 if (isMounted) {

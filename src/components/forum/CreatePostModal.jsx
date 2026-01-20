@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, MessageSquare, Shield, Ghost } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useToast } from '@/components/ui/use-toast';
 
 const categories = ["Introductions", "Masterclasses", "Regulation", "Professional Support"];
@@ -32,7 +32,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated, defaul
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await base44.functions.invoke('createForumPost', formData);
+            await ifs.functions.invoke('createForumPost', formData);
             toast({
                 title: "Post Created",
                 description: "Your discussion has been posted successfully."

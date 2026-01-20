@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function NewsCategoryModal({ open, onOpenChange, categoryToEdit, onSave }) {
@@ -47,10 +47,10 @@ export default function NewsCategoryModal({ open, onOpenChange, categoryToEdit, 
             };
 
             if (categoryToEdit) {
-                await base44.entities.NewsCategory.update(categoryToEdit.id, data);
+                await ifs.entities.NewsCategory.update(categoryToEdit.id, data);
                 toast({ title: "Success", description: "Category updated successfully" });
             } else {
-                await base44.entities.NewsCategory.create(data);
+                await ifs.entities.NewsCategory.create(data);
                 toast({ title: "Success", description: "Category created successfully" });
             }
             onSave();

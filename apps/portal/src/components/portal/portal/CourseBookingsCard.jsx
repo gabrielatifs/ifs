@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Loader2, CalendarCheck, Download, Calendar, Clock, MapPin, Video, ExternalLink, BookOpen } from 'lucide-react';
 import { Badge } from '@ifs/shared/components/ui/badge';
 import { Button } from '@ifs/shared/components/ui/button';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { createPageUrl } from '@ifs/shared/utils';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -83,7 +83,7 @@ export default function CourseBookingsCard({ user, hideIfEmpty = false, limit = 
             if (!user?.email) return;
 
             try {
-                const result = await base44.entities.CourseBooking.list('-created_date');
+                const result = await ifs.entities.CourseBooking.list('-created_date');
                 // Filter in frontend by userEmail
                 const filtered = result.filter(booking => booking.userEmail === user.email);
                 setBookings(filtered || []);

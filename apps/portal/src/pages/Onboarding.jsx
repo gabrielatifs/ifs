@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { User } from '@ifs/shared/api/entities';
 import { createPageUrl } from '@ifs/shared/utils';
 import { Button } from '@ifs/shared/components/ui/button';
@@ -203,7 +203,7 @@ export default function Onboarding() {
         const loadGoogleMaps = async () => {
             if (!window.google) {
                 try {
-                    const response = await base44.functions.invoke('getGoogleMapsApiKey');
+                    const response = await ifs.functions.invoke('getGoogleMapsApiKey');
                     const apiKey = response.data?.key || response.key;
 
                     if (apiKey) {
@@ -379,9 +379,9 @@ export default function Onboarding() {
 
                     // Ensure notification preference exists
                     try {
-                        const prefs = await base44.entities.NotificationPreference.filter({ userId: authUser.id });
+                        const prefs = await ifs.entities.NotificationPreference.filter({ userId: authUser.id });
                         if (prefs.length === 0) {
-                            await base44.entities.NotificationPreference.create({
+                            await ifs.entities.NotificationPreference.create({
                                 userId: authUser.id,
                                 email: authUser.email,
                                 weeklyJobAlerts: true
@@ -604,7 +604,7 @@ export default function Onboarding() {
 
             // Create/Update Applicant Tracking record
             try {
-                await base44.functions.invoke('trackApplicationSubmission', { 
+                await ifs.functions.invoke('trackApplicationSubmission', { 
                     membershipType: membershipTypeForProfile 
                 });
                 } catch (trackingError) {
@@ -615,9 +615,9 @@ export default function Onboarding() {
                 // Create NotificationPreference for Associate members
                 if (isAssociate) {
                 try {
-                    const prefs = await base44.entities.NotificationPreference.filter({ userId: authUser.id });
+                    const prefs = await ifs.entities.NotificationPreference.filter({ userId: authUser.id });
                     if (prefs.length === 0) {
-                        await base44.entities.NotificationPreference.create({
+                        await ifs.entities.NotificationPreference.create({
                             userId: authUser.id,
                             email: authUser.email,
                             weeklyJobAlerts: true

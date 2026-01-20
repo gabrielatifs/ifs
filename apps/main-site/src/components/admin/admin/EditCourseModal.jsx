@@ -109,8 +109,8 @@ export default function EditCourseModal({ isOpen, onClose, courseToEdit, onCours
 
         setIsUploading(true);
         try {
-            const { base44 } = await import('@/api/base44Client');
-            const { file_url } = await base44.integrations.Core.UploadFile({ file });
+            const { ifs } = await import('@/api/ifsClient');
+            const { file_url } = await ifs.integrations.Core.UploadFile({ file });
             handleCourseChange('imageUrl', file_url);
             toast({ title: 'Success', description: 'Image uploaded successfully' });
         } catch (error) {
@@ -131,8 +131,8 @@ export default function EditCourseModal({ isOpen, onClose, courseToEdit, onCours
 
         setIsUploading(true);
         try {
-            const { base44 } = await import('@/api/base44Client');
-            const { file_url } = await base44.integrations.Core.UploadFile({ file });
+            const { ifs } = await import('@/api/ifsClient');
+            const { file_url } = await ifs.integrations.Core.UploadFile({ file });
             handleCourseChange('prospectusUrl', file_url);
             toast({ title: 'Success', description: 'Prospectus uploaded successfully' });
         } catch (error) {

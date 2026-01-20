@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import { useQuery } from '@tanstack/react-query';
 import { createPageUrl } from '@ifs/shared/utils';
 import { useUser } from '@ifs/shared/components/providers/UserProvider';
@@ -37,7 +37,7 @@ export default function MyCreditHistory() {
     // Redirect if not authenticated or not a member with credits
     useEffect(() => {
         if (!userLoading && !user) {
-            base44.auth.redirectToLogin(window.location.href);
+            ifs.auth.redirectToLogin(window.location.href);
         }
         // Allow both Full and Associate members to access credit history
         if (!userLoading && user && user.membershipType !== 'Full' && user.membershipType !== 'Associate') {
@@ -48,7 +48,7 @@ export default function MyCreditHistory() {
     const { data: transactions, isLoading, refetch } = useQuery({
         queryKey: ['creditTransactions', user?.id],
         queryFn: async () => {
-            const txns = await base44.entities.CreditTransaction.list('-created_date');
+            const txns = await ifs.entities.CreditTransaction.list('-created_date');
             // Filter in frontend by userId
             const filtered = txns.filter(t => t.userId === user.id);
             return filtered;

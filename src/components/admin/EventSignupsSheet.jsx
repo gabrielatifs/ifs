@@ -27,7 +27,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { useToast } from "@/components/ui/use-toast";
-import { base44 } from '@/api/base44Client';
+import { ifs } from '@/api/ifsClient';
 import { format } from 'date-fns';
 import { Users, Loader2, Download, Mail, Bell, UserPlus, Search } from 'lucide-react';
 
@@ -40,7 +40,7 @@ const SignupRow = ({ signup, event, onUpdate }) => {
     const handleGenerate = async () => {
         setIsGenerating(true);
         try {
-            const response = await base44.functions.invoke('generateWorkshopCertificate', {
+            const response = await ifs.functions.invoke('generateWorkshopCertificate', {
                 eventId: signup.eventId,
                 signupId: signup.id
             });
@@ -69,7 +69,7 @@ const SignupRow = ({ signup, event, onUpdate }) => {
     const handleSendReminder = async () => {
         setIsSendingReminder(true);
         try {
-            const response = await base44.functions.invoke('sendEventReminder', {
+            const response = await ifs.functions.invoke('sendEventReminder', {
                 eventId: signup.eventId,
                 signupId: signup.id
             });
@@ -196,7 +196,7 @@ const SignupRow = ({ signup, event, onUpdate }) => {
             
             console.log('[EventSignupsSheet] Sending credential email to:', signup.userEmail);
             
-            await base44.functions.invoke('sendEmail', {
+            await ifs.functions.invoke('sendEmail', {
                 to: signup.userEmail,
                 subject: `Your CPD Credential - ${eventTitle}`,
                 html: emailHtml,
@@ -307,7 +307,7 @@ export default function EventSignupsSheet({ event, signups, open, onOpenChange, 
             console.log('[EventSignupsSheet] Searching for:', userSearch);
             
             // Use backend function to search users (requires admin privileges)
-            const response = await base44.functions.invoke('searchUsers', {
+            const response = await ifs.functions.invoke('searchUsers', {
                 searchTerm: userSearch
             });
             
@@ -343,7 +343,7 @@ export default function EventSignupsSheet({ event, signups, open, onOpenChange, 
     const handleAddUserToEvent = async (user) => {
         setIsAddingUser(true);
         try {
-            const newSignup = await base44.entities.EventSignup.create({
+            const newSignup = await ifs.entities.EventSignup.create({
                 userId: user.id,
                 eventId: event.id,
                 userEmail: user.email,
@@ -387,7 +387,7 @@ export default function EventSignupsSheet({ event, signups, open, onOpenChange, 
 
         setIsReminding(true);
         try {
-            const response = await base44.functions.invoke('sendEventReminder', {
+            const response = await ifs.functions.invoke('sendEventReminder', {
                 eventId: event.id
             });
 

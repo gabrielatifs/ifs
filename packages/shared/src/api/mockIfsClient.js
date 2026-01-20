@@ -1,5 +1,4 @@
-// Mock Base44 Client for local development without Base44 backend
-// This replaces the @base44/sdk completely
+// Mock IFS Client for local development without backend
 
 // Mock user data
 const mockUser = {
@@ -81,7 +80,7 @@ const createMockFunction = (name) => async (...args) => {
 
 // Create mock client
 export const createClient = ({ appId, requiresAuth }) => {
-  console.log('[MOCK] Creating Base44 client with appId:', appId);
+  console.log('[MOCK] Creating IFS client with appId:', appId);
 
   return {
     auth: mockAuth,

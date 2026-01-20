@@ -10,7 +10,7 @@ import { Loader2, Mail, Send, Eye, Users, CheckCircle2, AlertCircle, Save, Trash
 import { useToast } from '@ifs/shared/components/ui/use-toast';
 import { sendWelcomeEmail } from '@ifs/shared/api/functions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
-import { base44 } from '@ifs/shared/api/base44Client';
+import { ifs } from '@ifs/shared/api/ifsClient';
 import {
     Dialog,
     DialogContent,
@@ -71,7 +71,7 @@ export default function WelcomeEmailsTab({ users, refreshUsers }) {
 
     const loadTemplates = async () => {
         try {
-            const data = await base44.entities.EmailTemplate.filter({ templateType: 'welcome' });
+            const data = await ifs.entities.EmailTemplate.filter({ templateType: 'welcome' });
             setTemplates(data);
         } catch (error) {
             console.error('Failed to load templates:', error);
@@ -89,7 +89,7 @@ export default function WelcomeEmailsTab({ users, refreshUsers }) {
         }
 
         try {
-            await base44.entities.EmailTemplate.create({
+            await ifs.entities.EmailTemplate.create({
                 name: templateName,
                 subject,
                 message: customMessage,
@@ -137,7 +137,7 @@ export default function WelcomeEmailsTab({ users, refreshUsers }) {
 
     const handleDeleteTemplate = async (templateId) => {
         try {
-            await base44.entities.EmailTemplate.delete(templateId);
+            await ifs.entities.EmailTemplate.delete(templateId);
             toast({
                 title: "Template Deleted",
                 description: "Template has been deleted successfully."
