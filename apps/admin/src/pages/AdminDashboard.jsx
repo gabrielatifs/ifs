@@ -119,8 +119,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
 import { deleteUser, resetUser, reindexJobs, backfillApplicants } from '@ifs/shared/api/functions';
 import MembershipAnalyticsTab from '../components/admin/MembershipAnalyticsTab';
-import PortalSidebar from '../components/portal/PortalSidebar';
-import PortalHeader from '../components/portal/PortalHeader';
 import ApplicationDetailsSheet from '../components/admin/ApplicationDetailsSheet';
 import AddEventModal from '../components/admin/AddEventModal';
 import EventSignupsSheet from '../components/admin/EventSignupsSheet';
@@ -258,7 +256,6 @@ export default function AdminDashboard() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
 
     useEffect(() => {
@@ -1042,10 +1039,13 @@ export default function AdminDashboard() {
     const TabButton = ({ name, label, icon: Icon }) => (
         <TabsTrigger
             value={name}
-            className={`data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-purple-600 rounded-none px-4 py-3 flex items-center gap-2
-            ${activeTab === name ? 'text-purple-600 font-semibold' : 'text-slate-600 hover:text-slate-800'}`}
+            className={`rounded-none px-2 pb-3 pt-2 text-sm font-medium tracking-wide data-[state=active]:border-b-4 data-[state=active]:border-[#7C3AED] data-[state=active]:text-[#7C3AED]
+            ${activeTab === name ? 'text-[#7C3AED] font-semibold' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
         >
-            {Icon} {label}
+            <span className="inline-flex items-center gap-2">
+                <span className="text-slate-400">{Icon}</span>
+                {label}
+            </span>
         </TabsTrigger>
     );
 
@@ -1694,59 +1694,103 @@ export default function AdminDashboard() {
         );
     }
 
-    return (
+        return (
         <>
             <Toaster />
-            <div className="flex h-screen bg-slate-50/30">
-                <PortalSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="AdminDashboard" />
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    <PortalHeader setSidebarOpen={setSidebarOpen} user={user} currentPortal="admin" />
+            <style>{`
+                @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+            `}</style>
+            <div className="min-h-screen flex flex-col bg-[#F1F5F9] text-slate-900" style={{ fontFamily: "Inter, sans-serif" }}>
+                <header className="bg-[#1E1B4B] text-white h-16 flex items-center px-6 justify-between sticky top-0 z-50">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[#7C3AED] rounded flex items-center justify-center text-white font-bold text-xl">
+                            IFS
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-bold text-sm tracking-tight leading-none uppercase">Independent Federation</span>
+                            <span className="text-[10px] font-light text-white/70 tracking-widest uppercase">For Safeguarding</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                        <button className="relative text-white/80 hover:text-white transition-colors">
+                            <Bell className="w-5 h-5" />
+                            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-[#1E1B4B]" />
+                        </button>
+                        <div className="h-8 w-px bg-white/20" />
+                        <div className="flex items-center gap-3 cursor-pointer group">
+                            <div className="text-right hidden md:block">
+                                <p className="text-xs font-semibold">{user.displayName || user.full_name || 'Admin User'}</p>
+                                <p className="text-[10px] text-white/60 uppercase">System Manager</p>
+                            </div>
+                            <div className="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center text-[#1E1B4B]">
+                                <UserCheck className="w-5 h-5" />
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+                    <nav className="bg-white border-b border-[#E2E8F0]">
+                        <div className="px-6 flex gap-6 h-14 items-end">
+                            <TabsList className="bg-transparent p-0 h-full border-0 justify-start gap-6">
+                                <TabButton name="overview" label="Overview" icon={<Activity className="w-4 h-4" />} />
+                                <TabButton name="all_users" label="All Users" icon={<Users className="w-4 h-4" />} />
+                                <TabButton name="pending_members" label="Pending Applications" icon={<Clock className="w-4 h-4" />} />
+                                <TabButton name="associates" label="Associate Members" icon={<Users className="w-4 h-4" />} />
+                                <TabButton name="full-members" label="Full Members" icon={<Crown className="w-4 h-4" />} />
+                                <TabButton name="organisations" label="Organisations" icon={<Building2 className="w-4 h-4" />} />
+                                <TabButton name="credentials" label="Credentials" icon={<Award className="w-4 h-4" />} />
+                                <TabButton name="surveys" label="Surveys" icon={<MessageSquare className="w-4 h-4" />} />
+                                <TabButton name="analytics" label="Analytics" icon={<BarChart3 className="w-4 h-4" />} />
+                                <TabButton name="courses" label="Courses" icon={<GraduationCap className="w-4 h-4" />} />
+                                <TabButton name="events" label="Events" icon={<Calendar className="w-4 h-4" />} />
+                                <TabButton name="bookings" label="Course Bookings" icon={<ListChecks className="w-4 h-4" />} />
+                                <TabButton name="community" label="Community Events" icon={<Coffee className="w-4 h-4" />} />
+                                <TabButton name="jobs" label="Jobs" icon={<Briefcase className="w-4 h-4" />} />
+                                <TabButton name="job-review" label="Job Review" icon={<Eye className="w-4 h-4" />} />
+                                <TabButton name="news" label="News" icon={<Newspaper className="w-4 h-4" />} />
+                                <TabButton name="enquiries" label="Enquiries" icon={<Mail className="w-4 h-4" />} />
+                                <TabButton name="welcome-emails" label="Welcome Emails" icon={<Send className="w-4 h-4" />} />
+                                <TabButton name="system" label="System" icon={<Settings className="w-4 h-4" />} />
+                            </TabsList>
+                        </div>
+                    </nav>
+
                     <main className="flex-1 overflow-y-auto p-6 lg:p-8">
                         <div className="max-w-7xl mx-auto">
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
-                                    <p className="text-slate-600 mt-1">Manage all aspects of the IfS membership portal.</p>
+                                    <h1 className="text-2xl font-bold text-[#1E1B4B]">Dashboard Overview</h1>
+                                    <p className="text-sm text-slate-500">Welcome back. Here is the latest summary for today.</p>
                                 </div>
-                                <div className="flex gap-2">
-                                    <Button onClick={handleExportAllUsers} variant="outline">
+                                <div className="flex flex-wrap gap-3">
+                                    <Button
+                                        onClick={handleExportAllUsers}
+                                        variant="outline"
+                                        className="border-[#E2E8F0] text-sm"
+                                    >
                                         <Download className="w-4 h-4 mr-2" />
                                         Export All Users
                                     </Button>
-                                    <Button onClick={handleExportAllEmails} variant="outline">
+                                    <Button
+                                        onClick={handleExportAllEmails}
+                                        variant="outline"
+                                        className="border-[#E2E8F0] text-sm"
+                                    >
                                         <Mail className="w-4 h-4 mr-2" />
                                         Export Emails
                                     </Button>
-                                    <Button onClick={fetchAllDashboardData} variant="outline">
+                                    <Button
+                                        onClick={fetchAllDashboardData}
+                                        className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-sm"
+                                    >
                                         <RefreshCw className="w-4 h-4 mr-2" />
                                         Refresh
                                     </Button>
                                 </div>
                             </div>
 
-                            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full bg-white rounded-lg shadow-sm border border-slate-200">
-                                <TabsList className="bg-transparent p-0 h-auto border-b border-slate-200 w-full justify-start overflow-x-auto">
-                                    <TabButton name="overview" label="Overview" icon={<Activity className="w-4 h-4" />} />
-                                    <TabButton name="all_users" label="All Users" icon={<Users className="w-4 h-4" />} />
-                                    <TabButton name="pending_members" label="Pending Applications" icon={<Clock className="w-4 h-4" />} />
-                                    <TabButton name="associates" label="Associate Members" icon={<Users className="w-4 h-4" />} />
-                                    <TabButton name="full-members" label="Full Members" icon={<Crown className="w-4 h-4" />} />
-                                    <TabButton name="organisations" label="Organisations" icon={<Building2 className="w-4 h-4" />} />
-                                    <TabButton name="credentials" label="Credentials" icon={<Award className="w-4 h-4" />} />
-                                    <TabButton name="surveys" label="Surveys" icon={<MessageSquare className="w-4 h-4" />} />
-                                    <TabButton name="analytics" label="Analytics" icon={<BarChart3 className="w-4 h-4" />} />
-                                    <TabButton name="courses" label="Courses" icon={<GraduationCap className="w-4 h-4" />} />
-                                    <TabButton name="events" label="Events" icon={<Calendar className="w-4 h-4" />} />
-                                    <TabButton name="bookings" label="Course Bookings" icon={<ListChecks className="w-4 h-4" />} />
-                                    <TabButton name="community" label="Community Events" icon={<Coffee className="w-4 h-4" />} />
-                                    <TabButton name="jobs" label="Jobs" icon={<Briefcase className="w-4 h-4" />} />
-                                    <TabButton name="job-review" label="Job Review" icon={<Eye className="w-4 h-4" />} />
-                                    <TabButton name="news" label="News" icon={<Newspaper className="w-4 h-4" />} />
-                                    <TabButton name="enquiries" label="Enquiries" icon={<Mail className="w-4 h-4" />} />
-                                    <TabButton name="welcome-emails" label="Welcome Emails" icon={<Send className="w-4 h-4" />} />
-                                    <TabButton name="system" label="System" icon={<Settings className="w-4 h-4" />} />
-                                </TabsList>
-
+                            <div className="bg-white border border-[#E2E8F0] shadow-sm">
                                 <div className="p-6">
                                     {/* Overview Tab */}
                                     <TabsContent value="overview" className="space-y-6">
@@ -3817,10 +3861,18 @@ export default function AdminDashboard() {
                                         </Card>
                                     </TabsContent>
                                 </div>
-                            </Tabs>
+                            </div>
                         </div>
                     </main>
-                </div>
+                </Tabs>
+                <footer className="bg-white border-t border-[#E2E8F0] py-4 px-6 flex flex-col md:flex-row justify-between items-center text-[11px] text-slate-400 uppercase tracking-widest">
+                    <span>© 2024 Independent Federation for Safeguarding</span>
+                    <div className="flex gap-4 mt-2 md:mt-0">
+                        <a className="hover:text-[#7C3AED] transition-colors" href="/PrivacyPolicy">Privacy Policy</a>
+                        <a className="hover:text-[#7C3AED] transition-colors" href="/TermsAndConditions">Terms of Service</a>
+                        <a className="hover:text-[#7C3AED] transition-colors" href="mailto:it@ifs-safeguarding.co.uk">IT Support</a>
+                    </div>
+                </footer>
             </div>
 
             {/* Generate Credential Modal */}
