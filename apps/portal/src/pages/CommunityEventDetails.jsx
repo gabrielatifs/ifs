@@ -392,7 +392,7 @@ export default function CommunityEventDetails() {
         if (!userSignup) return;
         setIsRemoving(true);
         try {
-            const { data } = await cancelCommunityEventRegistration({
+            const data = await cancelCommunityEventRegistration({
                 signupId: userSignup.id
             });
 
