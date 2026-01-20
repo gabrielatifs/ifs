@@ -9,7 +9,7 @@ import JobCard from '../components/jobs/JobCard';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Input } from '@ifs/shared/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ifs/shared/components/ui/select';
-import { Loader2, Briefcase, Sparkles, Plus } from 'lucide-react';
+import { Loader2, Briefcase, Sparkles } from 'lucide-react';
 import MainSiteNav from '../components/marketing/MainSiteNav';
 import HeroBreadcrumbs from '../components/marketing/HeroBreadcrumbs';
 import { usePostHog } from '@ifs/shared/components/providers/PostHogProvider';
@@ -386,23 +386,6 @@ export default function Jobs() {
                   </p>
                 </div>
               </div>
-              <Button 
-                onClick={handlePostJob}
-                disabled={isProcessingPayment}
-                className="bg-white hover:bg-gray-100 text-purple-700 font-semibold flex-shrink-0"
-              >
-                {isProcessingPayment ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Post a Job
-                  </>
-                )}
-              </Button>
             </div>
           </div>
 
