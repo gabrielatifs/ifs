@@ -4,7 +4,6 @@ import About from "./About";
 
 import AdminDashboard from "./AdminDashboard";
 
-import AdminSupport from "./AdminSupport";
 
 import AdvancedCourses from "./AdvancedCourses";
 
@@ -150,7 +149,6 @@ import SupervisionServices from "./SupervisionServices";
 
 import SupervisionServicesMarketing from "./SupervisionServicesMarketing";
 
-import Support from "./Support";
 
 import Survey from "./Survey";
 
@@ -182,7 +180,6 @@ const PAGES = {
     
     AdminDashboard: AdminDashboard,
     
-    AdminSupport: AdminSupport,
     
     AdvancedCourses: AdvancedCourses,
     
@@ -328,7 +325,6 @@ const PAGES = {
     
     SupervisionServicesMarketing: SupervisionServicesMarketing,
     
-    Support: Support,
     
     Survey: Survey,
     
@@ -383,7 +379,6 @@ function PagesContent() {
                 
                 <Route path="/AdminDashboard" element={<AdminDashboard />} />
                 
-                <Route path="/AdminSupport" element={<AdminSupport />} />
                 
                 <Route path="/AdvancedCourses" element={<AdvancedCourses />} />
                 
@@ -529,7 +524,6 @@ function PagesContent() {
                 
                 <Route path="/SupervisionServicesMarketing" element={<SupervisionServicesMarketing />} />
                 
-                <Route path="/Support" element={<Support />} />
                 
                 <Route path="/Survey" element={<Survey />} />
                 

@@ -4,13 +4,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // A canonical list of all valid page names in the correct case.
 const validPageNames = [
     // Portal pages
-    'AdminDashboard', 'AdminSupport', 'ApplicationProcessing', 'CommunityEventDetails', 'CommunityEvents',
+    'AdminDashboard', 'ApplicationProcessing', 'CommunityEventDetails', 'CommunityEvents',
     'CourseDetails', 'CPDTraining', 'Dashboard', 'EditCourse', 'EditEvent', 'EditJob', 'EditSurvey', 'EditUser',
     'Forum', 'ForumPostDetails', 'Job', 'JobDetails', 'JobsBoard', 'ManageOrganisation', 'ManageOrgSubscription',
     'MasterclassDetails', 'MemberMasterclasses', 'MyCertificates', 'MyCreditHistory', 'MyMasterclassBookings',
     'MyProfile', 'Onboarding', 'OrgAnalytics', 'Organisation', 'OrganisationMembership', 'OrgInvoices',
     'OrgJobs', 'OrgMembers', 'OrgPayment', 'OrgProfile', 'PortalMembershipTiers', 'RequestOrgPayment',
-    'SupervisionServices', 'Support', 'Survey', 'SurveyResponses', 'TrusteeElections', 'YourVoice',
+    'SupervisionServices', 'Survey', 'SurveyResponses', 'TrusteeElections', 'YourVoice',
     // Main site pages
     'About', 'AdvancedCourses', 'ApplicationPending', 'ArticlesOfAssociation', 'AssociateMembership',
     'Conferences', 'Contact', 'CookiePolicy', 'CPDTrainingMarketing', 'EventDetails', 'EventRegistrationSuccess',

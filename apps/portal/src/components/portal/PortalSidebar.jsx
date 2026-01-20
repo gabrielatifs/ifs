@@ -197,21 +197,13 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
 
                         </NavSection>
 
-                    <NavSection title="Account & Support">
+                    <NavSection title="Account">
                         <NavLink
                             to={createLinkWithParams('MyProfile')}
                             icon={<UserIcon />}
                             current={currentPage === 'MyProfile'}
                         >
                             My Profile
-                        </NavLink>
-
-                         <NavLink
-                            to={createLinkWithParams('Support')}
-                            icon={<MessageSquare />}
-                            current={currentPage === 'Support'}
-                        >
-                            Support Tickets
                         </NavLink>
                     </NavSection>
 
@@ -223,13 +215,6 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
                                 current={currentPage === 'AdminDashboard'}
                             >
                                 Dashboard
-                            </NavLink>
-                            <NavLink
-                                to={createLinkWithParams('AdminSupport')}
-                                icon={<MessageSquare />}
-                                current={currentPage === 'AdminSupport'}
-                            >
-                                Support Tickets
                             </NavLink>
                         </NavSection>
                     )}

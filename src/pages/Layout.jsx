@@ -17,7 +17,7 @@ import { ifs } from '@/api/ifsClient';
 import MetaTitleManager from '../components/utils/MetaTitleManager';
 import { HelmetProvider } from 'react-helmet-async';
 
-const portalPages = ['Dashboard', 'AdminDashboard', 'EditEvent', 'EditJob', 'EditCourse', 'EditSurvey', 'SurveyResponses', 'CPDTraining', 'CourseDetails', 'MemberMasterclasses', 'MasterclassDetails', 'JobsBoard', 'JobDetails', 'SupervisionServices', 'PortalMembershipTiers', 'MyProfile', 'MyCertificates', 'ManageOrganisation', 'OrganisationMembership', 'MyMasterclassBookings', 'RequestOrgPayment', 'Onboarding', 'ApplicationProcessing', 'YourVoice', 'Survey', 'EditUser', 'CommunityEvents', 'CommunityEventDetails', 'Support', 'AdminSupport', 'Forum', 'ForumPostDetails', 'News', 'OrgMembers', 'OrgJobs', 'OrgAnalytics', 'ManageOrgSubscription', 'OrgProfile', 'OrgInvoices'];
+const portalPages = ['Dashboard', 'AdminDashboard', 'EditEvent', 'EditJob', 'EditCourse', 'EditSurvey', 'SurveyResponses', 'CPDTraining', 'CourseDetails', 'MemberMasterclasses', 'MasterclassDetails', 'JobsBoard', 'JobDetails', 'SupervisionServices', 'PortalMembershipTiers', 'MyProfile', 'MyCertificates', 'ManageOrganisation', 'OrganisationMembership', 'MyMasterclassBookings', 'RequestOrgPayment', 'Onboarding', 'ApplicationProcessing', 'YourVoice', 'Survey', 'EditUser', 'CommunityEvents', 'CommunityEventDetails', 'Forum', 'ForumPostDetails', 'News', 'OrgMembers', 'OrgJobs', 'OrgAnalytics', 'ManageOrgSubscription', 'OrgProfile', 'OrgInvoices'];
 
 const noLayoutPages = ['NotFound', 'MembershipPlans', 'EventRegistrationSuccess'];
 

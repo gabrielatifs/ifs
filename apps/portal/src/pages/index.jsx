@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 // Import all portal pages
 import AdminDashboard from "./AdminDashboard";
-import AdminSupport from "./AdminSupport";
 import ApplicationProcessing from "./ApplicationProcessing";
 import CommunityEventDetails from "./CommunityEventDetails";
 import CommunityEvents from "./CommunityEvents";
@@ -42,7 +41,6 @@ import OrgProfile from "./OrgProfile";
 import PortalMembershipTiers from "./PortalMembershipTiers";
 import RequestOrgPayment from "./RequestOrgPayment";
 import SupervisionServices from "./SupervisionServices";
-import Support from "./Support";
 import Survey from "./Survey";
 import SurveyResponses from "./SurveyResponses";
 import TrusteeElections from "./TrusteeElections";
@@ -81,7 +79,6 @@ export default function Pages() {
 
                             {/* Portal routes - lowercase to match createPageUrl */}
                             <Route path="/admindashboard" element={<AdminDashboard />} />
-                            <Route path="/adminsupport" element={<AdminSupport />} />
                             <Route path="/applicationprocessing" element={<ApplicationProcessing />} />
                             <Route path="/communityeventdetails" element={<CommunityEventDetails />} />
                             <Route path="/communityevents" element={<CommunityEvents />} />
@@ -120,7 +117,6 @@ export default function Pages() {
                             <Route path="/portalmembershiptiers" element={<PortalMembershipTiers />} />
                             <Route path="/requestorgpayment" element={<RequestOrgPayment />} />
                             <Route path="/supervisionservices" element={<SupervisionServices />} />
-                            <Route path="/support" element={<Support />} />
                             <Route path="/survey" element={<Survey />} />
                             <Route path="/surveyresponses" element={<SurveyResponses />} />
                             <Route path="/trusteeelections" element={<TrusteeElections />} />

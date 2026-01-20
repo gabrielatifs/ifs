@@ -385,29 +385,6 @@ const ManageOrganisationView = ({ organisation, members, user }) => {
                     </div>
                 </div>
 
-                {/* Support CTA */}
-                <div className="lg:col-span-2 bg-white border border-slate-200 p-10 hover:border-slate-300 transition-all">
-                    <div className="flex flex-col md:flex-row gap-8 items-start">
-                        <div className="w-16 h-16 bg-slate-100 flex items-center justify-center flex-shrink-0">
-                            <Mail className="w-8 h-8 text-slate-600" />
-                        </div>
-                        <div className="flex-1">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 block">Need Help?</span>
-                            <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">
-                                Contact Support
-                            </h3>
-                            <p className="text-sm text-slate-600 font-light leading-relaxed mb-6 max-w-3xl">
-                                Get assistance with your membership, training, or organization questions. Our support team is here to help.
-                            </p>
-                            <Button 
-                                className="h-12 bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-semibold tracking-[0.1em] uppercase transition-all"
-                                onClick={() => window.location.href = '/Support'}
-                            >
-                                Contact Support
-                            </Button>
-                        </div>
-                    </div>
-                </div>
             </div>
         );
     }
@@ -539,13 +516,6 @@ const ManageOrganisationView = ({ organisation, members, user }) => {
                                 onClick={() => window.location.href = 'mailto:support@instituteforsafeguarding.com?subject=Schedule a Call - ' + encodeURIComponent(organisation.name)}
                             >
                                 Book a Free Consultation
-                            </Button>
-                            <Button 
-                                variant="outline"
-                                className="h-12 border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-semibold tracking-[0.1em] uppercase hover:border-slate-300 transition-all"
-                                onClick={() => window.location.href = '/Support'}
-                            >
-                                Contact Support
                             </Button>
                         </div>
                     </div>
