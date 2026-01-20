@@ -168,14 +168,6 @@ export default function PortalSidebar({ user, sidebarOpen, setSidebarOpen, curre
                         >
                             Events
                         </NavLink>
-                        <NavLink
-                            to={createLinkWithParams('SupervisionServices')}
-                            icon={<Heart />}
-                            current={currentPage === 'SupervisionServices'}
-                            data-tour="supervision"
-                        >
-                            Supervision
-                        </NavLink>
 
                          <NavLink
                             to={createLinkWithParams('MyCertificates')}
