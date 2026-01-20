@@ -178,8 +178,7 @@ function PortalLayout({ children, currentPageName }) {
     return (
         <>
             {children}
-            <AdminModeToggle />currentPage={currentPageName} />
-            )}
+            <AdminModeToggle />
         </>
     );
 }
