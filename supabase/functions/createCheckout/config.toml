@@ -1,0 +1,2 @@
+[functions.createCheckout]
+verify_jwt = true

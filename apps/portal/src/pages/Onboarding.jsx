@@ -638,13 +638,12 @@ export default function Onboarding() {
                 const successUrl = `${productionOrigin}${createPageUrl('ApplicationProcessing')}?payment=success`;
                 const cancelUrl = `${productionOrigin}${createPageUrl('JoinUs')}`;
 
-                // Use the correct Full Membership price IDs
-                // Monthly: price_1SSiWXDJm5OJGimXguAKyxBN (£20/month)
-                // Annual: price_1SSiWGDJm5OJGimXnn2kZ6aO (£240/year)
+                // Use the correct Full Membership price ID
+                // Full Membership: price_1STErADJm5OJGimXcBgvYoYn
                 const { data } = await createCheckout({
                     successUrl,
                     cancelUrl,
-                    priceId: 'price_1SSiWXDJm5OJGimXguAKyxBN', // Default to monthly
+                    priceId: 'price_1STErADJm5OJGimXcBgvYoYn',
                     membershipTier: 'professional',
                     billingPeriod: 'monthly'
                 });

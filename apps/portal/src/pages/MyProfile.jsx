@@ -49,9 +49,7 @@ const UpgradeCard = ({ user }) => {
             const cancelUrl = `${productionOrigin}${createPageUrl('MyProfile')}`;
 
             const { data } = await createCheckout({
-                priceId: billingPeriod === 'annual' 
-                    ? 'price_1SSiWGDJm5OJGimXnn2kZ6aO' 
-                    : 'price_1SSiWXDJm5OJGimXguAKyxBN',
+                priceId: 'price_1STErADJm5OJGimXcBgvYoYn',
                 successUrl,
                 cancelUrl
             });
