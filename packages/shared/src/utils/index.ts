@@ -107,6 +107,7 @@ export function navigateToUrl(navigate: (to: string) => void, url: string) {
 
 export const fastLogout = () => {
     const mainSiteUrl = import.meta?.env?.VITE_MAIN_SITE_URL || '/';
+    const authCookieDomain = import.meta?.env?.VITE_AUTH_COOKIE_DOMAIN || '';
     try {
         const supabaseUrl = import.meta?.env?.VITE_SUPABASE_URL || '';
         const projectRef = new URL(supabaseUrl).host.split('.')[0];
@@ -114,6 +115,17 @@ export const fastLogout = () => {
             const storageKey = `sb-${projectRef}-auth-token`;
             localStorage.removeItem(storageKey);
             sessionStorage.removeItem(storageKey);
+            if (authCookieDomain && typeof document !== 'undefined') {
+                const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+                const attrs = [
+                    'path=/',
+                    `domain=${authCookieDomain}`,
+                    'SameSite=Lax',
+                    isSecure ? 'Secure' : '',
+                    'Max-Age=0'
+                ].filter(Boolean);
+                document.cookie = `${storageKey}=; ${attrs.join('; ')}`;
+            }
         }
     } catch (error) {
         // Ignore parsing/storage errors to keep logout fast.

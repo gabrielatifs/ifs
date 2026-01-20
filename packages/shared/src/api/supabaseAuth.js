@@ -329,6 +329,7 @@ export const auth = {
 
   async logout() {
     const mainSiteUrl = import.meta.env.VITE_MAIN_SITE_URL || "/";
+    const authCookieDomain = import.meta.env.VITE_AUTH_COOKIE_DOMAIN || "";
     if (typeof window !== "undefined") {
       sessionStorage.setItem("logoutRedirectAt", String(Date.now()));
       sessionStorage.setItem("logoutRedirectUrl", mainSiteUrl);
@@ -342,6 +343,17 @@ export const auth = {
           const storageKey = `sb-${projectRef}-auth-token`;
           localStorage.removeItem(storageKey);
           sessionStorage.removeItem(storageKey);
+          if (authCookieDomain) {
+            const isSecure = window.location.protocol === "https:";
+            const attrs = [
+              "path=/",
+              `domain=${authCookieDomain}`,
+              "SameSite=Lax",
+              isSecure ? "Secure" : "",
+              "Max-Age=0",
+            ].filter(Boolean);
+            document.cookie = `${storageKey}=; ${attrs.join("; ")}`;
+          }
         }
       } catch (error) {
         console.warn("[auth.logout] Failed to clear auth storage:", error.message);
