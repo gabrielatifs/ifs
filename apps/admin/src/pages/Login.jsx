@@ -41,7 +41,7 @@ export default function Login() {
                         // Already logged in, redirect
                         const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl')
                             || searchParams.get('redirect')
-                            || '/';
+                            || '/admindashboard';
                         sessionStorage.removeItem('postLoginRedirectUrl');
                         window.location.href = redirectUrl;
                         return;
@@ -86,7 +86,7 @@ export default function Login() {
 
                 const redirectUrl = sessionStorage.getItem('postLoginRedirectUrl')
                     || searchParams.get('redirect')
-                    || '/';
+                    || '/admindashboard';
                 sessionStorage.removeItem('postLoginRedirectUrl');
                 window.location.href = redirectUrl;
                 return;

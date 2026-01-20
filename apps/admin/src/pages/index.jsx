@@ -13,17 +13,17 @@ export default function Pages() {
         <Router>
             <Routes>
                 {/* Auth routes - no layout */}
+                <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/verify-code" element={<VerifyCode />} />
                 <Route path="/set-password" element={<SetPassword />} />
 
                 {/* Admin routes */}
-                <Route path="/*" element={
+                <Route path="/admindashboard/*" element={
                     <Layout currentPageName="AdminDashboard">
                         <Routes>
                             <Route path="/" element={<AdminDashboard />} />
-                            <Route path="/admindashboard" element={<AdminDashboard />} />
                             <Route path="*" element={<AdminDashboard />} />
                         </Routes>
                     </Layout>
