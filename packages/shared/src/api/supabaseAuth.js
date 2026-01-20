@@ -3,6 +3,12 @@ import { supabase } from "../lib/supabase.js";
 const PROFILE_TABLE = "profiles";
 
 const toSnake = (key) => {
+  if (key === "createdDate" || key === "createdAt" || key === "created_date") {
+    return "created_at";
+  }
+  if (key === "updatedDate" || key === "updatedAt" || key === "updated_date") {
+    return "updated_at";
+  }
   if (key.includes("_")) return key;
   if (key === "organisationName") return "organisation";
   return key.replace(/[A-Z]/g, (match) => `_${match.toLowerCase()}`);
