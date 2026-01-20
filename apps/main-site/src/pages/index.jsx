@@ -79,6 +79,7 @@ export default function Pages() {
                     <Route path="/Jobs" element={<Jobs />} />
                     <Route path="/JobsBoardMarketing" element={<JobsBoardMarketing />} />
                     <Route path="/JoinUs" element={<JoinUs />} />
+                    <Route path="/joinus" element={<JoinUs />} />
                     <Route path="/MemberAccessRequired" element={<MemberAccessRequired />} />
                     <Route path="/MemberBenefits" element={<MemberBenefits />} />
                     <Route path="/Membership" element={<Membership />} />
