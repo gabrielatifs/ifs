@@ -368,26 +368,6 @@ export default function Jobs() {
       {/* Main Content */}
       <main id="main-content" className="bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          
-          {/* Post a Job CTA - For Everyone */}
-          <div className="mb-8 bg-gradient-to-r from-purple-600 to-pink-600 border border-purple-700 shadow-lg p-6 rounded-lg">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="flex items-start gap-4 flex-1">
-                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Briefcase className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Post a Job Opening</h3>
-                  <p className="text-purple-100 leading-relaxed mb-2">
-                    Reach thousands of qualified safeguarding professionals across the UK.
-                  </p>
-                  <p className="text-sm text-white/90 font-semibold">
-                    £12 for 30 days of visibility
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <JobFilters
             filters={filters}
@@ -504,3 +484,4 @@ export default function Jobs() {
     </>
   );
 }
+
