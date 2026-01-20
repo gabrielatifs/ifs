@@ -158,6 +158,7 @@ export default function Login() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="admin@ifs-safeguarding.org.uk"
                             required
+                            autoComplete="email"
                             className="h-12 rounded-md border-slate-200 bg-slate-50 pl-10 text-slate-900 focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
                         />
                     </div>
@@ -177,6 +178,7 @@ export default function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="********"
                                 required
+                                autoComplete="current-password"
                                 className="h-12 rounded-md border-slate-200 bg-slate-50 pl-10 text-slate-900 focus-visible:ring-2 focus-visible:ring-[#7C3AED]"
                             />
                         </div>
@@ -195,6 +197,7 @@ export default function Login() {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Re-enter your password"
                             required
+                            autoComplete="new-password"
                             className="mt-2 h-12 rounded-xl border-slate-200 bg-white"
                         />
                     </div>
