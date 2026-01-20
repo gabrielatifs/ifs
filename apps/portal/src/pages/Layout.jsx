@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 import { ifs } from '@ifs/shared/api/ifsClient';
 import { HelmetProvider } from 'react-helmet-async';
 
-const portalPages = ['Dashboard', 'AdminDashboard', 'EditEvent', 'EditJob', 'EditCourse', 'EditSurvey', 'SurveyResponses', 'CPDTraining', 'CourseDetails', 'MemberMasterclasses', 'MasterclassDetails', 'JobsBoard', 'JobDetails', 'SupervisionServices', 'PortalMembershipTiers', 'MyProfile', 'MyCertificates', 'ManageOrganisation', 'OrganisationMembership', 'MyMasterclassBookings', 'RequestOrgPayment', 'Onboarding', 'ApplicationProcessing', 'YourVoice', 'Survey', 'EditUser', 'CommunityEvents', 'CommunityEventDetails', 'Forum', 'ForumPostDetails', 'OrgMembers', 'OrgJobs', 'OrgAnalytics', 'ManageOrgSubscription', 'OrgProfile', 'OrgInvoices'];
+const portalPages = ['Dashboard', 'EditEvent', 'EditJob', 'EditCourse', 'EditSurvey', 'SurveyResponses', 'CPDTraining', 'CourseDetails', 'MemberMasterclasses', 'MasterclassDetails', 'JobsBoard', 'JobDetails', 'SupervisionServices', 'PortalMembershipTiers', 'MyProfile', 'MyCertificates', 'ManageOrganisation', 'OrganisationMembership', 'MyMasterclassBookings', 'RequestOrgPayment', 'Onboarding', 'ApplicationProcessing', 'YourVoice', 'Survey', 'EditUser', 'CommunityEvents', 'CommunityEventDetails', 'Forum', 'ForumPostDetails', 'OrgMembers', 'OrgJobs', 'OrgAnalytics', 'ManageOrgSubscription', 'OrgProfile', 'OrgInvoices'];
 
 const noLayoutPages = ['NotFound', 'MembershipPlans', 'EventRegistrationSuccess'];
 
@@ -305,3 +305,4 @@ export default function Layout({ children, currentPageName }) {
     </PageErrorBoundary>
   );
 }
+

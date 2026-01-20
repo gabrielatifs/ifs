@@ -2,7 +2,6 @@ import Layout from "./Layout.jsx";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 // Import all portal pages
-import AdminDashboard from "./AdminDashboard";
 import ApplicationProcessing from "./ApplicationProcessing";
 import CommunityEventDetails from "./CommunityEventDetails";
 import CommunityEvents from "./CommunityEvents";
@@ -51,16 +50,6 @@ import VerifyCode from "./VerifyCode";
 import SetPassword from "./SetPassword";
 
 export default function Pages() {
-    const adminUrl = import.meta.env.VITE_ADMIN_URL || 'https://admin.ifs-safeguarding.co.uk';
-    const adminHost = (() => {
-        try {
-            return new URL(adminUrl).host;
-        } catch (error) {
-            return 'admin.ifs-safeguarding.co.uk';
-        }
-    })();
-    const isAdminDomain = typeof window !== 'undefined' && window.location.host === adminHost;
-
     return (
         <Router>
             <Routes>
@@ -75,10 +64,9 @@ export default function Pages() {
                     <Layout currentPageName="Portal">
                         <Routes>
                             {/* Default route */}
-                            <Route path="/" element={isAdminDomain ? <AdminDashboard /> : <Dashboard />} />
+                            <Route path="/" element={<Dashboard />} />
 
                             {/* Portal routes - lowercase to match createPageUrl */}
-                            <Route path="/admindashboard" element={<AdminDashboard />} />
                             <Route path="/applicationprocessing" element={<ApplicationProcessing />} />
                             <Route path="/communityeventdetails" element={<CommunityEventDetails />} />
                             <Route path="/communityevents" element={<CommunityEvents />} />

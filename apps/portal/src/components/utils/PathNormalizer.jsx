@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // A canonical list of all valid page names in the correct case.
 const validPageNames = [
     // Portal pages
-    'AdminDashboard', 'ApplicationProcessing', 'CommunityEventDetails', 'CommunityEvents',
+    'ApplicationProcessing', 'CommunityEventDetails', 'CommunityEvents',
     'CourseDetails', 'CPDTraining', 'Dashboard', 'EditCourse', 'EditEvent', 'EditJob', 'EditSurvey', 'EditUser',
     'Forum', 'ForumPostDetails', 'Job', 'JobDetails', 'JobsBoard', 'ManageOrganisation', 'ManageOrgSubscription',
     'MasterclassDetails', 'MemberMasterclasses', 'MyCertificates', 'MyCreditHistory', 'MyMasterclassBookings',
@@ -65,3 +65,4 @@ export default function PathNormalizer() {
     // This component renders nothing
     return null;
 }
+

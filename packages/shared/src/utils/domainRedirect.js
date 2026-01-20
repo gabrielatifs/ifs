@@ -11,10 +11,21 @@ export const checkDomainRedirect = (currentDomain) => {
 
   const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'http://localhost:3001';
   const MAIN_SITE_URL = import.meta.env.VITE_MAIN_SITE_URL || 'http://localhost:3000';
+  const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || 'https://admin.join-ifs.org';
 
   // Portal root should not redirect away; let the portal app handle it.
   if (currentDomain === 'portal' && !pageName) {
     return null;
+  }
+
+  // Admin root should not redirect away; let the admin app handle it.
+  if (currentDomain === 'admin' && !pageName) {
+    return null;
+  }
+
+  // If the page is an admin page, always send to admin domain.
+  if (pageName && isAdminPage(pageName) && currentDomain !== 'admin') {
+    return `${ADMIN_URL}${pathname}${window.location.search}${window.location.hash}`;
   }
 
   // If on main site but page should be on portal
@@ -22,8 +33,18 @@ export const checkDomainRedirect = (currentDomain) => {
     return `${PORTAL_URL}${pathname}${window.location.search}${window.location.hash}`;
   }
 
+  // If on admin but page should be on portal
+  if (currentDomain === 'admin' && pageName && isPortalPage(pageName)) {
+    return `${PORTAL_URL}${pathname}${window.location.search}${window.location.hash}`;
+  }
+
   // If on portal but page should be on main site
   if (currentDomain === 'portal' && pageName && isMainSitePage(pageName) && !isPortalPage(pageName)) {
+    return `${MAIN_SITE_URL}${pathname}${window.location.search}${window.location.hash}`;
+  }
+
+  // If on admin but page should be on main site
+  if (currentDomain === 'admin' && pageName && isMainSitePage(pageName) && !isPortalPage(pageName) && !isAdminPage(pageName)) {
     return `${MAIN_SITE_URL}${pathname}${window.location.search}${window.location.hash}`;
   }
 
@@ -39,7 +60,7 @@ export const checkDomainRedirect = (currentDomain) => {
 export const getPageDomain = (pageName, currentDomain) => {
   const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'http://localhost:3001';
   const MAIN_SITE_URL = import.meta.env.VITE_MAIN_SITE_URL || 'http://localhost:3000';
-  const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || 'https://admin.ifs-safeguarding.co.uk';
+  const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || 'https://admin.join-ifs.org';
 
   if (isAdminPage(pageName)) {
     return ADMIN_URL;
@@ -66,7 +87,7 @@ export const buildLink = (path, currentDomain) => {
   const targetDomain = getPageDomain(pageName, currentDomain);
   const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'http://localhost:3001';
   const MAIN_SITE_URL = import.meta.env.VITE_MAIN_SITE_URL || 'http://localhost:3000';
-  const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || 'https://admin.ifs-safeguarding.co.uk';
+  const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || 'https://admin.join-ifs.org';
 
   const currentDomainUrl = currentDomain === 'portal'
     ? PORTAL_URL
