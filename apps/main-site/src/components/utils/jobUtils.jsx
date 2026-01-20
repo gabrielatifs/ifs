@@ -16,9 +16,13 @@ export const generateJobSlug = (job) => {
     const title = slugify(job.title);
     const location = slugify(job.addressLocality || job.location || ''); 
     
-    const slugParts = [title, location].filter(Boolean).join('-');
-    
-    // Format: ?id=slug-fullID
-    // This ensures uniqueness and readability while using a single parameter
-    return `?id=${slugParts}-${job.id}`;
+    const company = slugify(job.companyName || job.organisation || '');
+    const slugParts = [title, location, company].filter(Boolean).join('-');
+    return slugParts;
+};
+
+export const generateJobPath = (job) => {
+    const slug = generateJobSlug(job);
+    if (!slug) return '/jobs';
+    return `/job/${slug}`;
 };

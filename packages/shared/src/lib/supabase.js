@@ -7,7 +7,7 @@ const createMockSupabase = () => {
   const disabledError = new Error('Supabase is disabled in local/no-db mode.');
 
   const chain = () => ({
-    select: async () => ({ data: null, error: disabledError }),
+    select: () => chain(),
     insert: async () => ({ data: null, error: disabledError }),
     upsert: async () => ({ data: null, error: disabledError }),
     update: async () => ({ data: null, error: disabledError }),
@@ -19,6 +19,7 @@ const createMockSupabase = () => {
     limit: () => chain(),
     single: async () => ({ data: null, error: disabledError }),
     maybeSingle: async () => ({ data: null, error: disabledError }),
+    then: (resolve) => Promise.resolve({ data: null, error: disabledError }).then(resolve),
   });
 
   return {
@@ -35,6 +36,9 @@ const createMockSupabase = () => {
         download: async () => ({ data: null, error: disabledError }),
         getPublicUrl: () => ({ data: { publicUrl: '' } }),
       }),
+    },
+    functions: {
+      invoke: async () => ({ data: null, error: disabledError }),
     },
   };
 };

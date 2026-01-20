@@ -9,6 +9,7 @@ import { ArrowRight, Briefcase, MapPin, Clock, Loader2, Building2, Star } from '
 import MainSiteNav from '../components/marketing/MainSiteNav';
 import HeroBreadcrumbs from '../components/marketing/HeroBreadcrumbs';
 import { usePostHog } from '@ifs/shared/components/providers/PostHogProvider';
+import { generateJobSlug } from '@/components/utils/jobUtils';
 
 export default function JobsBoardMarketing() {
     const [jobs, setJobs] = useState([]);
@@ -49,6 +50,7 @@ export default function JobsBoardMarketing() {
                 
                 const formattedJobs = jobsToShow.map(job => ({
                     id: job.id,
+                    slug: generateJobSlug(job),
                     title: job.title,
                     company: job.companyName,
                     location: job.location,
@@ -240,7 +242,7 @@ export default function JobsBoardMarketing() {
                                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                                             <div>
                                                 <h3 className="text-xl font-bold text-purple-800 hover:text-purple-900 transition-colors">
-                                                    <Link to={createPageUrl(`JobDetailsPublic?id=${job.id}`)}>{job.title}</Link>
+                                                    <Link to={`/job/${job.slug}`}>{job.title}</Link>
                                                 </h3>
                                                 <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-gray-600 mt-2">
                                                     <div className="flex items-center gap-2">
@@ -261,7 +263,7 @@ export default function JobsBoardMarketing() {
                                             </div>
                                             <div className="mt-4 sm:mt-0">
                                                 <Button asChild variant="outline" className="bg-gray-100 hover:bg-gray-200">
-                                                    <Link to={createPageUrl(`JobDetailsPublic?id=${job.id}`)}>
+                                                    <Link to={`/job/${job.slug}`}>
                                                         View Details
                                                     </Link>
                                                 </Button>

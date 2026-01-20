@@ -21,6 +21,7 @@ import Governance from "./Governance";
 import Home from "./Home";
 import IfSBoard from "./IfSBoard";
 import IntroductoryCourses from "./IntroductoryCourses";
+import JobDetailsPublic from "./JobDetailsPublic";
 import Jobs from "./Jobs";
 import JobsBoardMarketing from "./JobsBoardMarketing";
 import JoinUs from "./JoinUs";
@@ -72,6 +73,9 @@ export default function Pages() {
                     <Route path="/Home" element={<Home />} />
                     <Route path="/IfSBoard" element={<IfSBoard />} />
                     <Route path="/IntroductoryCourses" element={<IntroductoryCourses />} />
+                    <Route path="/job/:slug" element={<JobDetailsPublic />} />
+                    <Route path="/Job" element={<JobDetailsPublic />} />
+                    <Route path="/JobDetailsPublic" element={<JobDetailsPublic />} />
                     <Route path="/Jobs" element={<Jobs />} />
                     <Route path="/JobsBoardMarketing" element={<JobsBoardMarketing />} />
                     <Route path="/JoinUs" element={<JoinUs />} />

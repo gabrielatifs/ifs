@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
-import { generateJobSlug } from '@/components/utils/jobUtils';
+import { generateJobPath } from '@/components/utils/jobUtils';
 import { Button } from '@ifs/shared/components/ui/button';
 import { MapPin, Briefcase, Clock, ArrowRight, Building, DollarSign, BarChart, CalendarDays } from 'lucide-react';
 import { Badge } from '@ifs/shared/components/ui/badge';
@@ -45,7 +45,7 @@ export default function JobCard({ job, isPublic = false }) {
           <div className="flex-grow">
             <h3 className="text-lg font-semibold text-gray-800 group-hover:text-purple-700 transition-colors">
               <Link
-                to={isPublic ? `/Job${generateJobSlug(job)}` : `${createPageUrl('JobDetails')}?id=${job.id}`}
+                to={isPublic ? generateJobPath(job) : `${createPageUrl('JobDetails')}?id=${job.id}`}
                 className="focus:outline-none focus:ring-2 focus:ring-purple-500 rounded"
               >
                 {job.title}
@@ -97,7 +97,7 @@ export default function JobCard({ job, isPublic = false }) {
 
         {/* View Button */}
         <Button asChild size="sm" className="bg-gray-900 hover:bg-gray-700 text-white shadow-sm hover:shadow-md transition-all">
-          <Link to={isPublic ? `/Job${generateJobSlug(job)}` : `${createPageUrl('JobDetails')}?id=${job.id}`}>
+          <Link to={isPublic ? generateJobPath(job) : `${createPageUrl('JobDetails')}?id=${job.id}`}>
             View Details <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
         </Button>

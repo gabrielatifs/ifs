@@ -22,7 +22,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { generateJobSlug } from '@/components/utils/jobUtils';
+import { generateJobPath, generateJobSlug } from '@/components/utils/jobUtils';
 import MainSiteNav from '@/components/marketing/MainSiteNav';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import HeroBreadcrumbs from '@/components/marketing/HeroBreadcrumbs';
@@ -31,7 +31,7 @@ import { customLoginWithRedirect } from '@/components/utils/auth';
 import { usePostHog } from '@ifs/shared/components/providers/PostHogProvider';
 import 'react-quill/dist/quill.snow.css';
 
-export default function JobDetailsView({ jobId }) {
+export default function JobDetailsView({ jobId, jobSlug }) {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -52,6 +52,14 @@ export default function JobDetailsView({ jobId }) {
           if (fetchedJob) {
             // Track view - non-blocking
             base44.functions.invoke('trackJobAnalytics', { jobId: fetchedJob.id, type: 'view' }).catch(console.error);
+          }
+        } else if (jobSlug) {
+          const allJobs = await base44.entities.Job.list('-created_date');
+          const normalizedSlug = jobSlug.toLowerCase();
+          const match = allJobs.find((item) => generateJobSlug(item).toLowerCase() === normalizedSlug);
+          setJob(match || null);
+          if (match) {
+            base44.functions.invoke('trackJobAnalytics', { jobId: match.id, type: 'view' }).catch(console.error);
           }
         } else {
           setJob(null);
@@ -220,7 +228,7 @@ export default function JobDetailsView({ jobId }) {
     );
   };
 
-  const canonicalUrl = `https://ifs-safeguarding.co.uk/Job${generateJobSlug(job)}`;
+  const canonicalUrl = `https://ifs-safeguarding.co.uk${generateJobPath(job)}`;
   const pageTitle = `${job.title} - ${job.companyName} - IfS Jobs Board`;
   const pageDescription = job.description
     ? job.description.replace(/<[^>]*>/g, '').substring(0, 155)
