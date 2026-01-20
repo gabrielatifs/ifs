@@ -25,6 +25,7 @@ import ManageOrganisation from "./ManageOrganisation";
 import ManageOrgSubscription from "./ManageOrgSubscription";
 import MasterclassDetails from "./MasterclassDetails";
 import MemberMasterclasses from "./MemberMasterclasses";
+import MembershipPlans from "./MembershipPlans";
 import MyCertificates from "./MyCertificates";
 import MyCreditHistory from "./MyCreditHistory";
 import MyMasterclassBookings from "./MyMasterclassBookings";
@@ -102,6 +103,7 @@ export default function Pages() {
                             <Route path="/manageorgsubscription" element={<ManageOrgSubscription />} />
                             <Route path="/masterclassdetails" element={<MasterclassDetails />} />
                             <Route path="/membermasterclasses" element={<MemberMasterclasses />} />
+                            <Route path="/membershipplans" element={<MembershipPlans />} />
                             <Route path="/mycertificates" element={<MyCertificates />} />
                             <Route path="/mycredithistory" element={<MyCreditHistory />} />
                             <Route path="/mymasterclassbookings" element={<MyMasterclassBookings />} />
