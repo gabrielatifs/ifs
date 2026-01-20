@@ -74,10 +74,13 @@ export default function PortalTour({ onComplete }) {
     const [isOpen, setIsOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [highlightElement, setHighlightElement] = useState(null);
+    const [hasDismissed, setHasDismissed] = useState(false);
+    const dismissedKey = 'portal_tour_dismissed';
 
     useEffect(() => {
         // Show tour if user hasn't seen it yet AND not on mobile
-        if (user && !user.hasSeenPortalTour) {
+        const wasDismissed = sessionStorage.getItem(dismissedKey) === 'true';
+        if (user && !user.hasSeenPortalTour && !hasDismissed && !wasDismissed) {
             // Check if mobile device (screen width < 768px)
             const isMobile = window.innerWidth < 768;
             
@@ -88,11 +91,13 @@ export default function PortalTour({ onComplete }) {
                 }, 1000);
             } else {
                 // Skip tour on mobile and mark as seen
+                setHasDismissed(true);
+                sessionStorage.setItem(dismissedKey, 'true');
                 updateUserProfile({ hasSeenPortalTour: true });
                 if (onComplete) onComplete();
             }
         }
-    }, [user]);
+    }, [user, hasDismissed]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -141,6 +146,8 @@ export default function PortalTour({ onComplete }) {
     const handleComplete = async () => {
         setIsOpen(false);
         setHighlightElement(null);
+        setHasDismissed(true);
+        sessionStorage.setItem(dismissedKey, 'true');
         
         // Just mark tour as seen
         try {
