@@ -25,6 +25,11 @@ export default function PathNormalizer() {
         const pathSegments = location.pathname.split('/').filter(Boolean);
         console.log('[PathNormalizer] Path segments:', pathSegments);
         
+        if (pathSegments[0]?.toLowerCase() === 'job') {
+            console.log('[PathNormalizer] Job slug route detected, skipping normalization');
+            return;
+        }
+
         // This handles root paths like / or /app-slug/
         if (pathSegments.length < 2) {
             console.log('[PathNormalizer] Path too short, returning');
