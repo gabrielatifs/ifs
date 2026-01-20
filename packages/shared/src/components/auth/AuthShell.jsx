@@ -6,25 +6,32 @@ export default function AuthShell({
   heroTitle = "Welcome",
   heroSubtitle = "Sign in to continue.",
   heroBadge = "Member Portal Access",
+  heroImage = "/auth-left.jpg",
+  heroAlt = "IFS member portal",
+  heroOverlayClassName = "bg-slate-900/45",
   maxWidthClass = "max-w-md",
   pageClassName = "",
   panelClassName = "",
+  themeVars = {},
   children,
 }) {
+  const styleVars = {
+    "--auth-accent": "#2563eb",
+    "--auth-accent-2": "#1d4ed8",
+    "--auth-ink": "#0f172a",
+    "--auth-muted": "#475569",
+    "--auth-panel": "#ffffff",
+    "--auth-shadow": "0 25px 55px -35px rgba(15, 23, 42, 0.35)",
+    "--auth-border": "#e2e8f0",
+    fontFamily:
+      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    ...themeVars,
+  };
+
   return (
     <div
       className={`min-h-screen bg-slate-50 ${pageClassName}`}
-      style={{
-        "--auth-accent": "#2563eb",
-        "--auth-accent-2": "#1d4ed8",
-        "--auth-ink": "#0f172a",
-        "--auth-muted": "#475569",
-        "--auth-panel": "#ffffff",
-        "--auth-shadow": "0 25px 55px -35px rgba(15, 23, 42, 0.35)",
-        "--auth-border": "#e2e8f0",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-      }}
+      style={styleVars}
     >
       <style>{`
         .auth-title {
@@ -34,11 +41,11 @@ export default function AuthShell({
       <div className="min-h-screen grid lg:grid-cols-[1fr_1fr]">
         <div className="relative h-56 sm:h-72 lg:h-auto">
           <img
-            src="/auth-left.jpg"
-            alt="IFS member portal"
+            src={heroImage}
+            alt={heroAlt}
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-slate-900/45" />
+          <div className={`absolute inset-0 ${heroOverlayClassName}`} />
           <div className="relative z-10 flex h-full flex-col justify-end gap-3 p-8 text-white">
             <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/85">
               {heroBadge}

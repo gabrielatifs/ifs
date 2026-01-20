@@ -109,27 +109,42 @@ export default function Login() {
     };
 
     const titleCopy = {
-        login: 'Sign in to your portal',
-        signup: 'Create your member account',
-        forgot: 'Reset your password',
+        login: 'Admin sign in',
+        signup: 'Request admin access',
+        forgot: 'Reset admin password',
     };
 
     const subtitleCopy = {
-        login: 'Access your membership, credentials, and resources.',
-        signup: 'Join the Independent Federation for Safeguarding.',
-        forgot: 'We will email you a secure verification code.',
+        login: 'Restricted access for approved administrators only.',
+        signup: 'Admin access requires approval from IfS leadership.',
+        forgot: 'We will email a secure verification code for admin access.',
     };
 
     const heroTitleCopy = {
-        login: 'Your Member Portal awaits',
-        signup: 'Start your membership journey',
-        forgot: 'Verify and reset in minutes',
+        login: 'Admin Control Center',
+        signup: 'Request admin access',
+        forgot: 'Restore your admin credentials',
     };
 
     const heroSubtitleCopy = {
-        login: 'Sign in to manage your profile, credentials, and community access.',
-        signup: 'Create an account to unlock member benefits, CPD tracking, and events.',
-        forgot: 'Confirm your code, then set a new password.',
+        login: 'This console is reserved for authorized IfS administrators.',
+        signup: 'Submit your request and wait for approval before continuing.',
+        forgot: 'Verify your email to reset your admin password.',
+    };
+
+    const adminAuthShellProps = {
+        heroBadge: 'Admin Access Only',
+        pageClassName: 'bg-slate-950',
+        heroOverlayClassName: 'bg-slate-950/70',
+        themeVars: {
+            '--auth-accent': '#b91c1c',
+            '--auth-accent-2': '#7f1d1d',
+            '--auth-ink': '#0f172a',
+            '--auth-muted': '#475569',
+            '--auth-panel': '#ffffff',
+            '--auth-shadow': '0 30px 70px -45px rgba(15, 23, 42, 0.65)',
+            '--auth-border': '#e2e8f0',
+        },
     };
 
     if (checkingAuth) {
@@ -154,7 +169,11 @@ export default function Login() {
             subtitle={subtitleCopy[mode]}
             heroTitle={heroTitleCopy[mode]}
             heroSubtitle={heroSubtitleCopy[mode]}
+            {...adminAuthShellProps}
         >
+            <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">
+                Restricted system - admin access only
+            </div>
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                     <Label htmlFor="email" className="text-slate-700 font-medium">

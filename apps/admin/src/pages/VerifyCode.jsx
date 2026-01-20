@@ -96,7 +96,7 @@ export default function VerifyCode() {
         sessionStorage.removeItem("verifiedEmail");
         sessionStorage.removeItem("pendingAuth");
         const redirectUrl =
-          sessionStorage.getItem("postLoginRedirectUrl") || "/dashboard";
+          sessionStorage.getItem("postLoginRedirectUrl") || "/admindashboard";
         sessionStorage.removeItem("postLoginRedirectUrl");
         navigate(redirectUrl);
         return;
@@ -121,15 +121,32 @@ export default function VerifyCode() {
   };
 
   const headingCopy = {
-    login: "Verify your account",
-    signup: "Confirm your email",
-    forgot: "Reset your password",
+    login: "Verify admin access",
+    signup: "Confirm admin email",
+    forgot: "Reset admin password",
   };
 
   const subheadingCopy = {
     login: "Enter the code we sent to continue.",
-    signup: "Enter the code we sent to finish creating your account.",
+    signup: "Enter the code we sent to validate admin access.",
     forgot: "Enter the code we sent to continue.",
+  };
+
+  const adminAuthShellProps = {
+    heroBadge: "Admin Access Only",
+    heroTitle: "Verify admin access",
+    heroSubtitle: "Confirm your email before entering the admin console.",
+    pageClassName: "bg-slate-950",
+    heroOverlayClassName: "bg-slate-950/70",
+    themeVars: {
+      "--auth-accent": "#b91c1c",
+      "--auth-accent-2": "#7f1d1d",
+      "--auth-ink": "#0f172a",
+      "--auth-muted": "#475569",
+      "--auth-panel": "#ffffff",
+      "--auth-shadow": "0 30px 70px -45px rgba(15, 23, 42, 0.65)",
+      "--auth-border": "#e2e8f0",
+    },
   };
 
   return (
@@ -138,7 +155,8 @@ export default function VerifyCode() {
       subtitle={subheadingCopy[mode] || "Enter your verification code."}
       showPlayButton={false}
       heroTitle="One last step"
-      heroSubtitle="Confirm your email to unlock the member portal."
+      heroSubtitle="Confirm your email to unlock admin access."
+      {...adminAuthShellProps}
     >
       <form onSubmit={handleVerify} className="space-y-5">
         <div>

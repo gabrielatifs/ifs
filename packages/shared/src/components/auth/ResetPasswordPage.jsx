@@ -9,7 +9,14 @@ import { Label } from "../ui/label";
 import { useToast } from "../ui/use-toast";
 import AuthShell from "./AuthShell";
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPage({ authShellProps = {} } = {}) {
+  const {
+    successTitle,
+    successSubtitle,
+    resetTitle,
+    resetSubtitle,
+    ...authShellRest
+  } = authShellProps;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -103,7 +110,12 @@ export default function ResetPasswordPage() {
 
   if (!validToken) {
     return (
-      <AuthShell title="Reset Password" subtitle="Validating your reset link..." showPlayButton={false}>
+      <AuthShell
+        title={authShellRest.title ?? "Reset Password"}
+        subtitle={authShellRest.subtitle ?? "Validating your reset link..."}
+        {...authShellRest}
+        showPlayButton={false}
+      >
         <div className="text-center py-8">
           <div className="w-16 h-16 mx-auto bg-[color:var(--auth-accent)]/10 rounded-2xl flex items-center justify-center mb-4">
             <Loader2 className="h-8 w-8 animate-spin text-[color:var(--auth-accent)]" />
@@ -116,7 +128,16 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <AuthShell title="Password Updated" subtitle="Your password has been reset successfully" showPlayButton={false}>
+      <AuthShell
+        title={successTitle ?? authShellRest.title ?? "Password Updated"}
+        subtitle={
+          successSubtitle ??
+          authShellRest.subtitle ??
+          "Your password has been reset successfully"
+        }
+        {...authShellRest}
+        showPlayButton={false}
+      >
         <div className="text-center space-y-6 py-4">
           <div className="relative">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
@@ -146,11 +167,17 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell
-      title="Create new password"
-      subtitle="Your new password must be different from previous passwords."
+      title={resetTitle ?? "Create new password"}
+      subtitle={
+        resetSubtitle ?? "Your new password must be different from previous passwords."
+      }
       showPlayButton={false}
-      heroTitle="Secure your account"
-      heroSubtitle="Choose a strong password to keep your account safe."
+      heroTitle={authShellRest.heroTitle ?? "Secure your account"}
+      heroSubtitle={
+        authShellRest.heroSubtitle ??
+        "Choose a strong password to keep your account safe."
+      }
+      {...authShellRest}
     >
       <form onSubmit={handleResetPassword} className="space-y-5">
         <div className="space-y-2">

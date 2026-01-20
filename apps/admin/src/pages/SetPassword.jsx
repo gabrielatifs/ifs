@@ -65,7 +65,7 @@ export default function SetPassword() {
       sessionStorage.removeItem("verifiedEmail");
       sessionStorage.removeItem("pendingAuth");
       const redirectUrl =
-        sessionStorage.getItem("postLoginRedirectUrl") || "/dashboard";
+        sessionStorage.getItem("postLoginRedirectUrl") || "/admindashboard";
       sessionStorage.removeItem("postLoginRedirectUrl");
       navigate(redirectUrl);
     } catch (err) {
@@ -75,13 +75,31 @@ export default function SetPassword() {
     }
   };
 
+  const adminAuthShellProps = {
+    heroBadge: "Admin Access Only",
+    heroTitle: "Create an admin password",
+    heroSubtitle: "Finish setting up your admin access securely.",
+    pageClassName: "bg-slate-950",
+    heroOverlayClassName: "bg-slate-950/70",
+    themeVars: {
+      "--auth-accent": "#b91c1c",
+      "--auth-accent-2": "#7f1d1d",
+      "--auth-ink": "#0f172a",
+      "--auth-muted": "#475569",
+      "--auth-panel": "#ffffff",
+      "--auth-shadow": "0 30px 70px -45px rgba(15, 23, 42, 0.65)",
+      "--auth-border": "#e2e8f0",
+    },
+  };
+
   return (
     <AuthShell
-      title="Set your password"
+      title="Set your admin password"
       subtitle="Choose a secure password to continue."
       showPlayButton={false}
       heroTitle="Create your password"
-      heroSubtitle="Finish setting up your access to the member portal."
+      heroSubtitle="Finish setting up your access to the admin portal."
+      {...adminAuthShellProps}
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
