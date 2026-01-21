@@ -36,6 +36,46 @@ export default function Home() {
 
   const location = useLocation();
   const { toast } = useToast();
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+  const toCamel = (key) => key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  const denormalizeRecord = (record) =>
+    Object.entries(record || {}).reduce((acc, [key, value]) => {
+      acc[toCamel(key)] = value;
+      return acc;
+    }, {});
+  const denormalizeList = (rows) => (rows || []).map(denormalizeRecord);
+  const isAbortError = (error) =>
+    error?.name === 'AbortError' || /aborted/i.test(error?.message || '');
+  const fetchPublicTable = async (table, options = {}) => {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Missing Supabase env for public fetch.');
+    }
+    const { order = 'date.desc', limit = 50, filters = {} } = options;
+    const url = new URL(`${supabaseUrl}/rest/v1/${table}`);
+    const params = new URLSearchParams();
+    params.set('select', '*');
+    if (order) params.set('order', order);
+    if (limit) params.set('limit', String(limit));
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params.set(key, `eq.${value}`);
+      }
+    });
+    url.search = params.toString();
+    const response = await fetch(url.toString(), {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Public fetch failed for ${table}: ${response.status} ${response.statusText}`);
+    }
+    const data = await response.json();
+    return denormalizeList(data);
+  };
 
   console.log('[Home] Page component loaded');
 
@@ -154,7 +194,10 @@ export default function Home() {
 
     // Fetch data in parallel for better performance
     const fetchInitialData = async () => {
-      console.log('[Home] Starting fetchInitialData');
+      console.log('[Home] Starting fetchInitialData', {
+        supabaseUrl: supabaseUrl ? new URL(supabaseUrl).origin : 'missing',
+        anonKeyPresent: Boolean(supabaseAnonKey)
+      });
       try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -188,11 +231,62 @@ export default function Home() {
         if (communityEventsResult.status === 'rejected') {
           console.error('[Home] Failed to fetch community events:', communityEventsResult.reason?.message || communityEventsResult.reason);
         }
-        
-        console.log('[Home] Data fetched successfully');
+
+        const needsFallback =
+          (masterclassesResult.status === 'rejected' && isAbortError(masterclassesResult.reason)) ||
+          (contentsResult.status === 'rejected' && isAbortError(contentsResult.reason)) ||
+          (eventsResult.status === 'rejected' && isAbortError(eventsResult.reason)) ||
+          (communityEventsResult.status === 'rejected' && isAbortError(communityEventsResult.reason));
+
+        let resolvedMasterclasses = allMasterclasses;
+        let resolvedContents = contents;
+        let resolvedEvents = allEvents;
+        let resolvedCommunityEvents = allCommunityEvents;
+
+        if (needsFallback) {
+          console.warn('[Home] Supabase client aborted. Retrying with public REST fetch.');
+          try {
+            if (masterclassesResult.status === 'rejected') {
+              resolvedMasterclasses = await fetchPublicTable('events', {
+                order: 'date.desc',
+                limit: 50,
+                filters: { type: 'Masterclass' }
+              });
+            }
+            if (contentsResult.status === 'rejected') {
+              resolvedContents = await fetchPublicTable('marketing_content', {
+                order: 'order.asc',
+                limit: 100,
+                filters: { page: 'Shared' }
+              });
+            }
+            if (eventsResult.status === 'rejected') {
+              resolvedEvents = await fetchPublicTable('events', {
+                order: 'date.desc',
+                limit: 50
+              });
+            }
+            if (communityEventsResult.status === 'rejected') {
+              resolvedCommunityEvents = await fetchPublicTable('community_events', {
+                order: 'date.desc',
+                limit: 50
+              });
+            }
+          } catch (fallbackError) {
+            console.error('[Home] Public fetch fallback failed:', fallbackError?.message || fallbackError);
+          }
+        }
+
+        console.log('[Home] Data fetched successfully', {
+          masterclasses: resolvedMasterclasses.length,
+          contents: resolvedContents.length,
+          events: resolvedEvents.length,
+          communityEvents: resolvedCommunityEvents.length,
+          fallbackUsed: needsFallback
+        });
         
         // Find the next upcoming masterclass from allMasterclasses
-        const upcomingMasterclasses = allMasterclasses.filter(w => new Date(w.date) >= today)
+        const upcomingMasterclasses = resolvedMasterclasses.filter(w => new Date(w.date) >= today)
                                                       .sort((a, b) => new Date(a.date) - new Date(b.date));
         if (upcomingMasterclasses.length > 0) {
           setNextWorkshop(upcomingMasterclasses[0]);
@@ -200,8 +294,8 @@ export default function Home() {
         
         // Combine all events and community events
         const combinedEvents = [
-          ...allEvents.map(e => ({ ...e, isCommunityEvent: false })),
-          ...allCommunityEvents.map(e => ({ ...e, isCommunityEvent: true }))
+          ...resolvedEvents.map(e => ({ ...e, isCommunityEvent: false })),
+          ...resolvedCommunityEvents.map(e => ({ ...e, isCommunityEvent: true }))
         ];
         
         // Filter for upcoming events and sort them
@@ -220,7 +314,7 @@ export default function Home() {
         setUpcomingEvents(upcoming);
         
         // Merge static card with fetched dynamic content
-        setCardContents([...contents, staticCPDCard]);
+        setCardContents([...resolvedContents, staticCPDCard]);
       } catch (error) {
         console.error("[Home] Failed to fetch initial data:", error);
       } finally {
