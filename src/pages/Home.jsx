@@ -160,10 +160,10 @@ export default function Home() {
         today.setHours(0, 0, 0, 0);
 
         const [allMasterclasses, contents, allEvents, allCommunityEvents] = await Promise.all([
-          Event.filter({ type: 'Masterclass' }, 'date', 50), // Fetch more masterclasses to find the next one
+          Event.filter({ type: 'Masterclass' }, '-date', 50), // Fetch more masterclasses to find the next one
           MarketingContent.filter({ page: 'Shared' }),
-          Event.list('date', 20),
-          CommunityEvent.list('date', 20)
+          Event.list('-date', 50),
+          CommunityEvent.list('-date', 50)
         ]);
         
         console.log('[Home] Data fetched successfully');
