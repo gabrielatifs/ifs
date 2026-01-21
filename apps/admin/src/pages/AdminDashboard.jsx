@@ -1981,11 +1981,16 @@ export default function AdminDashboard() {
                                                     <span>Post Job</span>
                                                 </button>
                                             </Button>
-                                            <Button asChild variant="outline" className="h-auto py-6 flex-col gap-2">
-                                                <Link to={createPageUrl('EditCourse')}>
-                                                    <Plus className="w-6 h-6" />
-                                                    <span>Add Course</span>
-                                                </Link>
+                                            <Button
+                                                variant="outline"
+                                                className="h-auto py-6 flex-col gap-2"
+                                                onClick={() => {
+                                                    setEditingCourse(null);
+                                                    setEditCourseModalOpen(true);
+                                                }}
+                                            >
+                                                <Plus className="w-6 h-6" />
+                                                <span>Add Course</span>
                                             </Button>
                                         </div>
 

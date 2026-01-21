@@ -761,7 +761,7 @@ export default function Onboarding() {
                 <Form {...form}>
                 <form
                     onSubmit={handleSubmit}
-                    className={currentStep === 4 ? "space-y-8 flex-1 flex flex-col" : "space-y-8"}
+                    className={currentStep === 4 ? "space-y-8 flex-1 flex flex-col max-h-screen overflow-hidden" : "space-y-8"}
                 >
                             {/* Step 1: Personal Details */}
                             {currentStep === 1 && (
@@ -1087,13 +1087,13 @@ export default function Onboarding() {
 
                             {/* Step 4: Review */}
                             {currentStep === 4 && (
-                                <div className="space-y-6">
+                                <div className="space-y-6 flex-1 min-h-0">
                                     <div className="space-y-1 pb-4 border-b border-gray-200">
                                         <h3 className="text-xl font-bold text-gray-900">Review</h3>
                                         <p className="text-sm text-gray-600">Please review your application and accept our policies</p>
                                     </div>
 
-                                    <div className="space-y-6">
+                                    <div className="space-y-6 overflow-y-auto pr-2 min-h-0">
                                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                                             <h4 className="text-base font-bold text-gray-900 mb-3">Personal Information</h4>
                                             <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600">

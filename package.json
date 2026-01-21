@@ -11,6 +11,7 @@
     "dev:main": "cd apps/main-site && npm run dev",
     "dev:portal": "cd apps/portal && npm run dev",
     "dev:admin": "cd apps/admin && npm run dev",
+    "dev:mobile": "cd apps/mobile && npm run start",
     "build:main": "cd apps/main-site && npm run build",
     "build:portal": "cd apps/portal && npm run build",
     "build:admin": "cd apps/admin && npm run build",
