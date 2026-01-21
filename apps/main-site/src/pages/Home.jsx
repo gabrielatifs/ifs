@@ -159,12 +159,35 @@ export default function Home() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const [allMasterclasses, contents, allEvents, allCommunityEvents] = await Promise.all([
+        const [
+          masterclassesResult,
+          contentsResult,
+          eventsResult,
+          communityEventsResult
+        ] = await Promise.allSettled([
           Event.filter({ type: 'Masterclass' }, '-date', 50), // Fetch more masterclasses to find the next one
           MarketingContent.filter({ page: 'Shared' }),
           Event.list('-date', 50),
           CommunityEvent.list('-date', 50)
         ]);
+
+        const allMasterclasses = masterclassesResult.status === 'fulfilled' ? masterclassesResult.value : [];
+        const contents = contentsResult.status === 'fulfilled' ? contentsResult.value : [];
+        const allEvents = eventsResult.status === 'fulfilled' ? eventsResult.value : [];
+        const allCommunityEvents = communityEventsResult.status === 'fulfilled' ? communityEventsResult.value : [];
+
+        if (masterclassesResult.status === 'rejected') {
+          console.error('[Home] Failed to fetch masterclasses:', masterclassesResult.reason?.message || masterclassesResult.reason);
+        }
+        if (contentsResult.status === 'rejected') {
+          console.error('[Home] Failed to fetch marketing content:', contentsResult.reason?.message || contentsResult.reason);
+        }
+        if (eventsResult.status === 'rejected') {
+          console.error('[Home] Failed to fetch events:', eventsResult.reason?.message || eventsResult.reason);
+        }
+        if (communityEventsResult.status === 'rejected') {
+          console.error('[Home] Failed to fetch community events:', communityEventsResult.reason?.message || communityEventsResult.reason);
+        }
         
         console.log('[Home] Data fetched successfully');
         
