@@ -30,40 +30,6 @@ export default function MainSiteNav({ onLogin, variant = 'default', onMobileMenu
   const organisationsLinkRef = React.useRef(null);
   const trainingLinkRef = React.useRef(null);
   const navContainerRef = React.useRef(null);
-  
-  const handleClearSiteData = () => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return;
-    console.warn('[MainSiteNav] Clearing cookies and storage');
-    try {
-      const hostname = window.location.hostname;
-      const parts = hostname.split('.');
-      const baseDomain = parts.length >= 2 ? parts.slice(-2).join('.') : hostname;
-      const domains = [
-        hostname,
-        `.${hostname}`,
-        baseDomain,
-        `.${baseDomain}`
-      ];
-      const paths = ['/', ''];
-      document.cookie.split(';').forEach((cookie) => {
-        const trimmed = cookie.trim();
-        if (!trimmed) return;
-        const cookieName = trimmed.split('=')[0];
-        domains.forEach((domain) => {
-          paths.forEach((path) => {
-            const pathAttr = path ? `; path=${path}` : '; path=/';
-            const domainAttr = domain ? `; domain=${domain}` : '';
-            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT${pathAttr}${domainAttr}`;
-          });
-        });
-      });
-      window.localStorage?.clear?.();
-      window.sessionStorage?.clear?.();
-    } catch (error) {
-      console.error('[MainSiteNav] Failed to clear site data:', error?.message || error);
-    }
-    setTimeout(() => window.location.reload(), 200);
-  };
 
   // Add effect to notify parent of mobile menu state changes
   React.useEffect(() => {
@@ -207,17 +173,6 @@ export default function MainSiteNav({ onLogin, variant = 'default', onMobileMenu
               <Link to={createPageUrl("Events")} className="text-lg font-medium text-white hover:text-gray-300 transition-colors">Events</Link>
               <Link to={createPageUrl("Jobs")} className="text-lg font-medium text-white hover:text-gray-300 transition-colors">Jobs</Link>
             </nav>
-
-            <div className="hidden lg:flex items-center">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-white text-white hover:bg-white hover:text-purple-800"
-                onClick={handleClearSiteData}
-              >
-                Clear Cookies
-              </Button>
-            </div>
 
             {/* Mobile View */}
             <div className="lg:hidden flex items-center justify-between w-full">
@@ -369,17 +324,6 @@ export default function MainSiteNav({ onLogin, variant = 'default', onMobileMenu
                         Sign in
                     </button>
                   )}
-                  
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      handleClearSiteData();
-                    }}
-                    className="block px-3 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-md text-center w-full mb-4"
-                  >
-                    Clear Cookies
-                  </button>
-                  
                   {user ? (
                     <Link to={createPageUrl("Dashboard")} className="block px-3 py-3 text-base font-medium bg-pink-600 hover:bg-pink-700 text-white rounded-md text-center mb-4" onClick={() => setMobileMenuOpen(false)}>
                       Member Portal
