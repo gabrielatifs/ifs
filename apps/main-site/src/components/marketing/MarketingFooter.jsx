@@ -64,7 +64,7 @@ export default function MarketingFooter() {
               <li><Link to={createPageUrl("PrivacyPolicy")} className="text-base text-gray-600 hover:text-gray-900">Privacy Policy</Link></li>
               <li><Link to={createPageUrl("CookiePolicy")} className="text-base text-gray-600 hover:text-gray-900">Cookie Policy</Link></li>
               <li><Link to={createPageUrl("TermsAndConditions")} className="text-base text-gray-600 hover:text-gray-900">Terms and Conditions</Link></li>
-              <li><a href="#" className="text-base text-gray-600 hover:text-gray-900">Sitemap</a></li>
+              <li><Link to={createPageUrl("Sitemap")} className="text-base text-gray-600 hover:text-gray-900">Sitemap</Link></li>
             </ul>
           </div>
         </div>

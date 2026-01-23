@@ -1,0 +1,20 @@
+# robots.txt for Independent Federation for Safeguarding
+# Generated at build time
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.join-ifs.org/sitemap.xml
+
+# Disallow auth and internal pages
+Disallow: /ApplicationPending
+Disallow: /MemberAccessRequired
+Disallow: /VerifyEmail
+Disallow: /EventRegistrationSuccess
+Disallow: /MembershipPlans
+Disallow: /Onboarding
+
+# Disallow query parameters that create duplicate content
+Disallow: /*?*action=
+Disallow: /*?*payment=

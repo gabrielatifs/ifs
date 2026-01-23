@@ -39,6 +39,7 @@ import SignpostingService from "./SignpostingService";
 import SpecialistCourses from "./SpecialistCourses";
 import SupervisionServicesMarketing from "./SupervisionServicesMarketing";
 import Team from "./Team";
+import Sitemap from "./Sitemap";
 import TermsAndConditions from "./TermsAndConditions";
 import Training from "./Training";
 import TrainingCourseDetails from "./TrainingCourseDetails";
@@ -90,6 +91,7 @@ export default function Pages() {
                     <Route path="/RegisteredOrganisation" element={<RegisteredOrganisation />} />
                     <Route path="/ResearchAndAdvocacy" element={<ResearchAndAdvocacy />} />
                     <Route path="/SignpostingService" element={<SignpostingService />} />
+                    <Route path="/Sitemap" element={<Sitemap />} />
                     <Route path="/SpecialistCourses" element={<SpecialistCourses />} />
                     <Route path="/SupervisionServicesMarketing" element={<SupervisionServicesMarketing />} />
                     <Route path="/Team" element={<Team />} />
