@@ -26,7 +26,6 @@ import { CourseDate } from '@ifs/shared/api/entities';
 import { format as formatDate } from 'date-fns';
 import { formatDateRange } from '../components/utils/formatters';
 import { ifs } from '@ifs/shared/api/ifsClient';
-import { createDynamicCourseCheckout } from '@ifs/shared/api/functions';
 import { CourseBooking } from '@ifs/shared/api/entities';
 import { wrapEmailHtml } from '@ifs/shared/emails/wrapper';
 import {
@@ -624,6 +623,69 @@ export default function TrainingCourseDetails() {
         ]);
     };
 
+    const sendEnquiryWithQuoteEmails = async (details) => {
+        const { breakdown } = details;
+
+        const adminEmailBody = `
+            <td style="padding: 30px 40px; color: #333; line-height: 1.6;">
+                <h1 style="color: #333; font-size: 24px;">📋 New Training Enquiry with Quote</h1>
+                <p>A member has submitted a booking enquiry with an estimated quote.</p>
+                <hr style="border: 0; border-top: 1px solid #eee;">
+                <p><strong>Course:</strong> ${details.courseTitle}</p>
+                <p><strong>Date:</strong> ${details.selectedDate}</p>
+                <p><strong>Time:</strong> ${details.selectedTime}</p>
+                <p><strong>Location:</strong> ${details.selectedLocation}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p><strong>Name:</strong> ${details.userName}</p>
+                <p><strong>Email:</strong> <a href="mailto:${details.userEmail}" style="color: #5e028f;">${details.userEmail}</a></p>
+                <p><strong>Organisation:</strong> ${details.organisation || 'N/A'}</p>
+                <p><strong>Number of Participants:</strong> ${details.numberOfParticipants}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <div style="background-color: #f3e8ff; border: 1px solid #c084fc; padding: 15px; border-radius: 5px;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #7c3aed;">💰 Estimated Quote:</p>
+                    <table style="width: 100%;">
+                        <tr><td>Course Price (${details.numberOfParticipants} × £${(breakdown.basePrice / details.numberOfParticipants).toFixed(2)}):</td><td style="text-align: right;">£${breakdown.basePrice.toFixed(2)}</td></tr>
+                        ${breakdown.bulkDiscountAmount > 0 ? `<tr><td>Bulk Discount (${breakdown.bulkDiscountPercentage}%):</td><td style="text-align: right; color: #166534;">-£${breakdown.bulkDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.cpdHoursUsed > 0 ? `<tr><td>CPD Hours (${breakdown.cpdHoursUsed.toFixed(1)}h):</td><td style="text-align: right; color: #166534;">-£${breakdown.cpdDiscount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.memberDiscountAmount > 0 ? `<tr><td>Member Discount (10%):</td><td style="text-align: right; color: #166534;">-£${breakdown.memberDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        <tr style="border-top: 2px solid #c084fc;"><td style="padding-top: 10px; font-weight: bold;">Estimated Total:</td><td style="text-align: right; font-weight: bold; padding-top: 10px; font-size: 18px; color: #7c3aed;">£${breakdown.finalPrice.toFixed(2)}</td></tr>
+                    </table>
+                </div>
+            </td>`;
+
+        const userEmailBody = `
+            <td style="padding: 30px 40px; color: #333; line-height: 1.6;">
+                <h1 style="color: #333; font-size: 24px;">Your Training Enquiry</h1>
+                <p>Dear ${details.userName},</p>
+                <p>Thank you for your interest in our training. We have received your enquiry for:</p>
+                <div style="border-left: 3px solid #5e028f; padding-left: 15px; margin: 20px 0; background-color: #f9f9f9; padding: 15px;">
+                    <p style="margin:0;"><strong>Course:</strong> ${details.courseTitle}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Date:</strong> ${details.selectedDate}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Time:</strong> ${details.selectedTime}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Location:</strong> ${details.selectedLocation}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Participants:</strong> ${details.numberOfParticipants}</p>
+                </div>
+                <div style="background-color: #f3e8ff; border: 1px solid #c084fc; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 0 0 10px 0; color: #7c3aed; font-weight: bold;">Your Estimated Quote:</p>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 5px 0;">Course Price:</td><td style="text-align: right;">£${breakdown.basePrice.toFixed(2)}</td></tr>
+                        ${breakdown.bulkDiscountAmount > 0 ? `<tr><td style="padding: 5px 0;">Bulk Discount (${breakdown.bulkDiscountPercentage}%):</td><td style="text-align: right; color: #166534;">-£${breakdown.bulkDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.cpdHoursUsed > 0 ? `<tr><td style="padding: 5px 0;">CPD Hours (${breakdown.cpdHoursUsed.toFixed(1)}h):</td><td style="text-align: right; color: #166534;">-£${breakdown.cpdDiscount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.memberDiscountAmount > 0 ? `<tr><td style="padding: 5px 0;">Member Discount (10%):</td><td style="text-align: right; color: #166534;">-£${breakdown.memberDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        <tr style="border-top: 2px solid #c084fc;"><td style="padding: 10px 0 5px 0; font-weight: bold;">Estimated Total:</td><td style="text-align: right; font-weight: bold; padding: 10px 0 5px 0;">£${breakdown.finalPrice.toFixed(2)}</td></tr>
+                    </table>
+                </div>
+                <p>A member of our team will be in touch shortly to confirm your booking and arrange payment.</p>
+                <p style="margin-top: 30px; margin-bottom: 5px;">Kind regards,</p>
+                <p style="margin-top: 0; font-weight: bold;">The Independent Federation for Safeguarding</p>
+            </td>`;
+
+        await Promise.all([
+            sendEmail({ to: 'info@ifs-safeguarding.co.uk', subject: `Training Enquiry: ${details.courseTitle} (${details.numberOfParticipants} participant${details.numberOfParticipants > 1 ? 's' : ''})`, html: getEmailWrapper(adminEmailBody) }),
+            sendEmail({ to: details.userEmail, subject: `Your IfS Training Enquiry: ${details.courseTitle}`, html: getEmailWrapper(userEmailBody) })
+        ]);
+    };
+
     const calculateBulkDiscountPercentage = (participants) => {
         if (course && course.title === "Trauma Informed Practice" && participants > 1) {
             return 50;
@@ -779,29 +841,37 @@ export default function TrainingCourseDetails() {
                 setIsSubmitting(false);
 
             } else {
-                const productionOrigin = 'https://www.ifs-safeguarding.co.uk';
-                const successUrl = `${productionOrigin}${createPageUrl('TrainingCourseDetails')}?id=${course.id}&payment=success`;
-                const cancelUrl = `${productionOrigin}${createPageUrl('TrainingCourseDetails')}?id=${course.id}&payment=cancelled`;
-
-                const { data } = await createDynamicCourseCheckout({
-                    courseId: course.id,
+                // Send enquiry with estimated quote
+                const enquiryPayload = {
                     courseTitle: course.title,
-                    variantName: '',
-                    courseDateId: selectedDateForBooking.id,
+                    courseId: course.id,
+                    name: user.displayName || user.full_name,
+                    email: user.email,
+                    phoneNumber: '',
+                    organisation: user.organisationName || '',
+                    numberOfParticipants: numberOfParticipants,
                     selectedDate: formatDateRange(selectedDateForBooking.date, selectedDateForBooking.endDate),
                     selectedTime: `${selectedDateForBooking.startTime} - ${selectedDateForBooking.endTime}`,
                     selectedLocation: selectedDateForBooking.location,
-                    numberOfParticipants: numberOfParticipants,
-                    cpdHoursToUse: breakdown.cpdHoursUsed,
-                    successUrl,
-                    cancelUrl
+                    status: 'new',
+                    message: `Booking Enquiry with Quote\n\nParticipants: ${numberOfParticipants}\nBase Price: £${breakdown.basePrice.toFixed(2)}${breakdown.bulkDiscountPercentage > 0 ? `\nBulk Discount (${breakdown.bulkDiscountPercentage}%): -£${breakdown.bulkDiscountAmount.toFixed(2)}` : ''}${breakdown.cpdHoursUsed > 0 ? `\nCPD Hours Used (${breakdown.cpdHoursUsed.toFixed(1)}h): -£${breakdown.cpdDiscount.toFixed(2)}` : ''}${breakdown.memberDiscountAmount > 0 ? `\nMember Discount (10%): -£${breakdown.memberDiscountAmount.toFixed(2)}` : ''}\nEstimated Total: £${breakdown.finalPrice.toFixed(2)}${bookingNotes ? `\n\nNotes: ${bookingNotes}` : ''}`
+                };
+
+                await TrainingEnquiry.create(enquiryPayload);
+                await sendEnquiryWithQuoteEmails({
+                    ...enquiryPayload,
+                    breakdown,
+                    userName: user.displayName || user.full_name,
+                    userEmail: user.email
                 });
 
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    throw new Error(data.error || 'Failed to create checkout session');
-                }
+                toast({
+                    title: "Enquiry Sent!",
+                    description: "We've received your enquiry and will be in touch shortly."
+                });
+
+                setShowBookingDialog(false);
+                setIsSubmitting(false);
             }
         } catch (error) {
             console.error("Booking error:", error);
@@ -1653,7 +1723,7 @@ export default function TrainingCourseDetails() {
                             )}
 
                             <div className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-300 rounded-lg">
-                                <h4 className="text-sm font-semibold text-slate-900 mb-3">Payment Breakdown</h4>
+                                <h4 className="text-sm font-semibold text-slate-900 mb-3">Estimated Quote</h4>
                                 <div className="space-y-2 text-sm">
                                     {(() => {
                                         const breakdown = calculatePaymentBreakdown();
@@ -1682,13 +1752,19 @@ export default function TrainingCourseDetails() {
                                                     </div>
                                                 )}
                                                 <div className="pt-2 border-t-2 border-purple-300 flex justify-between text-lg font-bold">
-                                                    <span>Total:</span>
+                                                    <span>Estimated Total:</span>
                                                     <span className="text-purple-700">£{breakdown.finalPrice.toFixed(2)}</span>
                                                 </div>
                                             </>
                                         );
                                     })()}
                                 </div>
+                                {calculatePaymentBreakdown().finalPrice > 0 && (
+                                    <p className="text-xs text-purple-700 mt-3 flex items-center gap-1">
+                                        <Info className="w-3 h-3" />
+                                        We'll be in touch to confirm and arrange payment.
+                                    </p>
+                                )}
                             </div>
 
                             <div>
@@ -1722,7 +1798,7 @@ export default function TrainingCourseDetails() {
                             ) : calculatePaymentBreakdown().finalPrice === 0 ? (
                                <>Confirm Booking</>
                             ) : (
-                               <>Pay £{calculatePaymentBreakdown().finalPrice.toFixed(2)}</>
+                               <>Send Enquiry</>
                             )}
                         </Button>
                     </DialogFooter>

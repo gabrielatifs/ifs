@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/accordion";
 import { TrainingEnquiry } from '@/api/entities';
 import { sendEmail } from '@/api/functions';
-import { createDynamicCourseCheckout } from '@/api/functions';
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Input } from '@/components/ui/input';
@@ -191,39 +190,59 @@ export default function CourseDetails() {
                 if (dateToBook) {
                     setIsSubmitting(true);
                     try {
-                        // Calculate default price (1 participant, 0 CPD hours used)
-                        // We can skip full breakdown calc since we know defaults for new users
-                        
-                        const productionOrigin = 'https://www.ifs-safeguarding.co.uk';
-                        // If user hasn't completed onboarding, send them there after success
-                        const targetPage = !user.onboarding_completed ? 'Onboarding' : 'CourseDetails';
-                        const successUrl = `${productionOrigin}${createPageUrl(targetPage)}?courseId=${courseId}&payment=success&session_id={CHECKOUT_SESSION_ID}`;
-                        const cancelUrl = `${productionOrigin}${createPageUrl('CourseDetails')}?courseId=${courseId}&payment=cancelled`;
+                        // Calculate price for 1 participant
+                        const courseCpdHours = course?.cpdHours || 0;
+                        const basePrice = courseCpdHours * CPD_HOUR_VALUE;
+                        const isFullMember = user.membershipStatus === 'active' && (user.membershipType === 'Full' || user.membershipType === 'Fellow');
+                        const memberDiscountAmount = isFullMember ? basePrice * 0.1 : 0;
+                        const finalPrice = basePrice - memberDiscountAmount;
 
-                        const { data } = await createDynamicCourseCheckout({
+                        const breakdown = {
+                            basePrice,
+                            bulkDiscountPercentage: 0,
+                            bulkDiscountAmount: 0,
+                            cpdHoursUsed: 0,
+                            cpdDiscount: 0,
+                            memberDiscountPercentage: isFullMember ? 10 : 0,
+                            memberDiscountAmount,
+                            finalPrice
+                        };
+
+                        // Create enquiry instead of Stripe checkout
+                        const enquiryPayload = {
+                            courseTitle: course.title + (variant ? ` (${variant.name})` : ''),
                             courseId: course.id,
-                            courseTitle: course.title,
-                            variantName: variant?.name,
-                            courseDateId: dateToBook.id,
+                            name: user.displayName || user.full_name,
+                            email: user.email,
+                            phoneNumber: '',
+                            organisation: user.organisationName || '',
+                            numberOfParticipants: 1,
                             selectedDate: dateToBook.datePatternDescription || formatDateRange(dateToBook.date, dateToBook.endDate),
                             selectedTime: `${dateToBook.startTime} - ${dateToBook.endTime}`,
                             selectedLocation: dateToBook.location,
-                            numberOfParticipants: 1,
-                            cpdHoursToUse: 0,
-                            successUrl,
-                            cancelUrl
+                            status: 'new',
+                            message: `Auto-booking Enquiry\n\nEstimated Total: £${finalPrice.toFixed(2)}`
+                        };
+
+                        await TrainingEnquiry.create(enquiryPayload);
+                        await sendEnquiryWithQuoteEmails({
+                            ...enquiryPayload,
+                            breakdown,
+                            userName: user.displayName || user.full_name,
+                            userEmail: user.email
                         });
 
-                        if (data.url) {
-                            window.location.href = data.url;
-                        } else {
-                            throw new Error(data.error || 'Failed to create checkout session');
-                        }
+                        toast({
+                            title: "Enquiry Sent!",
+                            description: "We've received your booking enquiry and will be in touch shortly."
+                        });
+
+                        setIsSubmitting(false);
                     } catch (error) {
                         console.error("Auto-booking error:", error);
                         toast({
-                            title: "Booking Failed",
-                            description: error.message || "Could not process booking. Please try again.",
+                            title: "Enquiry Failed",
+                            description: error.message || "Could not send enquiry. Please try again.",
                             variant: "destructive"
                         });
                         setIsSubmitting(false);
@@ -585,31 +604,39 @@ export default function CourseDetails() {
                 setShowPaymentDialog(false);
 
             } else {
-                // Redirect to Stripe checkout for payment
-                const productionOrigin = 'https://www.ifs-safeguarding.co.uk';
-                const successUrl = `${productionOrigin}${createPageUrl('CourseDetails')}?courseId=${courseId}&payment=success&session_id={CHECKOUT_SESSION_ID}`;
-                const cancelUrl = `${productionOrigin}${createPageUrl('CourseDetails')}?courseId=${courseId}&payment=cancelled`;
-
-                const { data } = await createDynamicCourseCheckout({
+                // Send enquiry with estimated quote
+                const enquiryPayload = {
+                    courseTitle: course.title + (variant ? ` (${variant.name})` : ''),
                     courseId: course.id,
-                    courseTitle: course.title,
-                    variantName: variant?.name,
-                    courseDateId: selectedDateForBooking.id,
+                    name: user.displayName || user.full_name,
+                    email: user.email,
+                    phoneNumber: bookingNotes, // Using bookingNotes field which captures phone number
+                    organisation: user.organisationName || '',
+                    numberOfParticipants: numberOfParticipants,
                     selectedDate: selectedDateForBooking.datePatternDescription || formatDateRange(selectedDateForBooking.date, selectedDateForBooking.endDate),
                     selectedTime: `${selectedDateForBooking.startTime} - ${selectedDateForBooking.endTime}`,
                     selectedLocation: selectedDateForBooking.location,
-                    numberOfParticipants: numberOfParticipants,
-                    cpdHoursToUse: breakdown.cpdHoursUsed,
-                    successUrl,
-                    cancelUrl
+                    status: 'new',
+                    // Store quote breakdown in message
+                    message: `Estimated Quote Request\n\nParticipants: ${numberOfParticipants}\nBase Price: £${breakdown.basePrice.toFixed(2)}${breakdown.bulkDiscountAmount > 0 ? `\nBulk Discount (${breakdown.bulkDiscountPercentage}%): -£${breakdown.bulkDiscountAmount.toFixed(2)}` : ''}${breakdown.cpdHoursUsed > 0 ? `\nCPD Hours Used (${breakdown.cpdHoursUsed.toFixed(1)}h): -£${breakdown.cpdDiscount.toFixed(2)}` : ''}${breakdown.memberDiscountAmount > 0 ? `\nMember Discount (${breakdown.memberDiscountPercentage}%): -£${breakdown.memberDiscountAmount.toFixed(2)}` : ''}\nEstimated Total: £${breakdown.finalPrice.toFixed(2)}`
+                };
+
+                await TrainingEnquiry.create(enquiryPayload);
+                await sendEnquiryWithQuoteEmails({
+                    ...enquiryPayload,
+                    breakdown,
+                    userName: user.displayName || user.full_name,
+                    userEmail: user.email
                 });
 
-                if (data.url) {
-                    // Redirect to Stripe
-                    window.location.href = data.url;
-                } else {
-                    throw new Error(data.error || 'Failed to create checkout session');
-                }
+                toast({
+                    title: "Enquiry Sent!",
+                    description: "We've received your enquiry and will be in touch shortly with booking details."
+                });
+
+                setRequestedDateIds(prev => [...prev, selectedDateForBooking.id]);
+                setShowPaymentDialog(false);
+                setIsSubmitting(false);
             }
 
         } catch (error) {
@@ -692,7 +719,72 @@ export default function CourseDetails() {
             sendEmail({ to: enquiryPayload.email, subject: `Your IfS Training Enquiry: ${enquiryPayload.courseTitle}`, body: emailWrapper(userEmailBody) })
         ]);
     };
-    
+
+    const sendEnquiryWithQuoteEmails = async (details) => {
+        const emailWrapper = (content) => wrapEmailHtml(content);
+        const { breakdown } = details;
+
+        const adminEmailBody = `
+            <td style="padding: 30px 40px; color: #333; line-height: 1.6;">
+                <h1 style="color: #333; font-size: 24px;">📋 New Training Enquiry with Quote</h1>
+                <p>A member has submitted a booking enquiry with an estimated quote.</p>
+                <hr style="border: 0; border-top: 1px solid #eee;">
+                <p><strong>Course:</strong> ${details.courseTitle}</p>
+                <p><strong>Date:</strong> ${details.selectedDate}</p>
+                <p><strong>Time:</strong> ${details.selectedTime}</p>
+                <p><strong>Location:</strong> ${details.selectedLocation}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p><strong>Name:</strong> ${details.userName}</p>
+                <p><strong>Email:</strong> <a href="mailto:${details.userEmail}" style="color: #5e028f;">${details.userEmail}</a></p>
+                <p><strong>Phone:</strong> ${details.phoneNumber || 'Not provided'}</p>
+                <p><strong>Organisation:</strong> ${details.organisation || 'N/A'}</p>
+                <p><strong>Number of Participants:</strong> ${details.numberOfParticipants}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <div style="background-color: #f3e8ff; border: 1px solid #c084fc; padding: 15px; border-radius: 5px;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #7c3aed;">💰 Estimated Quote:</p>
+                    <table style="width: 100%;">
+                        <tr><td>Course Price (${details.numberOfParticipants} × £${(breakdown.basePrice / details.numberOfParticipants).toFixed(2)}):</td><td style="text-align: right;">£${breakdown.basePrice.toFixed(2)}</td></tr>
+                        ${breakdown.bulkDiscountAmount > 0 ? `<tr><td>Bulk Discount (${breakdown.bulkDiscountPercentage}%):</td><td style="text-align: right; color: #166534;">-£${breakdown.bulkDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.cpdHoursUsed > 0 ? `<tr><td>CPD Hours (${breakdown.cpdHoursUsed.toFixed(1)}h):</td><td style="text-align: right; color: #166534;">-£${breakdown.cpdDiscount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.memberDiscountAmount > 0 ? `<tr><td>Member Discount (${breakdown.memberDiscountPercentage}%):</td><td style="text-align: right; color: #166534;">-£${breakdown.memberDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        <tr style="border-top: 2px solid #c084fc;"><td style="padding-top: 10px; font-weight: bold;">Estimated Total:</td><td style="text-align: right; font-weight: bold; padding-top: 10px; font-size: 18px; color: #7c3aed;">£${breakdown.finalPrice.toFixed(2)}</td></tr>
+                    </table>
+                </div>
+            </td>`;
+
+        const userEmailBody = `
+            <td style="padding: 30px 40px; color: #333; line-height: 1.6;">
+                <h1 style="color: #333; font-size: 24px;">Your Training Enquiry</h1>
+                <p>Dear ${details.userName},</p>
+                <p>Thank you for your interest in our training. We have received your enquiry for:</p>
+                <div style="border-left: 3px solid #5e028f; padding-left: 15px; margin: 20px 0; background-color: #f9f9f9; padding: 15px;">
+                    <p style="margin:0;"><strong>Course:</strong> ${details.courseTitle}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Date:</strong> ${details.selectedDate}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Time:</strong> ${details.selectedTime}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Location:</strong> ${details.selectedLocation}</p>
+                    <p style="margin:5px 0 0 0;"><strong>Participants:</strong> ${details.numberOfParticipants}</p>
+                </div>
+                <div style="background-color: #f3e8ff; border: 1px solid #c084fc; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 0 0 10px 0; color: #7c3aed; font-weight: bold;">Your Estimated Quote:</p>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 5px 0;">Course Price:</td><td style="text-align: right;">£${breakdown.basePrice.toFixed(2)}</td></tr>
+                        ${breakdown.bulkDiscountAmount > 0 ? `<tr><td style="padding: 5px 0;">Bulk Discount (${breakdown.bulkDiscountPercentage}%):</td><td style="text-align: right; color: #166534;">-£${breakdown.bulkDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.cpdHoursUsed > 0 ? `<tr><td style="padding: 5px 0;">CPD Hours (${breakdown.cpdHoursUsed.toFixed(1)}h):</td><td style="text-align: right; color: #166534;">-£${breakdown.cpdDiscount.toFixed(2)}</td></tr>` : ''}
+                        ${breakdown.memberDiscountAmount > 0 ? `<tr><td style="padding: 5px 0;">Member Discount (${breakdown.memberDiscountPercentage}%):</td><td style="text-align: right; color: #166534;">-£${breakdown.memberDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                        <tr style="border-top: 2px solid #c084fc;"><td style="padding: 10px 0 5px 0; font-weight: bold;">Estimated Total:</td><td style="text-align: right; font-weight: bold; padding: 10px 0 5px 0;">£${breakdown.finalPrice.toFixed(2)}</td></tr>
+                    </table>
+                </div>
+                <p>A member of our team will be in touch shortly to confirm your booking and arrange payment.</p>
+                <p style="margin-top: 30px; margin-bottom: 5px;">Kind regards,</p>
+                <p style="margin-top: 0; font-weight: bold;">The Independent Federation for Safeguarding</p>
+            </td>`;
+
+        await Promise.all([
+            sendEmail({ to: 'info@ifs-safeguarding.co.uk', subject: `Training Enquiry: ${details.courseTitle} (${details.numberOfParticipants} participant${details.numberOfParticipants > 1 ? 's' : ''})`, body: emailWrapper(adminEmailBody) }),
+            sendEmail({ to: details.userEmail, subject: `Your IfS Training Enquiry: ${details.courseTitle}`, body: emailWrapper(userEmailBody) })
+        ]);
+    };
+
     const PriceDisplay = () => {
         if (!course || !user) return null;
 
@@ -1477,10 +1569,10 @@ export default function CourseDetails() {
                                     </div>
                                 </div>
                                 {breakdown.finalPrice > 0 && (
-                                    <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
-                                        <p className="text-xs text-blue-800">
-                                            <CreditCard className="w-3 h-3 inline mr-1" />
-                                            You'll be redirected to Stripe to complete payment
+                                    <div className="mt-3 p-2 bg-purple-50 border border-purple-200 rounded">
+                                        <p className="text-xs text-purple-800">
+                                            <Info className="w-3 h-3 inline mr-1" />
+                                            This is your estimated quote. We'll be in touch to confirm and arrange payment.
                                         </p>
                                     </div>
                                 )}
@@ -1542,7 +1634,7 @@ export default function CourseDetails() {
                                </>
                             ) : (
                                <>
-                                   {breakdown.cpdHoursUsed > 0 ? 'Apply Credits & ' : ''}Pay £{breakdown.finalPrice.toFixed(2)}
+                                   Send Enquiry
                                    <ArrowRight className="w-4 h-4 ml-2" />
                                </>
                             )}
