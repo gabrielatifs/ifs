@@ -55,6 +55,7 @@ export const MAIN_SITE_PAGES = [
   'Contact',
   'WhyJoinUs',
   'JoinUs',
+  'join',
   'Membership',
   'MembershipPlans',
   'MembershipTiers',

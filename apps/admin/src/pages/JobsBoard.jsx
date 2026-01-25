@@ -96,7 +96,7 @@ const JobCard = React.memo(({ job, isActiveMember, onJoinClick }) => (
                     <div className="ml-auto">
                         {isActiveMember ? (
                             <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-700 shadow-sm">
-                                <Link to={`${createPageUrl('JobDetails')}?id=${job.id}`}>
+                                <Link to={`${createPageUrl('Job/view')}?id=${job.id}`}>
                                     View Details
                                     <ArrowRight className="w-4 h-4 ml-2" />
                                 </Link>

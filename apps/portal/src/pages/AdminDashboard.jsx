@@ -15,6 +15,7 @@ import { Survey } from '@ifs/shared/api/entities';
 import { SurveyResponse } from '@ifs/shared/api/entities';
 import { JobMetric } from '@ifs/shared/api/entities';
 import { createPageUrl } from '@ifs/shared/utils';
+import { generateJobSlug } from '@/components/utils/jobUtils';
 
 import { Button } from '@ifs/shared/components/ui/button';
 import { Badge } from '@ifs/shared/components/ui/badge';
@@ -792,8 +793,8 @@ export default function AdminDashboard() {
             let updatedCount = 0;
 
             await Promise.all(allJobs.map(async (job) => {
-                const slug = (job.title || 'job').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                const publicJobUrl = `https://www.ifs-safeguarding.co.uk/Job?id=${slug}-${job.id}`;
+                const slug = generateJobSlug(job);
+                const publicJobUrl = `https://www.ifs-safeguarding.co.uk/job/${slug}`;
 
                 if (job.publicJobUrl !== publicJobUrl) {
                     await Job.update(job.id, { publicJobUrl });
@@ -2978,8 +2979,8 @@ export default function AdminDashboard() {
                                                                                     size="icon"
                                                                                     className="h-8 w-8"
                                                                                     onClick={() => {
-                                                                                        const slug = (job.title || 'job').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                                                                                        const url = `https://www.ifs-safeguarding.co.uk/Job?id=${slug}-${job.id}`;
+                                                                                        const slug = generateJobSlug(job);
+                                                                                        const url = `https://www.ifs-safeguarding.co.uk/job/${slug}`;
                                                                                         navigator.clipboard.writeText(url);
                                                                                         toast({ title: "Copied", description: "Public Job URL copied to clipboard" });
                                                                                     }}
@@ -2988,7 +2989,7 @@ export default function AdminDashboard() {
                                                                                     <Copy className="w-4 h-4 text-slate-500" />
                                                                                 </Button>
                                                                                 <a
-                                                                                    href={job.publicJobUrl || `https://www.ifs-safeguarding.co.uk/Job?id=${(job.title || 'job').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${job.id}`}
+                                                                                    href={job.publicJobUrl || `https://www.ifs-safeguarding.co.uk/job/${generateJobSlug(job)}`}
                                                                                     target="_blank"
                                                                                     rel="noopener noreferrer"
                                                                                     className="text-purple-600 hover:text-purple-800"

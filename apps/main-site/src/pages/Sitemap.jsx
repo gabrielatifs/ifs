@@ -60,7 +60,7 @@ const sitemapSections = [
     title: 'Jobs',
     icon: Briefcase,
     pages: [
-      { name: 'Jobs Board', path: '/Jobs' },
+      { name: 'Jobs Board', path: '/job' },
       { name: 'Post a Job', path: '/JobsBoardMarketing' },
     ],
   },
@@ -252,7 +252,7 @@ export default function Sitemap() {
                   </ul>
                 )}
                 <Link
-                  to={createPageUrl('Jobs')}
+                  to={createPageUrl('Job')}
                   className="mt-4 inline-block text-purple-700 hover:text-purple-800 text-sm font-medium"
                 >
                   View all jobs &rarr;

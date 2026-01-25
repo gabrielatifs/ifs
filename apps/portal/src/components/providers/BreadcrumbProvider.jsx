@@ -75,14 +75,15 @@ const breadcrumbStructure = {
     
     // Jobs
     'JobsBoardMarketing': [{ label: 'Jobs', path: createPageUrl('JobsBoardMarketing') }],
-    'JobsBoard': [{ label: 'Jobs', path: createPageUrl('JobsBoard') }],
-    'Jobs': [{ label: 'Jobs', path: createPageUrl('Jobs') }],
+    'JobsBoard': [{ label: 'Jobs', path: createPageUrl('Job') }],
+    'Jobs': [{ label: 'Jobs', path: createPageUrl('Job') }],
+    'Job': [{ label: 'Jobs', path: createPageUrl('Job') }],
     'JobDetails': [
-        { label: 'Jobs', path: createPageUrl('JobsBoard') },
+        { label: 'Jobs', path: createPageUrl('Job') },
         { label: 'Job Details', path: '' } // Dynamic title will be set
     ],
     'JobDetailsPublic': [
-        { label: 'Jobs', path: createPageUrl('Jobs') },
+        { label: 'Jobs', path: createPageUrl('Job') },
         { label: 'Job Details', path: '' }
     ],
     

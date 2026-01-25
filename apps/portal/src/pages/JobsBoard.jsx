@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Job } from '@ifs/shared/api/entities';
 import { User } from '@ifs/shared/api/entities';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -96,7 +97,7 @@ const JobCard = React.memo(({ job, isActiveMember, onJoinClick }) => (
                     <div className="ml-auto">
                         {isActiveMember ? (
                             <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-700 shadow-sm">
-                                <Link to={`${createPageUrl('JobDetails')}?id=${job.id}`}>
+                                <Link to={`${createPageUrl('Job/view')}?id=${job.id}`}>
                                     View Details
                                     <ArrowRight className="w-4 h-4 ml-2" />
                                 </Link>
@@ -323,6 +324,10 @@ export default function JobsBoard() {
 
     return (
         <div className="flex h-screen bg-slate-50/30">
+            <Helmet>
+                <title>Jobs Board - IfS Portal</title>
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <PortalSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="JobsBoard" />
             
             <div className="flex-1 flex flex-col overflow-hidden">

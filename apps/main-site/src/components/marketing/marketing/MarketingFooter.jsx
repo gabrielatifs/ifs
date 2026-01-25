@@ -41,7 +41,7 @@ export default function MarketingFooter() {
               <li><Link to={createPageUrl("CPDTraining")} className="text-base text-gray-600 hover:text-gray-900">CPD & Training</Link></li>
               <li><Link to={createPageUrl("SupervisionServices")} className="text-base text-gray-600 hover:text-gray-900">Supervision</Link></li>
               <li><Link to={createPageUrl("Events")} className="text-base text-gray-600 hover:text-gray-900">Events</Link></li>
-              <li><Link to={createPageUrl("Jobs")} className="text-base text-gray-600 hover:text-gray-900">Jobs Board</Link></li>
+              <li><Link to={createPageUrl("Job")} className="text-base text-gray-600 hover:text-gray-900">Jobs Board</Link></li>
             </ul>
           </div>
 

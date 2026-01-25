@@ -66,7 +66,7 @@ export default function Job() {
                     Discover safeguarding career opportunities across all sectors and experience levels.
                 </p>
                 <Button asChild className="bg-purple-600 hover:bg-purple-700">
-                    <Link to={createPageUrl('Jobs')}>
+                    <Link to={createPageUrl('Job')}>
                         View All Jobs
                     </Link>
                 </Button>

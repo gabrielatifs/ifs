@@ -104,7 +104,7 @@ export default function JobDetails() {
                 <h2 className="text-2xl font-semibold text-slate-800 mb-4">Job Not Found</h2>
                 <p className="text-slate-600 mb-6">We couldn't find the job you're looking for.</p>
                 <Button asChild>
-                    <Link to={`${createPageUrl('JobsBoard')}${search}`}>
+                    <Link to={`${createPageUrl('Job')}${search}`}>
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Jobs Board
                     </Link>
@@ -217,7 +217,7 @@ export default function JobDetails() {
                         {/* Page Header */}
                         <div className="mb-8">
                             <Button asChild variant="outline" size="sm" className="mb-4">
-                               <Link to={createPageUrl('JobsBoard')}>
+                               <Link to={createPageUrl('Job')}>
                                    <ArrowLeft className="w-4 h-4 mr-2" />
                                    Back to Jobs Board
                                </Link>

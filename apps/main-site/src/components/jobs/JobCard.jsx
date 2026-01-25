@@ -45,7 +45,7 @@ export default function JobCard({ job, isPublic = false }) {
           <div className="flex-grow">
             <h3 className="text-lg font-semibold text-gray-800 group-hover:text-purple-700 transition-colors">
               <Link
-                to={isPublic ? generateJobPath(job) : `${createPageUrl('JobDetails')}?id=${job.id}`}
+                to={isPublic ? generateJobPath(job) : `${createPageUrl('Job/view')}?id=${job.id}`}
                 className="focus:outline-none focus:ring-2 focus:ring-purple-500 rounded"
               >
                 {job.title}
@@ -97,7 +97,7 @@ export default function JobCard({ job, isPublic = false }) {
 
         {/* View Button */}
         <Button asChild size="sm" className="bg-gray-900 hover:bg-gray-700 text-white shadow-sm hover:shadow-md transition-all">
-          <Link to={isPublic ? generateJobPath(job) : `${createPageUrl('JobDetails')}?id=${job.id}`}>
+          <Link to={isPublic ? generateJobPath(job) : `${createPageUrl('Job/view')}?id=${job.id}`}>
             View Details <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
         </Button>

@@ -8,6 +8,7 @@ import { isPortalPage, isMainSitePage, isAdminPage, getPageFromPath } from '../c
 export const checkDomainRedirect = (currentDomain) => {
   const pathname = window.location.pathname;
   const pageName = getPageFromPath(pathname);
+  console.log('[domainRedirect] Checking:', { currentDomain, pathname, pageName, isPortal: isPortalPage(pageName), isMain: isMainSitePage(pageName) });
 
   const PORTAL_URL = import.meta.env.VITE_PORTAL_URL || 'http://localhost:3001';
   const MAIN_SITE_URL = import.meta.env.VITE_MAIN_SITE_URL || 'http://localhost:3000';

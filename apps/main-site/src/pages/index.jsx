@@ -1,5 +1,5 @@
 import Layout from "./Layout.jsx";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
 // Import all main site pages
 import About from "./About";
@@ -74,10 +74,15 @@ export default function Pages() {
                     <Route path="/Home" element={<Home />} />
                     <Route path="/IfSBoard" element={<IfSBoard />} />
                     <Route path="/IntroductoryCourses" element={<IntroductoryCourses />} />
+                    <Route path="/job" element={<Jobs />} />
                     <Route path="/job/:slug" element={<JobDetailsPublic />} />
-                    <Route path="/Job" element={<JobDetailsPublic />} />
-                    <Route path="/JobDetailsPublic" element={<JobDetailsPublic />} />
-                    <Route path="/Jobs" element={<Jobs />} />
+                    {/* /join routes - alias for job listings */}
+                    <Route path="/join" element={<Jobs />} />
+                    <Route path="/join/:slug" element={<JobDetailsPublic />} />
+                    {/* Legacy routes - redirect to new lowercase URLs */}
+                    <Route path="/Job" element={<Navigate to="/job" replace />} />
+                    <Route path="/JobDetailsPublic" element={<Navigate to="/job" replace />} />
+                    <Route path="/Jobs" element={<Navigate to="/job" replace />} />
                     <Route path="/JobsBoardMarketing" element={<JobsBoardMarketing />} />
                     <Route path="/JoinUs" element={<JoinUs />} />
                     <Route path="/joinus" element={<JoinUs />} />

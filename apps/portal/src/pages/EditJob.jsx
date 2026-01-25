@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { User } from '@ifs/shared/api/entities';
 import { Job } from '@ifs/shared/api/entities';
+import { generateJobSlug } from '@/components/utils/jobUtils';
 import { createPageUrl, navigateToUrl } from '@ifs/shared/utils';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Input } from '@ifs/shared/components/ui/input';
@@ -233,8 +234,8 @@ export default function EditJob() {
             let savedId = jobId;
 
             if (jobId) {
-                const slug = job.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                const publicJobUrl = `https://www.ifs-safeguarding.co.uk/Job?id=${slug}-${jobId}`;
+                const slug = generateJobSlug({ ...job, id: jobId });
+                const publicJobUrl = `https://www.ifs-safeguarding.co.uk/job/${slug}`;
                 await Job.update(jobId, { ...jobPayload, publicJobUrl });
 
                 // Send email notification if status changed
@@ -279,8 +280,8 @@ export default function EditJob() {
                 savedId = newJob.id;
                 
                 if (savedId) {
-                    const slug = job.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                    const publicJobUrl = `https://www.ifs-safeguarding.co.uk/Job?id=${slug}-${savedId}`;
+                    const slug = generateJobSlug({ ...job, id: savedId });
+                    const publicJobUrl = `https://www.ifs-safeguarding.co.uk/job/${slug}`;
                     await Job.update(savedId, { publicJobUrl });
                 }
             }

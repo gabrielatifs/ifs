@@ -81,7 +81,7 @@ export default function JobsBoardMarketing() {
     };
 
     const handleLogin = () => {
-        User.loginWithRedirect(createPageUrl('JobsBoard'));
+        User.loginWithRedirect(createPageUrl('Job'));
     };
 
     return (
@@ -128,7 +128,7 @@ export default function JobsBoardMarketing() {
                                     size="lg"
                                     className="bg-white text-purple-800 hover:bg-gray-100 font-semibold px-8 py-3 text-base rounded-sm"
                                 >
-                                    <Link to={createPageUrl('Jobs')}>
+                                    <Link to={createPageUrl('Job')}>
                                         Browse Jobs
                                     </Link>
                                 </Button>
@@ -278,7 +278,7 @@ export default function JobsBoardMarketing() {
                     )}
                     <div className="text-center mt-12">
                         <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-3 rounded-sm">
-                            <Link to={createPageUrl('Jobs')}>
+                            <Link to={createPageUrl('Job')}>
                                 Access Dozens More Listings <ArrowRight className="w-5 h-5 ml-2" />
                             </Link>
                         </Button>

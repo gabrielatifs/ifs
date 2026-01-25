@@ -24,7 +24,6 @@ import {
 import { format } from 'date-fns';
 import { generateJobPath, generateJobSlug } from '@/components/utils/jobUtils';
 import MainSiteNav from '@/components/marketing/MainSiteNav';
-import MarketingFooter from '@/components/marketing/MarketingFooter';
 import HeroBreadcrumbs from '@/components/marketing/HeroBreadcrumbs';
 import { User } from '@ifs/shared/api/entities';
 import { customLoginWithRedirect } from '@/components/utils/auth';
@@ -81,7 +80,7 @@ export default function JobDetailsView({ jobId, jobSlug }) {
       location: 'public_job_details',
       user_type: 'anonymous',
     });
-    const portalJobUrl = `${createPageUrl('JobDetails')}?id=${job?.id}`;
+    const portalJobUrl = `${createPageUrl('Job/view')}?id=${job?.id}`;
 
     // Store intent and redirect in session storage as a backup
     sessionStorage.setItem('pending_job_redirect', portalJobUrl);
@@ -105,7 +104,6 @@ export default function JobDetailsView({ jobId, jobSlug }) {
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
         </div>
-        <MarketingFooter />
       </div>
     );
   }
@@ -118,13 +116,12 @@ export default function JobDetailsView({ jobId, jobSlug }) {
           <h2 className="text-2xl font-semibold text-slate-800 mb-4">Job Not Found</h2>
           <p className="text-slate-600 mb-6">We couldn’t find the job you’re looking for.</p>
           <Button asChild>
-            <Link to={createPageUrl('Jobs')}>
+            <Link to={createPageUrl('Job')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Jobs Board
             </Link>
           </Button>
         </div>
-        <MarketingFooter />
       </div>
     );
   }
@@ -234,6 +231,43 @@ export default function JobDetailsView({ jobId, jobSlug }) {
     ? job.description.replace(/<[^>]*>/g, '').substring(0, 155)
     : `${job.title} at ${job.companyName}`;
 
+  // JSON-LD structured data for Google Jobs
+  const jobPostingSchema = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": job.description?.replace(/<[^>]*>/g, '') || '',
+    "datePosted": job.created_date,
+    "validThrough": job.applicationDeadline || undefined,
+    "employmentType": job.contractType?.toUpperCase().replace(/\s+/g, '_') || undefined,
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.companyName,
+      "logo": job.companyLogoUrl || undefined
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": job.addressLocality || job.location,
+        "addressCountry": "GB"
+      }
+    },
+    ...(job.salaryMin || job.salaryMax ? {
+      "baseSalary": {
+        "@type": "MonetaryAmount",
+        "currency": "GBP",
+        "value": {
+          "@type": "QuantitativeValue",
+          ...(job.salaryMin && job.salaryMax ? { "minValue": job.salaryMin, "maxValue": job.salaryMax } : {}),
+          ...(job.salaryMin && !job.salaryMax ? { "value": job.salaryMin } : {}),
+          ...(!job.salaryMin && job.salaryMax ? { "value": job.salaryMax } : {}),
+          "unitText": "YEAR"
+        }
+      }
+    } : {})
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Helmet>
@@ -244,9 +278,14 @@ export default function JobDetailsView({ jobId, jobSlug }) {
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content={job.companyLogoUrl || "https://ifs-safeguarding.co.uk/og-image.png"} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={job.companyLogoUrl || "https://ifs-safeguarding.co.uk/og-image.png"} />
+        <script type="application/ld+json">
+          {JSON.stringify(jobPostingSchema)}
+        </script>
       </Helmet>
 
       <div className="bg-gray-900 relative">
@@ -294,7 +333,6 @@ export default function JobDetailsView({ jobId, jobSlug }) {
         </div>
       </main>
 
-      <MarketingFooter />
     </div>
   );
 }

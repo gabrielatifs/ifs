@@ -3,15 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 // A canonical list of all valid page names in the correct case.
 const validPageNames = [
-    'About', 'AdminDashboard', 'AdvancedCourses', 'ApplicationPending', 'ApplicationProcessing', 
-    'ArticlesOfAssociation', 'AssociateMembership', 'Contact', 'CourseDetails', 'CPDTraining', 
-    'CPDTrainingMarketing', 'Dashboard', 'EditCourse', 'EditEvent', 'EditJob', 'EditUser', 
-    'EventDetails', 'Events', 'ForumsAndWorkshops', 'FullMembership', 'Governance', 'Home', 
-    'IfSBoard', 'IntroductoryCourses', 'JobDetails', 'JobsBoard', 'JobsBoardMarketing', 'JoinUs', 
-    'MemberAccessRequired', 'MemberBenefits', 'MemberWorkshops', 'Membership', 'MembershipTiers', 
-    'MyCertificates', 'MyProfile', 'MyWorkshopBookings', 'NotFound', 'Onboarding', 'OrgPayment', 
-    'PortalMembershipTiers', 'RefresherCourses', 'RequestOrgPayment', 'ResearchAndAdvocacy', 
-    'SignpostingService', 'SupervisionServices', 'SupervisionServicesMarketing', 'Team', 'Training', 
+    'About', 'AdminDashboard', 'AdvancedCourses', 'ApplicationPending', 'ApplicationProcessing',
+    'ArticlesOfAssociation', 'AssociateMembership', 'Contact', 'CourseDetails', 'CPDTraining',
+    'CPDTrainingMarketing', 'Dashboard', 'EditCourse', 'EditEvent', 'EditJob', 'EditUser',
+    'EventDetails', 'Events', 'ForumsAndWorkshops', 'FullMembership', 'Governance', 'Home',
+    'IfSBoard', 'IntroductoryCourses', 'Job', 'JobDetails', 'JobsBoard', 'JobsBoardMarketing', 'JoinUs',
+    'MemberAccessRequired', 'MemberBenefits', 'MemberWorkshops', 'Membership', 'MembershipTiers',
+    'MyCertificates', 'MyProfile', 'MyWorkshopBookings', 'NotFound', 'Onboarding', 'OrgPayment',
+    'PortalMembershipTiers', 'RefresherCourses', 'RequestOrgPayment', 'ResearchAndAdvocacy',
+    'SignpostingService', 'SupervisionServices', 'SupervisionServicesMarketing', 'Team', 'Training',
     'TrainingCourseDetails', 'TrusteeElections', 'WhyJoinUs', 'WorkshopDetails', 'Conferences', 'Jobs', 'SpecialistCourses'
 ];
 

@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 // Page title mapping for proper meta titles
 export const pageTitles = {
-  Home: 'Home - Independent Federation for Safeguarding',
+  Home: 'Independent Federation for Safeguarding',
   Dashboard: 'Dashboard - IfS Member Portal',
   AdminDashboard: 'Admin Dashboard - IfS',
   MemberMasterclasses: 'Masterclasses & Events - IfS Member Portal',

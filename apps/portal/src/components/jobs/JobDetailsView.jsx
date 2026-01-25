@@ -80,7 +80,7 @@ export default function JobDetailsView({ jobId }) {
             "@type": "JobPosting",
             "title": job.title,
             "description": job.description,
-            "url": `https://ifs-safeguarding.co.uk/Job${generateJobSlug(job)}`,
+            "url": `https://ifs-safeguarding.co.uk/job/${generateJobSlug(job)}`,
             "identifier": {
                 "@type": "PropertyValue",
                 "name": job.companyName,
@@ -189,7 +189,7 @@ export default function JobDetailsView({ jobId }) {
             location: 'public_job_details',
             user_type: 'anonymous'
         });
-        const portalJobUrl = `${createPageUrl('JobDetails')}?id=${job?.id}`;
+        const portalJobUrl = `${createPageUrl('Job/view')}?id=${job?.id}`;
         
         // Store intent and redirect in session storage as a backup
         sessionStorage.setItem('pending_job_redirect', portalJobUrl);
@@ -226,7 +226,7 @@ export default function JobDetailsView({ jobId }) {
                     <h2 className="text-2xl font-semibold text-slate-800 mb-4">Job Not Found</h2>
                     <p className="text-slate-600 mb-6">We couldn't find the job you're looking for.</p>
                     <Button asChild>
-                        <Link to={createPageUrl('Jobs')}>
+                        <Link to={createPageUrl('Job')}>
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Jobs Board
                         </Link>
@@ -343,7 +343,7 @@ export default function JobDetailsView({ jobId }) {
         );
     };
 
-    const canonicalUrl = `https://ifs-safeguarding.co.uk/Job${generateJobSlug(job)}`;
+    const canonicalUrl = `https://ifs-safeguarding.co.uk/job/${generateJobSlug(job)}`;
     const pageTitle = `${job.title} - ${job.companyName} - IfS Jobs Board`;
     const pageDescription = job.description ? job.description.replace(/<[^>]*>/g, '').substring(0, 155) : `${job.title} at ${job.companyName}`;
 

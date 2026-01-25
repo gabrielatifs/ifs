@@ -42,7 +42,7 @@ const staticRoutes = [
   { path: '/Membership', priority: 0.9, changefreq: 'weekly' },
   { path: '/Training', priority: 0.9, changefreq: 'weekly' },
   { path: '/Events', priority: 0.9, changefreq: 'daily' },
-  { path: '/Jobs', priority: 0.9, changefreq: 'daily' },
+  { path: '/job', priority: 0.9, changefreq: 'daily' },
   { path: '/Contact', priority: 0.8, changefreq: 'monthly' },
   { path: '/MembershipTiers', priority: 0.8, changefreq: 'monthly' },
   { path: '/MemberBenefits', priority: 0.8, changefreq: 'monthly' },

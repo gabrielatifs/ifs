@@ -19,6 +19,7 @@ import { Dialog, DialogContent } from '@ifs/shared/components/ui/dialog';
 import { createJobPostingCheckout } from '@ifs/shared/api/functions';
 
 export default function Jobs() {
+  console.log('[Jobs] Component mounted - path:', window.location.pathname);
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [paginatedJobs, setPaginatedJobs] = useState([]);
@@ -59,11 +60,11 @@ export default function Jobs() {
         if (paymentSuccess && userData) {
           // Show submit form after successful payment
           setShowSubmitForm(true);
-          window.history.replaceState({}, '', createPageUrl('Jobs'));
+          window.history.replaceState({}, '', createPageUrl('Job'));
         } else if (action === 'post_job' && userData) {
           // User came back from login - initiate payment
           handlePostJob();
-          window.history.replaceState({}, '', createPageUrl('Jobs'));
+          window.history.replaceState({}, '', createPageUrl('Job'));
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -232,7 +233,7 @@ export default function Jobs() {
     if (!user) {
       // Not logged in - redirect to login
       trackEvent('post_job_clicked', { user_type: 'anonymous' });
-      customLoginWithRedirect(createPageUrl('Jobs') + '?action=post_job');
+      customLoginWithRedirect(createPageUrl('Job') + '?action=post_job');
       return;
     }
 
@@ -241,7 +242,7 @@ export default function Jobs() {
     trackEvent('post_job_payment_initiated', { user_id: user.id });
 
     try {
-      const currentUrl = window.location.origin + createPageUrl('Jobs');
+      const currentUrl = window.location.origin + createPageUrl('Job');
       const { data } = await createJobPostingCheckout({
         successUrl: `${currentUrl}?payment=success`,
         cancelUrl: currentUrl
@@ -278,11 +279,16 @@ export default function Jobs() {
       <Helmet>
         <title>Jobs Board - Independent Federation for Safeguarding</title>
         <meta name="description" content="Find your next safeguarding role with our comprehensive jobs board. Discover opportunities across all sectors and experience levels, from entry-level positions to senior leadership roles." />
-        <link rel="canonical" href="https://ifs-safeguarding.co.uk/Jobs" />
+        <link rel="canonical" href="https://ifs-safeguarding.co.uk/job" />
         <meta property="og:title" content="Safeguarding Jobs Board - IfS" />
         <meta property="og:description" content="Browse safeguarding career opportunities across the UK. Join as a member for full access to application details." />
-        <meta property="og:url" content="https://ifs-safeguarding.co.uk/Jobs" />
+        <meta property="og:url" content="https://ifs-safeguarding.co.uk/job" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://ifs-safeguarding.co.uk/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Safeguarding Jobs Board - IfS" />
+        <meta name="twitter:description" content="Browse safeguarding career opportunities across the UK. Join as a member for full access to application details." />
+        <meta name="twitter:image" content="https://ifs-safeguarding.co.uk/og-image.png" />
       </Helmet>
       {/* Hero Section */}
       <section className="relative bg-gray-900 overflow-hidden" style={{ minHeight: '600px' }}>

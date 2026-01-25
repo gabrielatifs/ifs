@@ -1,5 +1,5 @@
 import Layout from "./Layout.jsx";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
 // Import all portal pages
 import ApplicationProcessing from "./ApplicationProcessing";
@@ -81,9 +81,11 @@ export default function Pages() {
                             <Route path="/eventregistrationsuccess" element={<EventRegistrationSuccess />} />
                             <Route path="/forum" element={<Forum />} />
                             <Route path="/forumpostdetails" element={<ForumPostDetails />} />
-                            <Route path="/job" element={<Job />} />
-                            <Route path="/jobdetails" element={<JobDetails />} />
-                            <Route path="/jobsboard" element={<JobsBoard />} />
+                            <Route path="/job" element={<JobsBoard />} />
+                            <Route path="/job/view" element={<JobDetails />} />
+                            {/* Legacy routes - redirect to new URLs */}
+                            <Route path="/jobdetails" element={<Navigate to="/job/view" replace />} />
+                            <Route path="/jobsboard" element={<Navigate to="/job" replace />} />
                             <Route path="/manageorganisation" element={<ManageOrganisation />} />
                             <Route path="/manageorgsubscription" element={<ManageOrgSubscription />} />
                             <Route path="/masterclassdetails" element={<MasterclassDetails />} />

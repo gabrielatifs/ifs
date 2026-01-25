@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ifs } from '@ifs/shared/api/ifsClient';
 import { createPageUrl } from '@ifs/shared/utils';
 import { Button } from '@ifs/shared/components/ui/button';
@@ -16,7 +17,6 @@ import { usePostHog } from '@ifs/shared/components/providers/PostHogProvider';
 import LoginPrompt from '../components/portal/LoginPrompt';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import PortalHeader from '../components/portal/PortalHeader';
-import PortalBottomNav from '../components/portal/PortalBottomNav';
 import 'react-quill/dist/quill.snow.css';
 
 export default function JobDetails() {
@@ -104,7 +104,7 @@ export default function JobDetails() {
                 <h2 className="text-2xl font-semibold text-slate-800 mb-4">Job Not Found</h2>
                 <p className="text-slate-600 mb-6">We couldn't find the job you're looking for.</p>
                 <Button asChild>
-                    <Link to={`${createPageUrl('JobsBoard')}${search}`}>
+                    <Link to={`${createPageUrl('Job')}${search}`}>
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Jobs Board
                     </Link>
@@ -203,8 +203,14 @@ export default function JobDetails() {
         );
     };
 
+    const pageTitle = job ? `${job.title} - ${job.companyName} - IfS Portal` : 'Job Details - IfS Portal';
+
     return (
         <div className="flex h-screen bg-slate-50/30">
+            <Helmet>
+                <title>{pageTitle}</title>
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <PortalSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="JobsBoard" />
             
             <div className="flex-1 flex flex-col overflow-hidden">
@@ -217,7 +223,7 @@ export default function JobDetails() {
                         {/* Page Header */}
                         <div className="mb-8">
                             <Button asChild variant="outline" size="sm" className="mb-4">
-                               <Link to={createPageUrl('JobsBoard')}>
+                               <Link to={createPageUrl('Job')}>
                                    <ArrowLeft className="w-4 h-4 mr-2" />
                                    Back to Jobs Board
                                </Link>
@@ -341,7 +347,6 @@ export default function JobDetails() {
                 </main>
             </div>
             <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} user={user} />
-            <PortalBottomNav user={user} currentPage='JobsBoard' />
         </div>
     );
 }

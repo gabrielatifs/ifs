@@ -649,7 +649,7 @@ export default function Dashboard() {
                                 Events
                             </Link>
                             <Link
-                                to={createPageUrl('JobsBoard')}
+                                to={createPageUrl('Job')}
                                 className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-slate-900 transition-colors"
                             >
                                 Jobs
@@ -937,7 +937,7 @@ export default function Dashboard() {
                                             My Credentials
                                         </Link>
                                         <Link
-                                            to={createPageUrl('JobsBoard')}
+                                            to={createPageUrl('Job')}
                                             className="block text-sm text-slate-600 hover:text-slate-900 transition-colors"
                                         >
                                             Jobs Board
