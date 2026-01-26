@@ -146,6 +146,7 @@ class PageErrorBoundary extends React.Component {
 function PortalLayout({ children, currentPageName }) {
     const { user, initialCheckComplete } = useUser();
     const location = useLocation();
+    const publicPortalPaths = ['/job', '/job/view'];
 
     console.log('[PortalLayout] Render:', { 
         page: currentPageName, 
@@ -158,6 +159,11 @@ function PortalLayout({ children, currentPageName }) {
     useEffect(() => {
         console.log('[PortalLayout] Auth check:', { initialCheckComplete, hasUser: !!user });
         if (!initialCheckComplete) return;
+
+        const isPublicPortalPath = publicPortalPaths.some(path => 
+            location.pathname.toLowerCase().startsWith(path)
+        );
+
         const logoutAt = sessionStorage.getItem('logoutRedirectAt');
         if (logoutAt) {
             const elapsed = Date.now() - Number(logoutAt);
@@ -169,7 +175,7 @@ function PortalLayout({ children, currentPageName }) {
             sessionStorage.removeItem('logoutRedirectUrl');
         }
 
-        if (!user) {
+        if (!user && !isPublicPortalPath) {
             console.log('[PortalLayout] No user, redirecting to login');
             const currentUrl = location.pathname + location.search + location.hash;
             ifs.auth.redirectToLogin(currentUrl);

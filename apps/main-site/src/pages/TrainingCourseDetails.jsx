@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Course } from '@ifs/shared/api/entities';
 import { CourseVariant } from '@ifs/shared/api/entities';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -28,6 +28,7 @@ import { formatDateRange } from '../components/utils/formatters';
 import { ifs } from '@ifs/shared/api/ifsClient';
 import { CourseBooking } from '@ifs/shared/api/entities';
 import { wrapEmailHtml } from '@ifs/shared/emails/wrapper';
+import { courseTitleToSlug, coursePath } from '../components/utils/courseSlug';
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,7 @@ export default function TrainingCourseDetails() {
     const [loading, setLoading] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
+    const { slug } = useParams();
     const { toast } = useToast();
     const [user, setUser] = useState(null);
     const { trackEvent } = usePostHog();
@@ -291,6 +293,23 @@ export default function TrainingCourseDetails() {
 
     const displayLearningObjectives = displayObjectives.length > 0 ? displayObjectives : displayWhatYouWillLearn;
 
+    const displayFaq = useMemo(() => {
+        if (!course) return [];
+        let faqData = course.faq;
+        if (!faqData) return [];
+        // If it's a string, try to parse as JSON
+        if (typeof faqData === 'string') {
+            try {
+                faqData = JSON.parse(faqData);
+            } catch {
+                return [];
+            }
+        }
+        // Ensure it's an array
+        if (!Array.isArray(faqData)) return [];
+        // Filter to only include items with question and answer
+        return faqData.filter(item => item && typeof item === 'object' && item.question && item.answer);
+    }, [course]);
 
     // Existing memo to get available geographies for the dropdown
     const getAvailableGeographies = useMemo(() => {
@@ -363,49 +382,65 @@ export default function TrainingCourseDetails() {
             try {
                 let fetchedCourse = null;
                 let fetchedVariants = [];
-                
-                if (courseId) {
-                    fetchedCourse = await Course.get(courseId);
-                    // Fetch variants and dates for this course
+
+                // Helper function to fetch variants and dates for a course
+                const fetchCourseRelatedData = async (courseIdToFetch) => {
                     const [allVariants, allDates] = await Promise.all([
                         CourseVariant.list(),
                         CourseDate.list()
                     ]);
-                    fetchedVariants = allVariants.filter(v => v.courseId === courseId);
-                    
+                    const variants = allVariants.filter(v => v.courseId === courseIdToFetch);
                     const upcomingDates = allDates
-                        .filter(d => d.courseId === courseId && new Date(d.date) >= new Date())
+                        .filter(d => d.courseId === courseIdToFetch && new Date(d.date) >= new Date())
                         .sort((a, b) => new Date(a.date) - new Date(b.date));
-                    setCourseDates(upcomingDates);
+                    return { variants, upcomingDates };
+                };
 
-                } else if (courseTitle) {
+                // Priority 1: Check for slug in URL path (e.g., /course/introduction-to-safeguarding)
+                if (slug) {
+                    console.log("Looking for course with slug:", slug);
+                    const allCourses = await Course.list();
+                    // Find course by matching slug to title
+                    fetchedCourse = allCourses.find(course =>
+                        course.title && courseTitleToSlug(course.title) === slug
+                    );
+
+                    if (fetchedCourse) {
+                        const { variants, upcomingDates } = await fetchCourseRelatedData(fetchedCourse.id);
+                        fetchedVariants = variants;
+                        setCourseDates(upcomingDates);
+                    }
+                }
+                // Priority 2: Check for courseId in query params (backward compatibility)
+                else if (courseId) {
+                    fetchedCourse = await Course.get(courseId);
+                    const { variants, upcomingDates } = await fetchCourseRelatedData(courseId);
+                    fetchedVariants = variants;
+                    setCourseDates(upcomingDates);
+                }
+                // Priority 3: Check for courseTitle in query params (backward compatibility)
+                else if (courseTitle) {
                     // Decode the URL-encoded title
                     const decodedTitle = decodeURIComponent(courseTitle);
                     console.log("Looking for course with title:", decodedTitle);
-                    
+
                     // Get all courses and find by partial title match for more flexibility
                     const allCourses = await Course.list();
-                    fetchedCourse = allCourses.find(course => 
+                    fetchedCourse = allCourses.find(course =>
                         course.title && course.title.toLowerCase().includes(decodedTitle.toLowerCase())
                     );
-                    
+
                     // If no partial match, try exact match
                     if (!fetchedCourse) {
-                        fetchedCourse = allCourses.find(course => 
+                        fetchedCourse = allCourses.find(course =>
                             course.title === decodedTitle
                         );
                     }
-                    
+
                     // If we found a course, get its variants and dates
                     if (fetchedCourse) {
-                        const [allVariants, allDates] = await Promise.all([
-                            CourseVariant.list(),
-                            CourseDate.list()
-                        ]);
-                        fetchedVariants = allVariants.filter(v => v.courseId === fetchedCourse.id);
-                        const upcomingDates = allDates
-                            .filter(d => d.courseId === fetchedCourse.id && new Date(d.date) >= new Date())
-                            .sort((a, b) => new Date(a.date) - new Date(b.date));
+                        const { variants, upcomingDates } = await fetchCourseRelatedData(fetchedCourse.id);
+                        fetchedVariants = variants;
                         setCourseDates(upcomingDates);
                     }
                 }
@@ -428,7 +463,7 @@ export default function TrainingCourseDetails() {
         };
 
         fetchCourseDetails();
-    }, [location.search]);
+    }, [location.search, slug]);
 
     // New useEffect to pre-select the course date if there is only one option
     useEffect(() => {
@@ -1209,7 +1244,7 @@ export default function TrainingCourseDetails() {
                                         )}
 
                                         {/* FAQ Section - Compact Preview */}
-                                        {course.faq && course.faq.length > 0 && (
+                                        {displayFaq && displayFaq.length > 0 && (
                                             <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                                                 <div className="px-8 py-6 border-b border-slate-200">
                                                     <h2 className="text-2xl font-bold text-slate-900 flex items-center">
@@ -1218,7 +1253,7 @@ export default function TrainingCourseDetails() {
                                                         </div>
                                                         Frequently Asked Questions
                                                         <span className="ml-3 px-3 py-1 bg-slate-100 text-slate-700 text-sm font-semibold rounded-full">
-                                                            {course.faq.length} Questions
+                                                            {displayFaq.length} Questions
                                                         </span>
                                                     </h2>
                                                 </div>
@@ -1226,18 +1261,18 @@ export default function TrainingCourseDetails() {
                                                 <div className="p-8">
                                                     <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 mb-4">
                                                         <h4 className="font-bold text-slate-900 mb-3 text-base">
-                                                            {course.faq[0].question}
+                                                            {displayFaq[0].question}
                                                         </h4>
-                                                        <p className="text-slate-700 leading-relaxed text-sm">{course.faq[0].answer}</p>
+                                                        <p className="text-slate-700 leading-relaxed text-sm">{displayFaq[0].answer}</p>
                                                     </div>
 
-                                                    {course.faq.length > 1 && (
+                                                    {displayFaq.length > 1 && (
                                                         <>
                                                             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
                                                                 expandedSections.faq ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
                                                             }`}>
                                                                 <div className="space-y-4">
-                                                                    {course.faq.slice(1).map((item, index) => (
+                                                                    {displayFaq.slice(1).map((item, index) => (
                                                                         <div key={index + 1} className="bg-slate-50 rounded-xl p-6 border border-slate-200">
                                                                             <h4 className="font-bold text-slate-900 mb-3 text-base">
                                                                                 {item.question}
@@ -1254,7 +1289,7 @@ export default function TrainingCourseDetails() {
                                                                 <span className="text-slate-600 font-semibold mr-2 text-sm">
                                                                     {expandedSections.faq 
                                                                         ? 'Show Fewer Questions' 
-                                                                        : `See ${course.faq.length - 1} More Questions`
+                                                                        : `See ${displayFaq.length - 1} More Questions`
                                                                     }
                                                                 </span>
                                                                 {expandedSections.faq ? (

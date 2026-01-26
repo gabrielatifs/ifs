@@ -60,11 +60,11 @@ export default function Jobs() {
         if (paymentSuccess && userData) {
           // Show submit form after successful payment
           setShowSubmitForm(true);
-          window.history.replaceState({}, '', createPageUrl('Job'));
+          window.history.replaceState({}, '', createPageUrl('Jobs'));
         } else if (action === 'post_job' && userData) {
           // User came back from login - initiate payment
           handlePostJob();
-          window.history.replaceState({}, '', createPageUrl('Job'));
+          window.history.replaceState({}, '', createPageUrl('Jobs'));
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -233,7 +233,7 @@ export default function Jobs() {
     if (!user) {
       // Not logged in - redirect to login
       trackEvent('post_job_clicked', { user_type: 'anonymous' });
-      customLoginWithRedirect(createPageUrl('Job') + '?action=post_job');
+      customLoginWithRedirect(createPageUrl('Jobs') + '?action=post_job');
       return;
     }
 
@@ -242,7 +242,7 @@ export default function Jobs() {
     trackEvent('post_job_payment_initiated', { user_id: user.id });
 
     try {
-      const currentUrl = window.location.origin + createPageUrl('Job');
+      const currentUrl = window.location.origin + createPageUrl('Jobs');
       const { data } = await createJobPostingCheckout({
         successUrl: `${currentUrl}?payment=success`,
         cancelUrl: currentUrl
@@ -490,4 +490,3 @@ export default function Jobs() {
     </>
   );
 }
-

@@ -171,7 +171,7 @@ export default function MainSiteNav({ onLogin, variant = 'default', onMobileMenu
                   </Link>
               </div>
               <Link to={createPageUrl("Events")} className="text-lg font-medium text-white hover:text-gray-300 transition-colors">Events</Link>
-              <Link to={createPageUrl("Job")} className="text-lg font-medium text-white hover:text-gray-300 transition-colors">Jobs</Link>
+              <Link to={createPageUrl("Jobs")} className="text-lg font-medium text-white hover:text-gray-300 transition-colors">Jobs</Link>
             </nav>
 
             {/* Mobile View */}
@@ -300,7 +300,7 @@ export default function MainSiteNav({ onLogin, variant = 'default', onMobileMenu
 
                   {/* Other Main Navigation */}
                   <Link to={createPageUrl("Events")} className="block px-3 py-3 text-base font-medium text-white hover:bg-gray-800 rounded-md mb-2" onClick={() => setMobileMenuOpen(false)}>Events</Link>
-                  <Link to={createPageUrl("Job")} className="block px-3 py-3 text-base font-medium text-white hover:bg-gray-800 rounded-md mb-4" onClick={() => setMobileMenuOpen(false)}>Jobs</Link>
+                  <Link to={createPageUrl("Jobs")} className="block px-3 py-3 text-base font-medium text-white hover:bg-gray-800 rounded-md mb-4" onClick={() => setMobileMenuOpen(false)}>Jobs</Link>
                   
                   {/* Divider */}
                   <hr className="border-gray-700 my-4" />

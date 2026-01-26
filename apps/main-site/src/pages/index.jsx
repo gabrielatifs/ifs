@@ -102,6 +102,7 @@ export default function Pages() {
                     <Route path="/Team" element={<Team />} />
                     <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
                     <Route path="/Training" element={<Training />} />
+                    <Route path="/course/:slug" element={<TrainingCourseDetails />} />
                     <Route path="/TrainingCourseDetails" element={<TrainingCourseDetails />} />
                     <Route path="/trainingcoursedetails" element={<TrainingCourseDetails />} />
                     <Route path="/VerifyCredential" element={<VerifyCredential />} />

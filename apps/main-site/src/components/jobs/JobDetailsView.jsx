@@ -116,7 +116,7 @@ export default function JobDetailsView({ jobId, jobSlug }) {
           <h2 className="text-2xl font-semibold text-slate-800 mb-4">Job Not Found</h2>
           <p className="text-slate-600 mb-6">We couldn’t find the job you’re looking for.</p>
           <Button asChild>
-            <Link to={createPageUrl('Job')}>
+            <Link to={createPageUrl('Jobs')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Jobs Board
             </Link>

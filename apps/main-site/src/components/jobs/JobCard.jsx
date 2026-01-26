@@ -13,6 +13,7 @@ export default function JobCard({ job, isPublic = false }) {
     if (job.salaryMin && job.salaryMax) return `£${job.salaryMin.toLocaleString()} - £${job.salaryMax.toLocaleString()}`;
     if (job.salaryMin) return `From £${job.salaryMin.toLocaleString()}`;
     if (job.salaryMax) return `Up to £${job.salaryMax.toLocaleString()}`;
+    if (job.salary) return `£${job.salary.toLocaleString()}`;
     return 'Not Disclosed';
   };
 

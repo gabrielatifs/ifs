@@ -252,7 +252,7 @@ export default function Sitemap() {
                   </ul>
                 )}
                 <Link
-                  to={createPageUrl('Job')}
+                  to={createPageUrl('Jobs')}
                   className="mt-4 inline-block text-purple-700 hover:text-purple-800 text-sm font-medium"
                 >
                   View all jobs &rarr;
