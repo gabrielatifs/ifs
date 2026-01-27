@@ -2,190 +2,122 @@
 /**
  * Prerender Script for Static Marketing Pages
  *
- * This script pre-renders static marketing pages at build time to ensure
- * the HTML contains correct meta tags for SEO and social sharing.
- *
- * How it works:
- * 1. Starts a local server serving the built dist files
- * 2. Uses Puppeteer to render each static route
- * 3. Waits for react-helmet-async to update the <head>
- * 4. Saves the rendered HTML to dist folder
+ * Replaces default meta tags in the built index.html with page-specific
+ * SEO tags from the shared config. No browser needed — works everywhere
+ * including Vercel's build environment.
  *
  * Run: npm run prerender (after vite build)
  */
 
-import puppeteer from 'puppeteer';
-import { createServer } from 'http';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { pageSEO, pathToPageName, BASE_URL, DEFAULT_OG_IMAGE } from '../src/seo-config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const DIST_DIR = join(__dirname, '..', 'dist');
-const PORT = 4173;
 
-// Static routes to pre-render (from SEOManager pageSEO config)
-// Includes both PascalCase and lowercase/kebab-case aliases so that
-// Vercel's case-sensitive filesystem serves pre-rendered HTML for all URL variants.
-const STATIC_ROUTES = [
-  '/',
-  '/About',
-  '/about',
-  '/Contact',
-  '/contact',
-  '/Events',
-  '/events',
-  '/Conferences',
-  '/conferences',
-  '/ForumsAndWorkshops',
-  '/forums-and-workshops',
-  '/Training',
-  '/courses',
-  '/CPDTrainingMarketing',
-  '/training',
-  '/IntroductoryCourses',
-  '/introductory-courses',
-  '/AdvancedCourses',
-  '/advanced-courses',
-  '/RefresherCourses',
-  '/refresher-courses',
-  '/SpecialistCourses',
-  '/specialist-courses',
-  '/job',
-  '/Jobs',
-  '/join',
-  '/JobsBoardMarketing',
-  '/WhyJoinUs',
-  '/why-join-us',
-  '/Membership',
-  '/membership',
-  '/MembershipTiers',
-  '/membership-tiers',
-  '/MembershipPlans',
-  '/membership-plans',
-  '/MemberBenefits',
-  '/member-benefits',
-  '/AssociateMembership',
-  '/associate-membership',
-  '/FullMembership',
-  '/full-membership',
-  '/Fellowship',
-  '/fellowship',
-  '/JoinUs',
-  '/joinus',
-  '/SupervisionServicesMarketing',
-  '/supervision',
-  '/SignpostingService',
-  '/signposting',
-  '/ResearchAndAdvocacy',
-  '/research',
-  '/Team',
-  '/team',
-  '/Governance',
-  '/governance',
-  '/IfSBoard',
-  '/board',
-  '/ArticlesOfAssociation',
-  '/articles-of-association',
-  '/PrivacyPolicy',
-  '/privacy-policy',
-  '/TermsAndConditions',
-  '/terms',
-  '/CookiePolicy',
-  '/cookie-policy',
-  '/Sitemap',
-  '/sitemap',
-  '/VerifyCredential',
-  '/verify',
-  '/RegisteredOrganisation',
-  '/registered-organisation',
-];
+// All static routes to pre-render (every path alias from pathToPageName
+// that maps to a page with SEO config).
+const STATIC_ROUTES = Object.keys(pathToPageName).filter((path) => {
+  const pageName = pathToPageName[path];
+  return pageSEO[pageName] != null;
+});
 
 /**
- * Simple static file server
+ * Escape a string for safe use inside an HTML attribute value (double-quoted).
  */
-function createStaticServer() {
-  const mimeTypes = {
-    '.html': 'text/html',
-    '.js': 'application/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.svg': 'image/svg+xml',
-    '.ico': 'image/x-icon',
-    '.woff': 'font/woff',
-    '.woff2': 'font/woff2',
-  };
-
-  return createServer((req, res) => {
-    let filePath = join(DIST_DIR, req.url === '/' ? 'index.html' : req.url);
-
-    // For SPA routes, serve index.html
-    if (!existsSync(filePath) || !filePath.includes('.')) {
-      filePath = join(DIST_DIR, 'index.html');
-    }
-
-    try {
-      const content = readFileSync(filePath);
-      const ext = filePath.substring(filePath.lastIndexOf('.'));
-      res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
-      res.end(content);
-    } catch (err) {
-      res.writeHead(404);
-      res.end('Not found');
-    }
-  });
+function escapeAttr(str) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
 /**
- * Render a single route and return the HTML
+ * Take the built index.html template and replace the default meta tags
+ * with page-specific values from pageSEO.
  */
-async function renderRoute(browser, route) {
-  const page = await browser.newPage();
+function renderRoute(templateHtml, route) {
+  const pageName = pathToPageName[route];
+  const seo = pageSEO[pageName];
+  if (!seo) return null;
 
-  try {
-    await page.goto(`http://localhost:${PORT}${route}`, {
-      waitUntil: 'networkidle0',
-      timeout: 30000,
-    });
+  const canonicalUrl = `${BASE_URL}${seo.canonical}`;
+  const ogTitle = seo.ogTitle || seo.title;
+  const ogDesc = seo.ogDescription || seo.description;
+  const ogImage = seo.ogImage || DEFAULT_OG_IMAGE;
 
-    // Wait for Helmet to update the head (react-helmet-async)
-    await page.waitForFunction(
-      () => {
-        const title = document.querySelector('title');
-        // Wait until title is not the default
-        return title && title.textContent && !title.textContent.includes('React App');
-      },
-      { timeout: 10000 }
-    ).catch(() => {
-      // Continue even if timeout - page may have custom title logic
-    });
+  let html = templateHtml;
 
-    // Additional wait for any async meta updates
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  // Title
+  html = html.replace(
+    /<title>[^<]*<\/title>/,
+    `<title>${escapeAttr(seo.title)}</title>`
+  );
 
-    // Get the full HTML including updated head
-    const html = await page.content();
+  // Meta description
+  html = html.replace(
+    /<meta name="description" content="[^"]*" \/>/,
+    `<meta name="description" content="${escapeAttr(seo.description)}" />`
+  );
 
-    return html;
-  } finally {
-    await page.close();
+  // Canonical
+  html = html.replace(
+    /<link rel="canonical" href="[^"]*" \/>/,
+    `<link rel="canonical" href="${canonicalUrl}" />`
+  );
+
+  // Open Graph
+  html = html.replace(
+    /<meta property="og:title" content="[^"]*" \/>/,
+    `<meta property="og:title" content="${escapeAttr(ogTitle)}" />`
+  );
+  html = html.replace(
+    /<meta property="og:description" content="[^"]*" \/>/,
+    `<meta property="og:description" content="${escapeAttr(ogDesc)}" />`
+  );
+  html = html.replace(
+    /<meta property="og:url" content="[^"]*" \/>/,
+    `<meta property="og:url" content="${canonicalUrl}" />`
+  );
+  html = html.replace(
+    /<meta property="og:image" content="[^"]*" \/>/,
+    `<meta property="og:image" content="${ogImage}" />`
+  );
+
+  // Twitter Card
+  html = html.replace(
+    /<meta name="twitter:title" content="[^"]*" \/>/,
+    `<meta name="twitter:title" content="${escapeAttr(ogTitle)}" />`
+  );
+  html = html.replace(
+    /<meta name="twitter:description" content="[^"]*" \/>/,
+    `<meta name="twitter:description" content="${escapeAttr(ogDesc)}" />`
+  );
+  html = html.replace(
+    /<meta name="twitter:image" content="[^"]*" \/>/,
+    `<meta name="twitter:image" content="${ogImage}" />`
+  );
+
+  // Robots — switch to noindex if the page config says so
+  if (seo.noindex) {
+    html = html.replace(
+      /<meta name="robots" content="[^"]*" \/>/,
+      `<meta name="robots" content="noindex, nofollow" />`
+    );
   }
+
+  return html;
 }
 
 /**
  * Save rendered HTML to dist folder
  */
 function saveRenderedHtml(route, html) {
-  // Determine file path
   let filePath;
   if (route === '/') {
     filePath = join(DIST_DIR, 'index.html');
   } else {
-    // Create directory structure for clean URLs
     const dirPath = join(DIST_DIR, route);
     if (!existsSync(dirPath)) {
       mkdirSync(dirPath, { recursive: true });
@@ -200,63 +132,44 @@ function saveRenderedHtml(route, html) {
 /**
  * Main prerender function
  */
-async function prerender() {
-  console.log('🚀 Starting pre-render process...\n');
+function prerender() {
+  console.log('Starting pre-render process...\n');
 
-  // Check if dist folder exists
   if (!existsSync(DIST_DIR)) {
-    console.error('❌ dist folder not found. Run "vite build" first.');
+    console.error('dist folder not found. Run "vite build" first.');
     process.exit(1);
   }
 
-  // Start local server
-  const server = createStaticServer();
-  await new Promise((resolve) => server.listen(PORT, resolve));
-  console.log(`📡 Local server running on http://localhost:${PORT}\n`);
-
-  // Launch Puppeteer
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
-
-  console.log(`📄 Pre-rendering ${STATIC_ROUTES.length} static routes...\n`);
-
-  let successCount = 0;
-  let errorCount = 0;
-
-  for (const route of STATIC_ROUTES) {
-    try {
-      process.stdout.write(`  Rendering ${route}...`);
-      const html = await renderRoute(browser, route);
-      const filePath = saveRenderedHtml(route, html);
-      console.log(` ✓`);
-      successCount++;
-    } catch (error) {
-      console.log(` ✗ ${error.message}`);
-      errorCount++;
-    }
+  const templatePath = join(DIST_DIR, 'index.html');
+  if (!existsSync(templatePath)) {
+    console.error('dist/index.html not found. Run "vite build" first.');
+    process.exit(1);
   }
 
-  // Cleanup
-  await browser.close();
-  server.close();
+  const templateHtml = readFileSync(templatePath, 'utf-8');
 
-  console.log(`\n✨ Pre-render complete!`);
-  console.log(`   ✓ ${successCount} pages rendered successfully`);
-  if (errorCount > 0) {
-    console.log(`   ✗ ${errorCount} pages failed`);
+  console.log(`Pre-rendering ${STATIC_ROUTES.length} static routes...\n`);
+
+  let successCount = 0;
+  let skipCount = 0;
+
+  for (const route of STATIC_ROUTES) {
+    const html = renderRoute(templateHtml, route);
+    if (!html) {
+      console.log(`  Skipping ${route} (no SEO config)`);
+      skipCount++;
+      continue;
+    }
+    saveRenderedHtml(route, html);
+    console.log(`  ${route} -> OK`);
+    successCount++;
+  }
+
+  console.log(`\nPre-render complete!`);
+  console.log(`  ${successCount} pages rendered`);
+  if (skipCount > 0) {
+    console.log(`  ${skipCount} pages skipped`);
   }
 }
 
-prerender().catch((error) => {
-  // If Puppeteer/Chrome can't launch (e.g. missing system libraries on Vercel),
-  // exit gracefully. The edge middleware + render API handle crawler SEO as a fallback.
-  if (error.message && (error.message.includes('Failed to launch the browser process') || error.message.includes('Could not find Chrome'))) {
-    console.warn('⚠️  Pre-render skipped: Chrome not available in this environment.');
-    console.warn('   Crawler SEO is still handled by edge middleware + /api/render.');
-    process.exit(0);
-  }
-  console.error('Pre-render failed:', error);
-  process.exit(1);
-});
+prerender();
