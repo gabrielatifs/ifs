@@ -1,8 +1,96 @@
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 
-const BASE_URL = 'https://ifs-safeguarding.co.uk';
+const BASE_URL = 'https://www.join-ifs.org';
 const DEFAULT_OG_IMAGE = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b9a3d96daf168696381e05/ifs-og-image.png';
+
+// Organization JSON-LD (rendered on every marketing page)
+const ORGANIZATION_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Independent Federation for Safeguarding',
+  alternateName: 'IfS',
+  url: BASE_URL,
+  logo: DEFAULT_OG_IMAGE,
+  description: "The UK's trusted professional body for safeguarding. Supporting professionals through training, events, supervision, and community.",
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    email: 'info@ifs-safeguarding.co.uk',
+    url: `${BASE_URL}/Contact`,
+  },
+};
+
+// Breadcrumb hierarchy mapping: pageName -> { label, parent (pageName) }
+const breadcrumbHierarchy = {
+  Home: { label: 'Home', parent: null },
+  About: { label: 'About Us', parent: 'Home' },
+  Contact: { label: 'Contact', parent: 'Home' },
+  Team: { label: 'Our Team', parent: 'About' },
+  Governance: { label: 'Governance', parent: 'About' },
+  IfSBoard: { label: 'Board of Trustees', parent: 'Governance' },
+  ArticlesOfAssociation: { label: 'Articles of Association', parent: 'Governance' },
+  Events: { label: 'Events', parent: 'Home' },
+  EventDetails: { label: 'Event Details', parent: 'Events' },
+  Conferences: { label: 'Conferences', parent: 'Events' },
+  ForumsAndWorkshops: { label: 'Forums & Workshops', parent: 'Events' },
+  Training: { label: 'Training', parent: 'Home' },
+  TrainingCourseDetails: { label: 'Course Details', parent: 'Training' },
+  CPDTrainingMarketing: { label: 'CPD & Training', parent: 'Training' },
+  IntroductoryCourses: { label: 'Foundation Courses', parent: 'Training' },
+  AdvancedCourses: { label: 'Advanced Courses', parent: 'Training' },
+  RefresherCourses: { label: 'Refresher Courses', parent: 'Training' },
+  SpecialistCourses: { label: 'Specialist Courses', parent: 'Training' },
+  Jobs: { label: 'Jobs', parent: 'Home' },
+  JobsBoardMarketing: { label: 'Jobs Board', parent: 'Home' },
+  JobDetailsPublic: { label: 'Job Details', parent: 'Jobs' },
+  Membership: { label: 'Membership', parent: 'Home' },
+  MembershipTiers: { label: 'Membership Tiers', parent: 'Membership' },
+  MemberBenefits: { label: 'Member Benefits', parent: 'Membership' },
+  AssociateMembership: { label: 'Associate Membership', parent: 'Membership' },
+  FullMembership: { label: 'Full Membership', parent: 'Membership' },
+  Fellowship: { label: 'Fellowship', parent: 'Membership' },
+  WhyJoinUs: { label: 'Why Join Us', parent: 'Membership' },
+  JoinUs: { label: 'Join Us', parent: 'Membership' },
+  SupervisionServicesMarketing: { label: 'Supervision Services', parent: 'Home' },
+  SignpostingService: { label: 'Signposting Service', parent: 'Home' },
+  ResearchAndAdvocacy: { label: 'Research & Advocacy', parent: 'Home' },
+  PrivacyPolicy: { label: 'Privacy Policy', parent: 'Home' },
+  TermsAndConditions: { label: 'Terms & Conditions', parent: 'Home' },
+  CookiePolicy: { label: 'Cookie Policy', parent: 'Home' },
+  VerifyCredential: { label: 'Verify Credential', parent: 'Home' },
+  RegisteredOrganisation: { label: 'Registered Organisation', parent: 'Home' },
+  Sitemap: { label: 'Sitemap', parent: 'Home' },
+};
+
+function buildBreadcrumbJsonLd(resolvedPageName) {
+  const entry = breadcrumbHierarchy[resolvedPageName];
+  if (!entry) return null;
+
+  // Walk up the hierarchy to build the breadcrumb trail
+  const trail = [];
+  let current = resolvedPageName;
+  while (current) {
+    const node = breadcrumbHierarchy[current];
+    if (!node) break;
+    const seo = pageSEO[current];
+    trail.unshift({ name: node.label, url: seo ? `${BASE_URL}${seo.canonical}` : BASE_URL });
+    current = node.parent;
+  }
+
+  if (trail.length < 2) return null; // No breadcrumb for homepage alone
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: trail.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
 
 // Map URL paths to page names (for clean URLs and legacy URLs)
 const pathToPageName = {
@@ -515,6 +603,7 @@ export default function SEOManager({ pageName, isPortalPage = false }) {
   }
 
   const canonicalUrl = `${BASE_URL}${seo.canonical}`;
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd(resolvedPageName);
 
   return (
     <Helmet>
@@ -540,6 +629,14 @@ export default function SEOManager({ pageName, isPortalPage = false }) {
 
       {/* Robots */}
       {seo.noindex && <meta name="robots" content="noindex, nofollow" />}
+
+      {/* Structured Data - Organization */}
+      <script type="application/ld+json">{JSON.stringify(ORGANIZATION_JSONLD)}</script>
+
+      {/* Structured Data - Breadcrumbs */}
+      {breadcrumbJsonLd && (
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
+      )}
     </Helmet>
   );
 }

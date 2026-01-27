@@ -9,11 +9,27 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const BASE_URL = 'https://ifs-safeguarding.co.uk';
+const BASE_URL = 'https://www.join-ifs.org';
 const DEFAULT_OG_IMAGE =
   'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b9a3d96daf168696381e05/ifs-og-image.png';
 const FAVICON_URL =
   'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b9a3d96daf168696381e05/36f9296bf_27May-BoardofTrusteesMeeting6.png';
+
+const ORGANIZATION_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Independent Federation for Safeguarding',
+  alternateName: 'IfS',
+  url: BASE_URL,
+  logo: DEFAULT_OG_IMAGE,
+  description: "The UK's trusted professional body for safeguarding. Supporting professionals through training, events, supervision, and community.",
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    email: 'info@ifs-safeguarding.co.uk',
+    url: `${BASE_URL}/Contact`,
+  },
+};
 
 /**
  * Extract job ID from slug (format: title-company-{id8chars})
@@ -51,13 +67,18 @@ function stripHtml(str) {
 }
 
 /**
- * Generate HTML page with meta tags
+ * Generate HTML page with meta tags and optional JSON-LD structured data
  */
-function generateHtml({ title, description, url, image, type = 'website', canonicalPath }) {
+function generateHtml({ title, description, url, image, type = 'website', canonicalPath, jsonLd }) {
   const safeTitle = escapeHtml(title);
   const safeDescription = escapeHtml(description);
   const safeUrl = escapeHtml(url);
   const safeImage = escapeHtml(image || DEFAULT_OG_IMAGE);
+
+  // Build JSON-LD script tags
+  const jsonLdScripts = (jsonLd || [])
+    .map((data) => `  <script type="application/ld+json">${JSON.stringify(data)}</script>`)
+    .join('\n');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -84,6 +105,8 @@ function generateHtml({ title, description, url, image, type = 'website', canoni
   <meta name="twitter:title" content="${safeTitle}" />
   <meta name="twitter:description" content="${safeDescription}" />
   <meta name="twitter:image" content="${safeImage}" />
+
+${jsonLdScripts}
 
   <!-- Redirect script for users who land here directly -->
   <script>
@@ -150,15 +173,32 @@ export default async function handler(req, res) {
       if (jobIdPrefix) {
         const { data: job, error } = await supabase
           .from('jobs')
-          .select('id, title, company_name, location, description, salary_range')
+          .select('id, title, company_name, location, description, salary_range, application_deadline')
           .ilike('id', `${jobIdPrefix}%`)
           .single();
 
         if (job && !error) {
           const title = `${job.title}${job.location ? ` - ${job.location}` : ''} | IfS Jobs`;
+          const plainDescription = stripHtml(job.description);
           const description =
-            stripHtml(job.description)?.substring(0, 155) + '...' ||
+            plainDescription?.substring(0, 155) + '...' ||
             `${job.title} at ${job.company_name || 'Organisation'}. View details and apply on the IfS Jobs Board.`;
+
+          const jobPostingJsonLd = {
+            '@context': 'https://schema.org',
+            '@type': 'JobPosting',
+            title: job.title,
+            description: plainDescription,
+            url: `${BASE_URL}${pagePath}`,
+            datePosted: new Date().toISOString().split('T')[0],
+            hiringOrganization: {
+              '@type': 'Organization',
+              name: job.company_name || 'Organisation',
+            },
+          };
+          if (job.location) jobPostingJsonLd.jobLocation = { '@type': 'Place', address: job.location };
+          if (job.salary_range) jobPostingJsonLd.baseSalary = { '@type': 'MonetaryAmount', currency: 'GBP', value: { '@type': 'QuantitativeValue', value: job.salary_range } };
+          if (job.application_deadline) jobPostingJsonLd.validThrough = job.application_deadline;
 
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
           res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate');
@@ -169,6 +209,7 @@ export default async function handler(req, res) {
               url: `${BASE_URL}${pagePath}`,
               type: 'article',
               canonicalPath: pagePath,
+              jsonLd: [ORGANIZATION_JSONLD, jobPostingJsonLd],
             })
           );
         }
@@ -188,9 +229,24 @@ export default async function handler(req, res) {
 
       if (course && !error) {
         const title = `${course.title} | IfS Training`;
+        const plainDescription = stripHtml(course.description);
         const description =
-          stripHtml(course.description)?.substring(0, 155) + '...' ||
+          plainDescription?.substring(0, 155) + '...' ||
           `${course.title} - CPD-accredited safeguarding training from the Independent Federation for Safeguarding.`;
+
+        const courseJsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Course',
+          name: course.title,
+          description: plainDescription,
+          url: `${BASE_URL}${pagePath}`,
+          provider: {
+            '@type': 'Organization',
+            name: 'Independent Federation for Safeguarding',
+            url: BASE_URL,
+          },
+        };
+        if (course.category) courseJsonLd.courseCode = course.category;
 
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate');
@@ -201,6 +257,7 @@ export default async function handler(req, res) {
             url: `${BASE_URL}${pagePath}`,
             type: 'article',
             canonicalPath: pagePath,
+            jsonLd: [ORGANIZATION_JSONLD, courseJsonLd],
           })
         );
       }
@@ -238,9 +295,29 @@ export default async function handler(req, res) {
             })
           : '';
         const title = `${event.title}${dateStr ? ` - ${dateStr}` : ''} | IfS Events`;
+        const plainDescription = stripHtml(event.description);
         const description =
-          stripHtml(event.description)?.substring(0, 155) + '...' ||
+          plainDescription?.substring(0, 155) + '...' ||
           `${event.title}${event.location ? ` at ${event.location}` : ''}. Join this IfS professional event.`;
+
+        const eventJsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Event',
+          name: event.title,
+          description: plainDescription,
+          url: `${BASE_URL}${pagePath}`,
+          organizer: {
+            '@type': 'Organization',
+            name: 'Independent Federation for Safeguarding',
+            url: BASE_URL,
+          },
+        };
+        if (event.date) {
+          eventJsonLd.startDate = new Date(event.date).toISOString();
+        }
+        if (event.location) {
+          eventJsonLd.location = { '@type': 'Place', name: event.location };
+        }
 
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate');
@@ -251,6 +328,7 @@ export default async function handler(req, res) {
             url: `${BASE_URL}${pagePath}`,
             type: 'event',
             canonicalPath: pagePath,
+            jsonLd: [ORGANIZATION_JSONLD, eventJsonLd],
           })
         );
       }
