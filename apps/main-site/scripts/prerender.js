@@ -215,7 +215,7 @@ async function prerender() {
 prerender().catch((error) => {
   // If Puppeteer/Chrome can't launch (e.g. missing system libraries on Vercel),
   // exit gracefully. The edge middleware + render API handle crawler SEO as a fallback.
-  if (error.message && error.message.includes('Failed to launch the browser process')) {
+  if (error.message && (error.message.includes('Failed to launch the browser process') || error.message.includes('Could not find Chrome'))) {
     console.warn('⚠️  Pre-render skipped: Chrome not available in this environment.');
     console.warn('   Crawler SEO is still handled by edge middleware + /api/render.');
     process.exit(0);
