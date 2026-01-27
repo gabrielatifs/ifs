@@ -173,7 +173,7 @@ export default async function handler(req, res) {
       if (jobIdPrefix) {
         const { data: job, error } = await supabase
           .from('jobs')
-          .select('id, title, company_name, location, description, salary_range, application_deadline')
+          .select('id, title, company_name, location, description, salary_range, application_deadline, created_at, address_locality, address_region, postal_code, street_address, salary, salary_unit, salary_currency, contract_type, company_logo_url')
           .ilike('id', `${jobIdPrefix}%`)
           .single();
 
@@ -184,20 +184,50 @@ export default async function handler(req, res) {
             plainDescription?.substring(0, 155) + '...' ||
             `${job.title} at ${job.company_name || 'Organisation'}. View details and apply on the IfS Jobs Board.`;
 
+          const postedDate = job.created_at
+            ? new Date(job.created_at).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0];
+
+          const salaryUnitMap = { 'annual': 'YEAR', 'hourly': 'HOUR', 'daily': 'DAY', 'weekly': 'WEEK', 'monthly': 'MONTH' };
+
           const jobPostingJsonLd = {
             '@context': 'https://schema.org',
             '@type': 'JobPosting',
             title: job.title,
             description: plainDescription,
             url: `${BASE_URL}${pagePath}`,
-            datePosted: new Date().toISOString().split('T')[0],
+            datePosted: postedDate,
             hiringOrganization: {
               '@type': 'Organization',
               name: job.company_name || 'Organisation',
+              ...(job.company_logo_url ? { logo: job.company_logo_url } : {}),
             },
           };
-          if (job.location) jobPostingJsonLd.jobLocation = { '@type': 'Place', address: job.location };
-          if (job.salary_range) jobPostingJsonLd.baseSalary = { '@type': 'MonetaryAmount', currency: 'GBP', value: { '@type': 'QuantitativeValue', value: job.salary_range } };
+          if (job.contract_type) jobPostingJsonLd.employmentType = job.contract_type.toUpperCase().replace(/\s+/g, '_');
+          if (job.location || job.address_locality) {
+            jobPostingJsonLd.jobLocation = {
+              '@type': 'Place',
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: job.address_locality || job.location,
+                addressCountry: 'GB',
+                ...(job.address_region ? { addressRegion: job.address_region } : {}),
+                ...(job.postal_code ? { postalCode: job.postal_code } : {}),
+                ...(job.street_address ? { streetAddress: job.street_address } : {}),
+              },
+            };
+          }
+          if (job.salary) {
+            jobPostingJsonLd.baseSalary = {
+              '@type': 'MonetaryAmount',
+              currency: job.salary_currency || 'GBP',
+              value: {
+                '@type': 'QuantitativeValue',
+                value: job.salary,
+                unitText: salaryUnitMap[job.salary_unit?.toLowerCase()] || 'YEAR',
+              },
+            };
+          }
           if (job.application_deadline) jobPostingJsonLd.validThrough = job.application_deadline;
 
           res.setHeader('Content-Type', 'text/html; charset=utf-8');

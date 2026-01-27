@@ -86,7 +86,7 @@ export default function JobDetailsView({ jobId }) {
                 "name": job.companyName,
                 "value": job.id
             },
-            "datePosted": job.created_date ? new Date(job.created_date).toISOString() : new Date().toISOString(),
+            "datePosted": job.createdAt ? new Date(job.createdAt).toISOString() : new Date().toISOString(),
             "validThrough": job.applicationDeadline ? new Date(job.applicationDeadline).toISOString() : undefined,
             "employmentType": employmentTypes.length > 0 ? employmentTypes : "FULL_TIME",
             "hiringOrganization": {

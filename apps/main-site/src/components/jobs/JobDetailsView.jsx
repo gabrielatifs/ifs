@@ -232,12 +232,18 @@ export default function JobDetailsView({ jobId, jobSlug }) {
     : `${job.title} at ${job.companyName}`;
 
   // JSON-LD structured data for Google Jobs
+  const postedDate = job.createdAt
+    ? new Date(job.createdAt).toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0];
+
+  const salaryUnitMap = { 'annual': 'YEAR', 'hourly': 'HOUR', 'daily': 'DAY', 'weekly': 'WEEK', 'monthly': 'MONTH' };
+
   const jobPostingSchema = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     "title": job.title,
     "description": job.description?.replace(/<[^>]*>/g, '') || '',
-    "datePosted": job.created_date,
+    "datePosted": postedDate,
     "validThrough": job.applicationDeadline || undefined,
     "employmentType": job.contractType?.toUpperCase().replace(/\s+/g, '_') || undefined,
     "hiringOrganization": {
@@ -250,19 +256,20 @@ export default function JobDetailsView({ jobId, jobSlug }) {
       "address": {
         "@type": "PostalAddress",
         "addressLocality": job.addressLocality || job.location,
+        "addressRegion": job.addressRegion || undefined,
+        "postalCode": job.postalCode || undefined,
+        "streetAddress": job.streetAddress || undefined,
         "addressCountry": "GB"
       }
     },
-    ...(job.salaryMin || job.salaryMax ? {
+    ...(job.salary ? {
       "baseSalary": {
         "@type": "MonetaryAmount",
-        "currency": "GBP",
+        "currency": job.salaryCurrency || "GBP",
         "value": {
           "@type": "QuantitativeValue",
-          ...(job.salaryMin && job.salaryMax ? { "minValue": job.salaryMin, "maxValue": job.salaryMax } : {}),
-          ...(job.salaryMin && !job.salaryMax ? { "value": job.salaryMin } : {}),
-          ...(!job.salaryMin && job.salaryMax ? { "value": job.salaryMax } : {}),
-          "unitText": "YEAR"
+          "value": job.salary,
+          "unitText": salaryUnitMap[job.salaryUnit?.toLowerCase()] || "YEAR"
         }
       }
     } : {})
