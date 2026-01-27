@@ -1,0 +1,545 @@
+import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
+
+const BASE_URL = 'https://ifs-safeguarding.co.uk';
+const DEFAULT_OG_IMAGE = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b9a3d96daf168696381e05/ifs-og-image.png';
+
+// Map URL paths to page names (for clean URLs and legacy URLs)
+const pathToPageName = {
+  '/': 'Home',
+  '/Home': 'Home',
+  '/About': 'About',
+  '/about': 'About',
+  '/Contact': 'Contact',
+  '/contact': 'Contact',
+  '/Events': 'Events',
+  '/events': 'Events',
+  '/EventDetails': 'EventDetails',
+  '/Conferences': 'Conferences',
+  '/conferences': 'Conferences',
+  '/ForumsAndWorkshops': 'ForumsAndWorkshops',
+  '/forums-and-workshops': 'ForumsAndWorkshops',
+  '/Training': 'Training',
+  '/courses': 'Training',
+  '/TrainingCourseDetails': 'TrainingCourseDetails',
+  '/CPDTrainingMarketing': 'CPDTrainingMarketing',
+  '/training': 'CPDTrainingMarketing',
+  '/IntroductoryCourses': 'IntroductoryCourses',
+  '/introductory-courses': 'IntroductoryCourses',
+  '/AdvancedCourses': 'AdvancedCourses',
+  '/advanced-courses': 'AdvancedCourses',
+  '/RefresherCourses': 'RefresherCourses',
+  '/refresher-courses': 'RefresherCourses',
+  '/SpecialistCourses': 'SpecialistCourses',
+  '/specialist-courses': 'SpecialistCourses',
+  '/job': 'Jobs',
+  '/Jobs': 'Jobs',
+  '/join': 'Jobs',
+  '/JobsBoardMarketing': 'JobsBoardMarketing',
+  '/WhyJoinUs': 'WhyJoinUs',
+  '/why-join-us': 'WhyJoinUs',
+  '/Membership': 'Membership',
+  '/membership': 'Membership',
+  '/MembershipTiers': 'MembershipTiers',
+  '/membership-tiers': 'MembershipTiers',
+  '/MembershipPlans': 'MembershipPlans',
+  '/membership-plans': 'MembershipPlans',
+  '/MemberBenefits': 'MemberBenefits',
+  '/member-benefits': 'MemberBenefits',
+  '/AssociateMembership': 'AssociateMembership',
+  '/associate-membership': 'AssociateMembership',
+  '/FullMembership': 'FullMembership',
+  '/full-membership': 'FullMembership',
+  '/Fellowship': 'Fellowship',
+  '/fellowship': 'Fellowship',
+  '/JoinUs': 'JoinUs',
+  '/joinus': 'JoinUs',
+  '/SupervisionServicesMarketing': 'SupervisionServicesMarketing',
+  '/supervision': 'SupervisionServicesMarketing',
+  '/SignpostingService': 'SignpostingService',
+  '/signposting': 'SignpostingService',
+  '/ResearchAndAdvocacy': 'ResearchAndAdvocacy',
+  '/research': 'ResearchAndAdvocacy',
+  '/Team': 'Team',
+  '/team': 'Team',
+  '/Governance': 'Governance',
+  '/governance': 'Governance',
+  '/IfSBoard': 'IfSBoard',
+  '/board': 'IfSBoard',
+  '/ArticlesOfAssociation': 'ArticlesOfAssociation',
+  '/articles-of-association': 'ArticlesOfAssociation',
+  '/PrivacyPolicy': 'PrivacyPolicy',
+  '/privacy-policy': 'PrivacyPolicy',
+  '/TermsAndConditions': 'TermsAndConditions',
+  '/terms': 'TermsAndConditions',
+  '/CookiePolicy': 'CookiePolicy',
+  '/cookie-policy': 'CookiePolicy',
+  '/Sitemap': 'Sitemap',
+  '/sitemap': 'Sitemap',
+  '/NotFound': 'NotFound',
+  '/VerifyCredential': 'VerifyCredential',
+  '/verify': 'VerifyCredential',
+  '/RegisteredOrganisation': 'RegisteredOrganisation',
+  '/registered-organisation': 'RegisteredOrganisation',
+  '/EventRegistrationSuccess': 'EventRegistrationSuccess',
+  '/event-registration-success': 'EventRegistrationSuccess',
+  '/ApplicationPending': 'ApplicationPending',
+  '/application-pending': 'ApplicationPending',
+  '/MemberAccessRequired': 'MemberAccessRequired',
+  '/member-access-required': 'MemberAccessRequired',
+};
+
+// Comprehensive SEO configuration for all pages
+export const pageSEO = {
+  // === MAIN MARKETING PAGES ===
+  Home: {
+    title: 'Independent Federation for Safeguarding',
+    description: "Join the UK's trusted professional body for safeguarding. Connect with peers, access essential resources, and advance your expertise through our comprehensive platform designed for safeguarding professionals.",
+    canonical: '/',
+    ogTitle: "Independent Federation for Safeguarding - UK's Professional Body for Safeguarding",
+    ogDescription: "Join the UK's trusted professional body for safeguarding. Connect with peers, access essential resources, and advance your expertise.",
+  },
+  About: {
+    title: 'About Us - Independent Federation for Safeguarding',
+    description: 'The Independent Federation for Safeguarding (IfS) was founded by professionals, for professionals. We provide an independent platform where safeguarding leaders can connect, share knowledge, and access support.',
+    canonical: '/About',
+    ogTitle: 'About Us - Independent Federation for Safeguarding',
+    ogDescription: 'Supporting safeguarding excellence across the UK through community, evidence-based practice, and professional innovation.',
+  },
+  Contact: {
+    title: 'Contact Us - Independent Federation for Safeguarding',
+    description: 'Contact the Independent Federation for Safeguarding. Our dedicated team provides comprehensive support to safeguarding professionals across the UK. Get in touch for membership, services, and professional development enquiries.',
+    canonical: '/Contact',
+    ogTitle: 'Contact Us - Independent Federation for Safeguarding',
+    ogDescription: 'Get in touch with IfS for membership enquiries, professional development, and safeguarding support.',
+  },
+
+  // === EVENTS ===
+  Events: {
+    title: 'Events - Independent Federation for Safeguarding',
+    description: 'Connect with peers, share knowledge, and advance your practice through our expert-led events. Discover masterclasses, forums, information sessions, and networking events for safeguarding professionals.',
+    canonical: '/Events',
+    ogTitle: 'Professional Events & Networking - IfS',
+    ogDescription: 'Expert-led masterclasses, forums, and networking events for safeguarding professionals across the UK.',
+  },
+  EventDetails: {
+    title: 'Event Details - Independent Federation for Safeguarding',
+    description: 'View event details, register for upcoming masterclasses, workshops, and networking events for safeguarding professionals.',
+    canonical: '/EventDetails',
+    ogTitle: 'Event Details - IfS',
+    ogDescription: 'Expert-led professional development events for safeguarding professionals.',
+  },
+  Conferences: {
+    title: 'Conferences - Independent Federation for Safeguarding',
+    description: 'Join our flagship safeguarding conferences featuring industry leaders, expert panels, and networking opportunities for safeguarding professionals across the UK.',
+    canonical: '/Conferences',
+    ogTitle: 'Safeguarding Conferences - IfS',
+    ogDescription: 'Premier conferences for safeguarding professionals featuring expert speakers and networking.',
+  },
+  ForumsAndWorkshops: {
+    title: 'Forums & Workshops - Independent Federation for Safeguarding',
+    description: 'Participate in interactive forums and hands-on workshops designed to enhance your safeguarding practice through peer learning and expert guidance.',
+    canonical: '/ForumsAndWorkshops',
+    ogTitle: 'Forums & Workshops - IfS',
+    ogDescription: 'Interactive learning experiences for safeguarding professionals.',
+  },
+
+  // === TRAINING ===
+  Training: {
+    title: 'Training - Independent Federation for Safeguarding',
+    description: 'Advance your safeguarding expertise with our comprehensive, CPD-accredited training portfolio. Expert-led courses for all experience levels, from foundation to specialist safeguarding training.',
+    canonical: '/Training',
+    ogTitle: 'CPD-Accredited Safeguarding Training - IfS',
+    ogDescription: 'Comprehensive training portfolio for safeguarding professionals at all career stages.',
+  },
+  TrainingCourseDetails: {
+    title: 'Course Details - Independent Federation for Safeguarding',
+    description: 'View course details, learning outcomes, and book your place on our CPD-accredited safeguarding training courses.',
+    canonical: '/TrainingCourseDetails',
+    ogTitle: 'Course Details - IfS Training',
+    ogDescription: 'CPD-accredited safeguarding training course details and booking.',
+  },
+  IntroductoryCourses: {
+    title: 'Foundation Courses - Independent Federation for Safeguarding',
+    description: 'Start your safeguarding journey with our foundation courses. Essential training for those new to safeguarding or looking to refresh their core knowledge.',
+    canonical: '/IntroductoryCourses',
+    ogTitle: 'Foundation Safeguarding Courses - IfS',
+    ogDescription: 'Essential safeguarding training for beginners and those refreshing core knowledge.',
+  },
+  AdvancedCourses: {
+    title: 'Advanced Courses - Independent Federation for Safeguarding',
+    description: 'Deepen your expertise with advanced safeguarding courses. Designed for experienced practitioners seeking to enhance their specialist knowledge.',
+    canonical: '/AdvancedCourses',
+    ogTitle: 'Advanced Safeguarding Courses - IfS',
+    ogDescription: 'Specialist training for experienced safeguarding practitioners.',
+  },
+  RefresherCourses: {
+    title: 'Refresher Courses - Independent Federation for Safeguarding',
+    description: 'Keep your safeguarding knowledge current with our refresher courses. Stay updated on best practices, policy changes, and emerging issues.',
+    canonical: '/RefresherCourses',
+    ogTitle: 'Safeguarding Refresher Courses - IfS',
+    ogDescription: 'Stay current with safeguarding best practices and policy updates.',
+  },
+  SpecialistCourses: {
+    title: 'Specialist Courses - Independent Federation for Safeguarding',
+    description: 'Develop specialist skills with our focused short courses. Targeted training on specific safeguarding topics and emerging areas of practice.',
+    canonical: '/SpecialistCourses',
+    ogTitle: 'Specialist Safeguarding Courses - IfS',
+    ogDescription: 'Focused training on specialist safeguarding topics.',
+  },
+  CPDTrainingMarketing: {
+    title: 'CPD & Training - Independent Federation for Safeguarding',
+    description: 'Invest in your professional development with IfS CPD-accredited training. Earn CPD hours while advancing your safeguarding expertise.',
+    canonical: '/CPDTrainingMarketing',
+    ogTitle: 'CPD & Professional Development - IfS',
+    ogDescription: 'Earn CPD hours with accredited safeguarding training.',
+  },
+
+  // === JOBS ===
+  Jobs: {
+    title: 'Jobs Board - Independent Federation for Safeguarding',
+    description: 'Find your next safeguarding role with our comprehensive jobs board. Discover opportunities across all sectors and experience levels, from entry-level positions to senior leadership roles.',
+    canonical: '/Jobs',
+    ogTitle: 'Safeguarding Jobs Board - IfS',
+    ogDescription: 'Find safeguarding opportunities across the UK, from entry-level to senior leadership.',
+  },
+  JobsBoardMarketing: {
+    title: 'Jobs Board - Independent Federation for Safeguarding',
+    description: 'Explore safeguarding career opportunities across the UK. Our jobs board connects talented professionals with organisations committed to safeguarding excellence.',
+    canonical: '/JobsBoardMarketing',
+    ogTitle: 'Safeguarding Careers - IfS Jobs Board',
+    ogDescription: 'Connect with safeguarding employers across the UK.',
+  },
+  JobDetailsPublic: {
+    title: 'Job Details - Independent Federation for Safeguarding',
+    description: 'View job details and apply for safeguarding positions across the UK.',
+    canonical: '/JobDetailsPublic',
+    ogTitle: 'Job Details - IfS Jobs Board',
+    ogDescription: 'Safeguarding job opportunity details and application.',
+  },
+
+  // === MEMBERSHIP ===
+  WhyJoinUs: {
+    title: 'Why Join Us - Independent Federation for Safeguarding',
+    description: 'Connect with a growing network of professionals committed to protecting children and vulnerable adults. Access exclusive resources, expert guidance, and a supportive community that understands your work.',
+    canonical: '/WhyJoinUs',
+    ogTitle: 'Why Join IfS - Benefits of Membership',
+    ogDescription: 'Discover the benefits of joining the UK\'s professional body for safeguarding.',
+  },
+  Membership: {
+    title: 'Membership - Independent Federation for Safeguarding',
+    description: 'Join IfS and become part of the UK\'s leading professional community for safeguarding. Choose from Associate, Full, or Fellowship membership tiers.',
+    canonical: '/Membership',
+    ogTitle: 'IfS Membership - Join Today',
+    ogDescription: 'Become a member of the UK\'s professional body for safeguarding.',
+  },
+  MembershipTiers: {
+    title: 'Membership Tiers - Independent Federation for Safeguarding',
+    description: 'Compare IfS membership tiers and find the right level for your career. From free Associate membership to Full membership with CPD credits and professional recognition.',
+    canonical: '/MembershipTiers',
+    ogTitle: 'Membership Tiers - IfS',
+    ogDescription: 'Compare membership options and benefits.',
+  },
+  MembershipPlans: {
+    title: 'Membership Plans - Independent Federation for Safeguarding',
+    description: 'Choose your IfS membership plan and start your professional safeguarding journey today.',
+    canonical: '/MembershipPlans',
+    ogTitle: 'Membership Plans - IfS',
+    ogDescription: 'Select your membership plan and join IfS.',
+  },
+  MemberBenefits: {
+    title: 'Member Benefits - Independent Federation for Safeguarding',
+    description: 'Discover the full range of IfS member benefits including CPD credits, professional recognition, networking, training discounts, and career support.',
+    canonical: '/MemberBenefits',
+    ogTitle: 'Member Benefits - IfS',
+    ogDescription: 'Explore the benefits of IfS membership.',
+  },
+  AssociateMembership: {
+    title: 'Associate Membership - Independent Federation for Safeguarding',
+    description: 'Join IfS as an Associate Member for free. Access community forums, monthly workshops, and connect with safeguarding professionals across the UK.',
+    canonical: '/AssociateMembership',
+    ogTitle: 'Associate Membership - IfS',
+    ogDescription: 'Free membership with community access and monthly workshops.',
+  },
+  FullMembership: {
+    title: 'Full Membership - Independent Federation for Safeguarding',
+    description: 'Become a Full Member (MIFS) and gain professional recognition, monthly CPD credits, training discounts, and enhanced member benefits.',
+    canonical: '/FullMembership',
+    ogTitle: 'Full Membership (MIFS) - IfS',
+    ogDescription: 'Professional membership with CPD credits and recognition.',
+  },
+  Fellowship: {
+    title: 'Fellowship - Independent Federation for Safeguarding',
+    description: 'IfS Fellowship recognises outstanding contribution to safeguarding practice. Learn about eligibility and how to apply for FIFS designation.',
+    canonical: '/Fellowship',
+    ogTitle: 'Fellowship (FIFS) - IfS',
+    ogDescription: 'Recognition of outstanding safeguarding contribution.',
+  },
+  JoinUs: {
+    title: 'Join Us - Independent Federation for Safeguarding',
+    description: 'Start your IfS membership journey today. Join thousands of safeguarding professionals committed to excellence in protecting children and vulnerable adults.',
+    canonical: '/JoinUs',
+    ogTitle: 'Join IfS Today',
+    ogDescription: 'Become part of the UK\'s safeguarding professional community.',
+  },
+
+  // === SERVICES ===
+  SupervisionServicesMarketing: {
+    title: 'Supervision Services - Independent Federation for Safeguarding',
+    description: 'Access professional safeguarding supervision with IfS. Our qualified supervisors support your practice through reflective sessions, case consultation, and professional development.',
+    canonical: '/SupervisionServicesMarketing',
+    ogTitle: 'Professional Supervision - IfS',
+    ogDescription: 'Expert safeguarding supervision services for practitioners.',
+  },
+  SignpostingService: {
+    title: 'Signposting Service - Independent Federation for Safeguarding',
+    description: 'IfS signposting service connects you with the right resources, support, and guidance for safeguarding queries and professional needs.',
+    canonical: '/SignpostingService',
+    ogTitle: 'Signposting Service - IfS',
+    ogDescription: 'Find the right safeguarding resources and support.',
+  },
+  ResearchAndAdvocacy: {
+    title: 'Research & Advocacy - Independent Federation for Safeguarding',
+    description: 'IfS champions evidence-based safeguarding practice through research, policy advocacy, and professional standards development.',
+    canonical: '/ResearchAndAdvocacy',
+    ogTitle: 'Research & Advocacy - IfS',
+    ogDescription: 'Evidence-based safeguarding research and policy advocacy.',
+  },
+
+  // === ABOUT / GOVERNANCE ===
+  Team: {
+    title: 'Our Team - Independent Federation for Safeguarding',
+    description: 'Meet the dedicated professionals leading IfS forward. Our team combines decades of safeguarding expertise with a passion for supporting professionals across the UK.',
+    canonical: '/Team',
+    ogTitle: 'Our Team - IfS',
+    ogDescription: 'Meet the IfS leadership team and staff.',
+  },
+  Governance: {
+    title: 'Governance - Independent Federation for Safeguarding',
+    description: 'Learn about IfS governance structure, our commitment to transparency, and how we maintain the highest standards of professional integrity.',
+    canonical: '/Governance',
+    ogTitle: 'Governance - IfS',
+    ogDescription: 'IfS governance and organisational structure.',
+  },
+  IfSBoard: {
+    title: 'IfS Board - Independent Federation for Safeguarding',
+    description: 'Meet our Board of Trustees who provide strategic oversight and governance for the Independent Federation for Safeguarding.',
+    canonical: '/IfSBoard',
+    ogTitle: 'Board of Trustees - IfS',
+    ogDescription: 'Meet the IfS Board of Trustees.',
+  },
+  ArticlesOfAssociation: {
+    title: 'Articles of Association - Independent Federation for Safeguarding',
+    description: 'View the Articles of Association governing the Independent Federation for Safeguarding.',
+    canonical: '/ArticlesOfAssociation',
+    ogTitle: 'Articles of Association - IfS',
+    ogDescription: 'IfS constitutional documents.',
+  },
+
+  // === LEGAL ===
+  PrivacyPolicy: {
+    title: 'Privacy Policy - Independent Federation for Safeguarding',
+    description: 'Read the IfS Privacy Policy to understand how we collect, use, and protect your personal information.',
+    canonical: '/PrivacyPolicy',
+    ogTitle: 'Privacy Policy - IfS',
+    ogDescription: 'How IfS handles your personal data.',
+  },
+  TermsAndConditions: {
+    title: 'Terms & Conditions - Independent Federation for Safeguarding',
+    description: 'Review the Terms and Conditions for using IfS services, membership, and website.',
+    canonical: '/TermsAndConditions',
+    ogTitle: 'Terms & Conditions - IfS',
+    ogDescription: 'IfS terms of service and conditions.',
+  },
+  CookiePolicy: {
+    title: 'Cookie Policy - Independent Federation for Safeguarding',
+    description: 'Learn about how IfS uses cookies and similar technologies on our website.',
+    canonical: '/CookiePolicy',
+    ogTitle: 'Cookie Policy - IfS',
+    ogDescription: 'How IfS uses cookies.',
+  },
+
+  // === UTILITY ===
+  Sitemap: {
+    title: 'Sitemap - Independent Federation for Safeguarding',
+    description: 'Navigate all pages on the Independent Federation for Safeguarding website. Find information about membership, training, events, jobs, and more.',
+    canonical: '/Sitemap',
+    ogTitle: 'Sitemap - IfS',
+    ogDescription: 'Complete site navigation for IfS website.',
+  },
+  NotFound: {
+    title: 'Page Not Found - Independent Federation for Safeguarding',
+    description: 'The page you are looking for could not be found. Return to the IfS homepage or use our navigation to find what you need.',
+    canonical: '/NotFound',
+    ogTitle: 'Page Not Found - IfS',
+    ogDescription: 'Page not found.',
+    noindex: true,
+  },
+  VerifyEmail: {
+    title: 'Verify Email - Independent Federation for Safeguarding',
+    description: 'Verify your email address to complete your IfS registration.',
+    canonical: '/VerifyEmail',
+    ogTitle: 'Verify Email - IfS',
+    ogDescription: 'Email verification.',
+    noindex: true,
+  },
+  VerifyCredential: {
+    title: 'Verify Credential - Independent Federation for Safeguarding',
+    description: 'Verify an IfS member credential and professional status.',
+    canonical: '/VerifyCredential',
+    ogTitle: 'Verify Credential - IfS',
+    ogDescription: 'Credential verification.',
+  },
+  RegisteredOrganisation: {
+    title: 'Registered Organisation - Independent Federation for Safeguarding',
+    description: 'Information for IfS registered organisations and corporate membership.',
+    canonical: '/RegisteredOrganisation',
+    ogTitle: 'Registered Organisation - IfS',
+    ogDescription: 'Corporate and organisational membership.',
+  },
+  EventRegistrationSuccess: {
+    title: 'Registration Confirmed - Independent Federation for Safeguarding',
+    description: 'Your event registration has been confirmed.',
+    canonical: '/EventRegistrationSuccess',
+    ogTitle: 'Registration Confirmed - IfS',
+    ogDescription: 'Event registration confirmation.',
+    noindex: true,
+  },
+  ApplicationPending: {
+    title: 'Application Pending - Independent Federation for Safeguarding',
+    description: 'Your membership application is being processed.',
+    canonical: '/ApplicationPending',
+    ogTitle: 'Application Pending - IfS',
+    ogDescription: 'Membership application status.',
+    noindex: true,
+  },
+  MemberAccessRequired: {
+    title: 'Member Access Required - Independent Federation for Safeguarding',
+    description: 'This content is available to IfS members only.',
+    canonical: '/MemberAccessRequired',
+    ogTitle: 'Member Access Required - IfS',
+    ogDescription: 'Members only content.',
+    noindex: true,
+  },
+};
+
+// Portal pages - these are noindexed and just need basic titles
+export const portalPageTitles = {
+  Dashboard: 'Dashboard - IfS Member Portal',
+  AdminDashboard: 'Admin Dashboard - IfS',
+  MemberMasterclasses: 'Masterclasses & Events - IfS Member Portal',
+  MasterclassDetails: 'Masterclass Details - IfS Member Portal',
+  CPDTraining: 'CPD & Training - IfS Member Portal',
+  CourseDetails: 'Course Details - IfS Member Portal',
+  JobsBoard: 'Jobs Board - IfS Member Portal',
+  JobDetails: 'Job Details - IfS Member Portal',
+  MyProfile: 'My Profile - IfS Member Portal',
+  MyCertificates: 'My Certificates - IfS Member Portal',
+  MyCreditHistory: 'My Credit History - IfS Member Portal',
+  MyMasterclassBookings: 'My Bookings - IfS Member Portal',
+  ManageOrganisation: 'Manage Organisation - IfS',
+  OrganisationMembership: 'Organisation Membership - IfS',
+  RequestOrgPayment: 'Request Organisation Payment - IfS',
+  PortalMembershipTiers: 'Membership Tiers - IfS Member Portal',
+  SupervisionServices: 'Supervision Services - IfS Member Portal',
+  CommunityEvents: 'Community Events - IfS Member Portal',
+  CommunityEventDetails: 'Community Event Details - IfS',
+  Forum: 'Community Forum - IfS Member Portal',
+  ForumPostDetails: 'Forum Post - IfS Member Portal',
+  Support: 'Support - IfS Member Portal',
+  AdminSupport: 'Support Admin - IfS',
+  YourVoice: 'Your Voice - IfS Member Portal',
+  Survey: 'Survey - IfS Member Portal',
+  News: 'News & Updates - IfS',
+  Onboarding: 'Welcome - IfS Member Portal',
+  ApplicationProcessing: 'Application Processing - IfS',
+  EditEvent: 'Edit Event - IfS Admin',
+  EditJob: 'Edit Job - IfS Admin',
+  EditCourse: 'Edit Course - IfS Admin',
+  EditSurvey: 'Edit Survey - IfS Admin',
+  EditUser: 'Edit User - IfS Admin',
+  SurveyResponses: 'Survey Responses - IfS Admin',
+  OrgMembers: 'Organisation Members - IfS',
+  OrgJobs: 'Organisation Jobs - IfS',
+  OrgAnalytics: 'Organisation Analytics - IfS',
+  OrgProfile: 'Organisation Profile - IfS',
+  OrgInvoices: 'Organisation Invoices - IfS',
+  ManageOrgSubscription: 'Manage Subscription - IfS',
+};
+
+export default function SEOManager({ pageName, isPortalPage = false }) {
+  const location = useLocation();
+
+  // Derive the actual page name from URL path (since pageName might be "MainSite")
+  const pathname = location.pathname;
+
+  // Check for dynamic routes first (job details, course details, event details)
+  let resolvedPageName = pageName;
+  if (pathname.startsWith('/job/') && pathname !== '/job') {
+    resolvedPageName = 'JobDetailsPublic';
+  } else if (pathname.startsWith('/course/')) {
+    resolvedPageName = 'TrainingCourseDetails';
+  } else if (pathname.startsWith('/event/')) {
+    resolvedPageName = 'EventDetails';
+  } else {
+    // Use path mapping for static routes
+    resolvedPageName = pathToPageName[pathname] || pageName;
+  }
+
+  // For portal pages, just set a simple title (they're noindexed anyway)
+  if (isPortalPage && portalPageTitles[resolvedPageName]) {
+    const title = portalPageTitles[resolvedPageName] || `${resolvedPageName} - IfS Member Portal`;
+    return (
+      <Helmet>
+        <title>{title}</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+    );
+  }
+
+  // For marketing pages, use full SEO config
+  const seo = pageSEO[resolvedPageName];
+
+  // Fallback for pages not in config
+  if (!seo) {
+    const fallbackTitle = resolvedPageName === 'MainSite'
+      ? 'Independent Federation for Safeguarding'
+      : `${resolvedPageName} - Independent Federation for Safeguarding`;
+    return (
+      <Helmet>
+        <title>{fallbackTitle}</title>
+        <meta property="og:title" content={fallbackTitle} />
+        <meta name="twitter:title" content={fallbackTitle} />
+      </Helmet>
+    );
+  }
+
+  const canonicalUrl = `${BASE_URL}${seo.canonical}`;
+
+  return (
+    <Helmet>
+      <title>{seo.title}</title>
+      <meta name="description" content={seo.description} />
+      <link rel="canonical" href={canonicalUrl} />
+
+      {/* Open Graph */}
+      <meta property="og:title" content={seo.ogTitle || seo.title} />
+      <meta property="og:description" content={seo.ogDescription || seo.description} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="Independent Federation for Safeguarding" />
+      <meta property="og:image" content={seo.ogImage || DEFAULT_OG_IMAGE} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={seo.ogTitle || seo.title} />
+      <meta name="twitter:description" content={seo.ogDescription || seo.description} />
+      <meta name="twitter:image" content={seo.ogImage || DEFAULT_OG_IMAGE} />
+
+      {/* Robots */}
+      {seo.noindex && <meta name="robots" content="noindex, nofollow" />}
+    </Helmet>
+  );
+}

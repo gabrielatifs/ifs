@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -52,15 +51,6 @@ export default function WhyJoinUs() {
 
   return (
     <>
-            <Helmet>
-              <title>Why Join Us - Independent Federation for Safeguarding</title>
-              <meta name="description" content="Connect with a growing network of professionals committed to protecting children and vulnerable adults. Access exclusive resources, expert guidance, and a supportive community that understands your work." />
-              <link rel="canonical" href="https://ifs-safeguarding.co.uk/WhyJoinUs" />
-              <meta property="og:title" content="Why Join IfS - Your Professional Body for Safeguarding" />
-              <meta property="og:description" content="Professional development, valuable connections, and comprehensive support for safeguarding practitioners at every career stage." />
-              <meta property="og:url" content="https://ifs-safeguarding.co.uk/WhyJoinUs" />
-              <meta property="og:type" content="website" />
-            </Helmet>
             {/* Hero Section */}
             <section className="relative bg-gray-900 overflow-hidden" style={{ minHeight: '600px' }}>
                 

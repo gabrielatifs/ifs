@@ -112,6 +112,42 @@ export default function Pages() {
                             <Route path="/trusteeelections" element={<TrusteeElections />} />
                             <Route path="/yourvoice" element={<YourVoice />} />
 
+                            {/* Clean URL slugs with hyphens */}
+                            <Route path="/application-processing" element={<ApplicationProcessing />} />
+                            <Route path="/community-events" element={<CommunityEvents />} />
+                            <Route path="/community-event/:id" element={<CommunityEventDetails />} />
+                            <Route path="/course/:id" element={<CourseDetails />} />
+                            <Route path="/cpd-training" element={<CPDTraining />} />
+                            <Route path="/edit-course" element={<EditCourse />} />
+                            <Route path="/edit-event" element={<EditEvent />} />
+                            <Route path="/edit-job" element={<EditJob />} />
+                            <Route path="/edit-survey" element={<EditSurvey />} />
+                            <Route path="/edit-user" element={<EditUser />} />
+                            <Route path="/forum-post/:id" element={<ForumPostDetails />} />
+                            <Route path="/manage-organisation" element={<ManageOrganisation />} />
+                            <Route path="/manage-org-subscription" element={<ManageOrgSubscription />} />
+                            <Route path="/masterclass/:id" element={<MasterclassDetails />} />
+                            <Route path="/masterclasses" element={<MemberMasterclasses />} />
+                            <Route path="/membership-plans" element={<MembershipPlans />} />
+                            <Route path="/my-certificates" element={<MyCertificates />} />
+                            <Route path="/my-credit-history" element={<MyCreditHistory />} />
+                            <Route path="/my-masterclass-bookings" element={<MyMasterclassBookings />} />
+                            <Route path="/my-profile" element={<MyProfile />} />
+                            <Route path="/org-analytics" element={<OrgAnalytics />} />
+                            <Route path="/organisation-membership" element={<OrganisationMembership />} />
+                            <Route path="/org-invoices" element={<OrgInvoices />} />
+                            <Route path="/org-jobs" element={<OrgJobs />} />
+                            <Route path="/org-members" element={<OrgMembers />} />
+                            <Route path="/org-payment" element={<OrgPayment />} />
+                            <Route path="/org-profile" element={<OrgProfile />} />
+                            <Route path="/membership-tiers" element={<PortalMembershipTiers />} />
+                            <Route path="/request-org-payment" element={<RequestOrgPayment />} />
+                            <Route path="/supervision-services" element={<SupervisionServices />} />
+                            <Route path="/survey/:id" element={<Survey />} />
+                            <Route path="/survey-responses" element={<SurveyResponses />} />
+                            <Route path="/trustee-elections" element={<TrusteeElections />} />
+                            <Route path="/your-voice" element={<YourVoice />} />
+
                             {/* 404 catch-all */}
                             <Route path="*" element={<Dashboard />} />
                         </Routes>

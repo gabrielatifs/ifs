@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -48,15 +47,6 @@ export default function Team() {
 
     return (
         <>
-            <Helmet>
-              <title>Our Team - Independent Federation for Safeguarding</title>
-              <meta name="description" content="Meet the dedicated professionals leading IfS forward. Our team combines decades of safeguarding expertise with a passion for supporting professionals across the UK." />
-              <link rel="canonical" href="https://ifs-safeguarding.co.uk/Team" />
-              <meta property="og:title" content="Meet Our Expert Team - IfS" />
-              <meta property="og:description" content="Discover the leadership team and Board of Trustees guiding the Independent Federation for Safeguarding." />
-              <meta property="og:url" content="https://ifs-safeguarding.co.uk/Team" />
-              <meta property="og:type" content="website" />
-            </Helmet>
             <Toaster />
             {/* Hero Section */}
             <section className="relative bg-gray-900 overflow-hidden" style={{ minHeight: '600px' }}>

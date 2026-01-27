@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Badge } from '@ifs/shared/components/ui/badge';
 import { Link } from 'react-router-dom';
@@ -263,15 +262,6 @@ export default function Events() {
 
     return (
         <>
-            <Helmet>
-              <title>Events - Independent Federation for Safeguarding</title>
-              <meta name="description" content="Connect with peers, share knowledge, and advance your practice through our expert-led events. Discover masterclasses, forums, information sessions, and networking events for safeguarding professionals." />
-              <link rel="canonical" href="https://ifs-safeguarding.co.uk/Events" />
-              <meta property="og:title" content="Professional Events & Networking - IfS" />
-              <meta property="og:description" content="Expert-led masterclasses, forums, and networking events for safeguarding professionals across the UK." />
-              <meta property="og:url" content="https://ifs-safeguarding.co.uk/Events" />
-              <meta property="og:type" content="website" />
-            </Helmet>
             {/* Mobile Navigation - Show only on mobile */}
             <div className="lg:hidden">
                 <MainSiteNav variant="solid-mobile" />

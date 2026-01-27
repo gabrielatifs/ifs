@@ -108,6 +108,45 @@ export default function Pages() {
                     <Route path="/VerifyCredential" element={<VerifyCredential />} />
                     <Route path="/WhyJoinUs" element={<WhyJoinUs />} />
 
+                    {/* Clean URL slugs */}
+                    <Route path="/about" element={<About />} />
+                    <Route path="/why-join-us" element={<WhyJoinUs />} />
+                    <Route path="/membership" element={<Membership />} />
+                    <Route path="/membership-tiers" element={<MembershipTiers />} />
+                    <Route path="/membership-plans" element={<MembershipPlans />} />
+                    <Route path="/full-membership" element={<FullMembership />} />
+                    <Route path="/associate-membership" element={<AssociateMembership />} />
+                    <Route path="/member-benefits" element={<MemberBenefits />} />
+                    <Route path="/fellowship" element={<Fellowship />} />
+                    <Route path="/registered-organisation" element={<RegisteredOrganisation />} />
+                    <Route path="/training" element={<CPDTrainingMarketing />} />
+                    <Route path="/courses" element={<Training />} />
+                    <Route path="/introductory-courses" element={<IntroductoryCourses />} />
+                    <Route path="/advanced-courses" element={<AdvancedCourses />} />
+                    <Route path="/refresher-courses" element={<RefresherCourses />} />
+                    <Route path="/specialist-courses" element={<SpecialistCourses />} />
+                    <Route path="/supervision" element={<SupervisionServicesMarketing />} />
+                    <Route path="/signposting" element={<SignpostingService />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/event/:id" element={<EventDetails />} />
+                    <Route path="/event-registration-success" element={<EventRegistrationSuccess />} />
+                    <Route path="/conferences" element={<Conferences />} />
+                    <Route path="/forums-and-workshops" element={<ForumsAndWorkshops />} />
+                    <Route path="/jobs" element={<Navigate to="/job" replace />} />
+                    <Route path="/team" element={<Team />} />
+                    <Route path="/board" element={<IfSBoard />} />
+                    <Route path="/governance" element={<Governance />} />
+                    <Route path="/articles-of-association" element={<ArticlesOfAssociation />} />
+                    <Route path="/research" element={<ResearchAndAdvocacy />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/cookie-policy" element={<CookiePolicy />} />
+                    <Route path="/terms" element={<TermsAndConditions />} />
+                    <Route path="/sitemap" element={<Sitemap />} />
+                    <Route path="/verify" element={<VerifyCredential />} />
+                    <Route path="/application-pending" element={<ApplicationPending />} />
+                    <Route path="/member-access-required" element={<MemberAccessRequired />} />
+
                     {/* 404 catch-all */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>

@@ -14,8 +14,8 @@ import { Loader2 } from 'lucide-react';
 import IncompleteApplicationModal from '../components/marketing/IncompleteApplicationModal';
 import CookieBanner from '../components/marketing/CookieBanner';
 import { ifs } from '@ifs/shared/api/ifsClient';
-import MetaTitleManager from '../components/utils/MetaTitleManager';
 import { HelmetProvider } from 'react-helmet-async';
+import SEOManager from '../components/utils/SEOManager';
 
 const portalPages = ['Dashboard', 'AdminDashboard', 'EditEvent', 'EditJob', 'EditCourse', 'EditSurvey', 'SurveyResponses', 'CPDTraining', 'CourseDetails', 'MemberMasterclasses', 'MasterclassDetails', 'JobsBoard', 'JobDetails', 'SupervisionServices', 'PortalMembershipTiers', 'MyProfile', 'MyCertificates', 'ManageOrganisation', 'OrganisationMembership', 'MyMasterclassBookings', 'RequestOrgPayment', 'Onboarding', 'ApplicationProcessing', 'YourVoice', 'Survey', 'EditUser', 'CommunityEvents', 'CommunityEventDetails', 'Support', 'AdminSupport', 'Forum', 'ForumPostDetails', 'News', 'OrgMembers', 'OrgJobs', 'OrgAnalytics', 'ManageOrgSubscription', 'OrgProfile', 'OrgInvoices'];
 
@@ -305,7 +305,7 @@ export default function Layout({ children, currentPageName }) {
           <UserProvider>
             <PostHogProvider>
               <PathNormalizer />
-              <MetaTitleManager pageName={currentPageName} />
+              <SEOManager pageName={currentPageName} isPortalPage={portalPages.includes(currentPageName)} />
               <LayoutContent currentPageName={currentPageName}>
                 {children}
               </LayoutContent>

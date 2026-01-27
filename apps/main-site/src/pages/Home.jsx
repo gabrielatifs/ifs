@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { ifs } from '@ifs/shared/api/ifsClient';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@ifs/shared/components/ui/card';
@@ -381,18 +380,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Helmet>
-        <title>Home - Independent Federation for Safeguarding</title>
-        <meta name="description" content="Join the UK's trusted professional body for safeguarding. Connect with peers, access essential resources, and advance your expertise through our comprehensive platform designed for safeguarding professionals." />
-        <link rel="canonical" href="https://ifs-safeguarding.co.uk/" />
-        <meta property="og:title" content="Independent Federation for Safeguarding - UK's Professional Body for Safeguarding" />
-        <meta property="og:description" content="Join the UK's trusted professional body for safeguarding. Connect with peers, access essential resources, and advance your expertise." />
-        <meta property="og:url" content="https://ifs-safeguarding.co.uk/" />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Independent Federation for Safeguarding" />
-        <meta name="twitter:description" content="Join the UK's trusted professional body for safeguarding professionals." />
-      </Helmet>
       <Toaster />
       {pendingInvite && (
         <AcceptInviteModal

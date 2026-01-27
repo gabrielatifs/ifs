@@ -1,7 +1,35 @@
 {
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
     { "source": "/robots.txt", "destination": "/api/robots.txt" },
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "headers": [
+    {
+      "source": "/job/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/course/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/event/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    }
+  ],
+  "functions": {
+    "api/render.js": {
+      "maxDuration": 10
+    }
+  }
 }

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -375,15 +374,6 @@ export default function Training() {
 
     return (
         <>
-            <Helmet>
-              <title>CPD & Training - Independent Federation for Safeguarding</title>
-              <meta name="description" content="Advance your safeguarding expertise with our comprehensive, CPD-accredited training portfolio. Expert-led courses for all experience levels, from foundation to specialist safeguarding training." />
-              <link rel="canonical" href="https://ifs-safeguarding.co.uk/Training" />
-              <meta property="og:title" content="Expert Safeguarding Training - IfS" />
-              <meta property="og:description" content="CPD-accredited safeguarding training courses. Flexible delivery options with Full Member discounts and CPD hours." />
-              <meta property="og:url" content="https://ifs-safeguarding.co.uk/Training" />
-              <meta property="og:type" content="website" />
-            </Helmet>
             <div className="lg:hidden">
                 <MainSiteNav variant="solid-mobile" />
             </div>

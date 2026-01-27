@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
 import { User } from '@ifs/shared/api/entities';
@@ -276,20 +275,6 @@ export default function Jobs() {
 
   return (
     <>
-      <Helmet>
-        <title>Jobs Board - Independent Federation for Safeguarding</title>
-        <meta name="description" content="Find your next safeguarding role with our comprehensive jobs board. Discover opportunities across all sectors and experience levels, from entry-level positions to senior leadership roles." />
-        <link rel="canonical" href="https://ifs-safeguarding.co.uk/job" />
-        <meta property="og:title" content="Safeguarding Jobs Board - IfS" />
-        <meta property="og:description" content="Browse safeguarding career opportunities across the UK. Join as a member for full access to application details." />
-        <meta property="og:url" content="https://ifs-safeguarding.co.uk/job" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://ifs-safeguarding.co.uk/og-image.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Safeguarding Jobs Board - IfS" />
-        <meta name="twitter:description" content="Browse safeguarding career opportunities across the UK. Join as a member for full access to application details." />
-        <meta name="twitter:image" content="https://ifs-safeguarding.co.uk/og-image.png" />
-      </Helmet>
       {/* Hero Section */}
       <section className="relative bg-gray-900 overflow-hidden" style={{ minHeight: '600px' }}>
         

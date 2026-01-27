@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
 import { Job, Course, CourseDate, CommunityEvent } from '@ifs/shared/api/entities';
@@ -161,13 +160,6 @@ export default function Sitemap() {
 
   return (
     <>
-      <Helmet>
-        <title>Sitemap | Independent Federation for Safeguarding</title>
-        <meta name="description" content="Navigate all pages on the Independent Federation for Safeguarding website. Find information about membership, training, events, jobs, and more." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={`${window.location.origin}/Sitemap`} />
-      </Helmet>
-
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
         {/* Hero Section */}
         <div className="relative bg-purple-800 overflow-hidden">

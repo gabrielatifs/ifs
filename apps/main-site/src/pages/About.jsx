@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
@@ -36,15 +35,6 @@ export default function About() {
 
   return (
     <>
-            <Helmet>
-              <title>About Us - Independent Federation for Safeguarding</title>
-              <meta name="description" content="The Independent Federation for Safeguarding (IfS) was founded by professionals, for professionals. We provide an independent platform where safeguarding leaders can connect, share knowledge, and access support." />
-              <link rel="canonical" href="https://ifs-safeguarding.co.uk/About" />
-              <meta property="og:title" content="About Us - Independent Federation for Safeguarding" />
-              <meta property="og:description" content="Supporting safeguarding excellence across the UK through community, evidence-based practice, and professional innovation." />
-              <meta property="og:url" content="https://ifs-safeguarding.co.uk/About" />
-              <meta property="og:type" content="website" />
-            </Helmet>
             {/* Hero Section - Full IoD Style */}
             <section className="relative bg-gray-900 overflow-hidden" style={{ minHeight: '600px' }}>
                 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Input } from '@ifs/shared/components/ui/input';
 import { Textarea } from '@ifs/shared/components/ui/textarea';
@@ -137,15 +136,6 @@ export default function Contact() {
 
     return (
         <>
-            <Helmet>
-              <title>Contact Us - Independent Federation for Safeguarding</title>
-              <meta name="description" content="Contact the Independent Federation for Safeguarding. Our dedicated team provides comprehensive support to safeguarding professionals across the UK. Get in touch for membership, services, and professional development enquiries." />
-              <link rel="canonical" href="https://ifs-safeguarding.co.uk/Contact" />
-              <meta property="og:title" content="Contact Us - Independent Federation for Safeguarding" />
-              <meta property="og:description" content="Professional support and enquiries for safeguarding professionals. Expert guidance on membership, services, and professional development." />
-              <meta property="og:url" content="https://ifs-safeguarding.co.uk/Contact" />
-              <meta property="og:type" content="website" />
-            </Helmet>
             <Toaster />
             {/* Hero Section */}
             <section className="relative bg-gray-900 overflow-hidden" style={{ minHeight: '600px' }}>

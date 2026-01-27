@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from '@ifs/shared/utils';
 import { Shield, Twitter, Linkedin, Facebook, Youtube, Instagram, Phone, Mail, MapPin } from 'lucide-react';
 
 export default function MarketingFooter() {
@@ -11,7 +10,7 @@ export default function MarketingFooter() {
           
           {/* Logo & About */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-8 lg:mb-0">
-            <Link to={createPageUrl("Home")} className="flex items-center mb-4">
+            <Link to="/" className="flex items-center mb-4">
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b9a3d96daf168696381e05/36f9296bf_27May-BoardofTrusteesMeeting6.png" 
                   alt="Independent Federation for Safeguarding" 
@@ -27,10 +26,10 @@ export default function MarketingFooter() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">Membership</h3>
             <ul className="space-y-3">
-              <li><Link to={createPageUrl("WhyJoinUs")} className="text-base text-gray-600 hover:text-gray-900">Why Join Us</Link></li>
-              <li><Link to={createPageUrl("MembershipTiers")} className="text-base text-gray-600 hover:text-gray-900">Membership Tiers</Link></li>
-              <li><Link to={createPageUrl("FullMembership")} className="text-base text-gray-600 hover:text-gray-900">Full Membership</Link></li>
-              <li><Link to={createPageUrl("AssociateMembership")} className="text-base text-gray-600 hover:text-gray-900">Associate Membership</Link></li>
+              <li><Link to="/why-join-us" className="text-base text-gray-600 hover:text-gray-900">Why Join Us</Link></li>
+              <li><Link to="/membership-tiers" className="text-base text-gray-600 hover:text-gray-900">Membership Tiers</Link></li>
+              <li><Link to="/full-membership" className="text-base text-gray-600 hover:text-gray-900">Full Membership</Link></li>
+              <li><Link to="/associate-membership" className="text-base text-gray-600 hover:text-gray-900">Associate Membership</Link></li>
             </ul>
           </div>
 
@@ -38,10 +37,10 @@ export default function MarketingFooter() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">Development</h3>
             <ul className="space-y-3">
-              <li><Link to={createPageUrl("CPDTraining")} className="text-base text-gray-600 hover:text-gray-900">CPD & Training</Link></li>
-              <li><Link to={createPageUrl("SupervisionServices")} className="text-base text-gray-600 hover:text-gray-900">Supervision</Link></li>
-              <li><Link to={createPageUrl("Events")} className="text-base text-gray-600 hover:text-gray-900">Events</Link></li>
-              <li><Link to={createPageUrl("Jobs")} className="text-base text-gray-600 hover:text-gray-900">Jobs Board</Link></li>
+              <li><Link to="/training" className="text-base text-gray-600 hover:text-gray-900">CPD & Training</Link></li>
+              <li><Link to="/supervision" className="text-base text-gray-600 hover:text-gray-900">Supervision</Link></li>
+              <li><Link to="/events" className="text-base text-gray-600 hover:text-gray-900">Events</Link></li>
+              <li><Link to="/jobs" className="text-base text-gray-600 hover:text-gray-900">Jobs Board</Link></li>
             </ul>
           </div>
 
@@ -49,11 +48,11 @@ export default function MarketingFooter() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">About IfS</h3>
             <ul className="space-y-3">
-              <li><Link to={createPageUrl("About")} className="text-base text-gray-600 hover:text-gray-900">About Us</Link></li>
-              <li><Link to={createPageUrl("Team")} className="text-base text-gray-600 hover:text-gray-900">Our Team</Link></li>
-              <li><Link to={createPageUrl("Governance")} className="text-base text-gray-600 hover:text-gray-900">Governance</Link></li>
-              <li><Link to={createPageUrl("ResearchAndAdvocacy")} className="text-base text-gray-600 hover:text-gray-900">Research</Link></li>
-              <li><Link to={createPageUrl("Contact")} className="text-base text-gray-600 hover:text-gray-900">Contact</Link></li>
+              <li><Link to="/about" className="text-base text-gray-600 hover:text-gray-900">About Us</Link></li>
+              <li><Link to="/team" className="text-base text-gray-600 hover:text-gray-900">Our Team</Link></li>
+              <li><Link to="/governance" className="text-base text-gray-600 hover:text-gray-900">Governance</Link></li>
+              <li><Link to="/research" className="text-base text-gray-600 hover:text-gray-900">Research</Link></li>
+              <li><Link to="/contact" className="text-base text-gray-600 hover:text-gray-900">Contact</Link></li>
             </ul>
           </div>
 
@@ -61,10 +60,10 @@ export default function MarketingFooter() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">Legal</h3>
             <ul className="space-y-3">
-              <li><Link to={createPageUrl("PrivacyPolicy")} className="text-base text-gray-600 hover:text-gray-900">Privacy Policy</Link></li>
-              <li><Link to={createPageUrl("CookiePolicy")} className="text-base text-gray-600 hover:text-gray-900">Cookie Policy</Link></li>
-              <li><Link to={createPageUrl("TermsAndConditions")} className="text-base text-gray-600 hover:text-gray-900">Terms and Conditions</Link></li>
-              <li><Link to={createPageUrl("Sitemap")} className="text-base text-gray-600 hover:text-gray-900">Sitemap</Link></li>
+              <li><Link to="/privacy-policy" className="text-base text-gray-600 hover:text-gray-900">Privacy Policy</Link></li>
+              <li><Link to="/cookie-policy" className="text-base text-gray-600 hover:text-gray-900">Cookie Policy</Link></li>
+              <li><Link to="/terms" className="text-base text-gray-600 hover:text-gray-900">Terms and Conditions</Link></li>
+              <li><Link to="/sitemap" className="text-base text-gray-600 hover:text-gray-900">Sitemap</Link></li>
             </ul>
           </div>
         </div>
