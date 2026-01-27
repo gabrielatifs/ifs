@@ -30,9 +30,9 @@ export default function PathNormalizer() {
             return;
         }
 
-        // This handles root paths like / or /app-slug/
-        if (pathSegments.length < 2) {
-            console.log('[PathNormalizer] Path too short, returning');
+        // Skip root path
+        if (pathSegments.length === 0) {
+            console.log('[PathNormalizer] Root path, returning');
             return;
         }
 

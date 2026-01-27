@@ -27,6 +27,7 @@ export const pathToPageName = {
   '/Training': 'Training',
   '/courses': 'Training',
   '/TrainingCourseDetails': 'TrainingCourseDetails',
+  '/trainingcoursedetails': 'TrainingCourseDetails',
   '/CPDTrainingMarketing': 'CPDTrainingMarketing',
   '/training': 'CPDTrainingMarketing',
   '/IntroductoryCourses': 'IntroductoryCourses',

@@ -62,15 +62,22 @@ export default function SEOManager({ pageName, isPortalPage = false }) {
 
   // Check for dynamic routes first (job details, course details, event details)
   let resolvedPageName = pageName;
-  if (pathname.startsWith('/job/') && pathname !== '/job') {
+  if ((pathname.startsWith('/job/') || pathname.startsWith('/join/')) && pathname !== '/job' && pathname !== '/join') {
     resolvedPageName = 'JobDetailsPublic';
   } else if (pathname.startsWith('/course/')) {
     resolvedPageName = 'TrainingCourseDetails';
   } else if (pathname.startsWith('/event/')) {
     resolvedPageName = 'EventDetails';
   } else {
-    // Use path mapping for static routes
-    resolvedPageName = pathToPageName[pathname] || pageName;
+    // Use path mapping for static routes (exact match first, then case-insensitive fallback)
+    resolvedPageName = pathToPageName[pathname];
+    if (!resolvedPageName) {
+      const lowerPath = pathname.toLowerCase();
+      const matchedKey = Object.keys(pathToPageName).find(
+        key => key.toLowerCase() === lowerPath
+      );
+      resolvedPageName = matchedKey ? pathToPageName[matchedKey] : pageName;
+    }
   }
 
   // For portal pages, just set a simple title (they're noindexed anyway)
