@@ -5,9 +5,6 @@ import {
   DEFAULT_OG_IMAGE,
   pageSEO,
   pathToPageName,
-  ORGANIZATION_JSONLD,
-  WEBSITE_JSONLD,
-  buildBreadcrumbJsonLd,
 } from '../../seo-config.js';
 
 // Re-export pageSEO so existing imports from this file still work
@@ -105,8 +102,6 @@ export default function SEOManager({ pageName, isPortalPage = false }) {
   }
 
   const canonicalUrl = `${BASE_URL}${seo.canonical}`;
-  const breadcrumbJsonLd = buildBreadcrumbJsonLd(resolvedPageName);
-  const isHomepage = resolvedPageName === 'Home';
 
   return (
     <Helmet>
@@ -136,19 +131,6 @@ export default function SEOManager({ pageName, isPortalPage = false }) {
 
       {/* Robots */}
       {seo.noindex && <meta name="robots" content="noindex, nofollow" />}
-
-      {/* Structured Data - Organization */}
-      <script type="application/ld+json">{JSON.stringify(ORGANIZATION_JSONLD)}</script>
-
-      {/* Structured Data - WebSite (homepage only) */}
-      {isHomepage && (
-        <script type="application/ld+json">{JSON.stringify(WEBSITE_JSONLD)}</script>
-      )}
-
-      {/* Structured Data - Breadcrumbs */}
-      {breadcrumbJsonLd && (
-        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
-      )}
     </Helmet>
   );
 }
