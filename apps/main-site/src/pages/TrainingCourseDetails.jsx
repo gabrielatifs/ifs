@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Course } from '@ifs/shared/api/entities';
 import { CourseVariant } from '@ifs/shared/api/entities';
@@ -472,6 +473,98 @@ export default function TrainingCourseDetails() {
         }
     }, [courseDates]);
 
+    // Structured data (JSON-LD) for Course schema
+    useEffect(() => {
+        if (!course) return;
+
+        const structuredData = {
+            "@context": "https://schema.org",
+            "@type": "Course",
+            "name": course.title,
+            "description": course.overview || course.description || '',
+            "provider": {
+                "@type": "Organization",
+                "name": "Independent Federation for Safeguarding",
+                "url": "https://www.join-ifs.org",
+            },
+        };
+
+        if (course.level) {
+            structuredData.educationalLevel = course.level;
+        }
+
+        // Add course instances from available dates
+        if (courseDates && courseDates.length > 0) {
+            structuredData.hasCourseInstance = courseDates.map((cd) => {
+                const instance = {
+                    "@type": "CourseInstance",
+                    "courseMode": displayData.format.length > 0 ? displayData.format.join(', ') : 'Blended',
+                };
+                if (cd.date) instance.startDate = cd.date;
+                if (cd.location) {
+                    instance.location = { "@type": "Place", "name": cd.location };
+                }
+                return instance;
+            });
+        }
+
+        // Add topics/keywords
+        const topics = normalizeList(course.tags);
+        if (topics.length > 0) {
+            structuredData.about = topics;
+        }
+
+        const scriptId = 'course-structured-data';
+        let script = document.getElementById(scriptId);
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(structuredData);
+
+        // FAQ schema — only if the course has FAQ data
+        let faqData = course.faq;
+        if (typeof faqData === 'string') {
+            try { faqData = JSON.parse(faqData); } catch { faqData = null; }
+        }
+        const faqItems = Array.isArray(faqData)
+            ? faqData.filter(item => item && item.question && item.answer)
+            : [];
+
+        const faqScriptId = 'course-faq-structured-data';
+        if (faqItems.length > 0) {
+            const faqJsonLd = {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": faqItems.map((item) => ({
+                    "@type": "Question",
+                    "name": item.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": item.answer,
+                    },
+                })),
+            };
+            let faqScript = document.getElementById(faqScriptId);
+            if (!faqScript) {
+                faqScript = document.createElement('script');
+                faqScript.id = faqScriptId;
+                faqScript.type = 'application/ld+json';
+                document.head.appendChild(faqScript);
+            }
+            faqScript.textContent = JSON.stringify(faqJsonLd);
+        }
+
+        return () => {
+            const el = document.getElementById(scriptId);
+            if (el) el.remove();
+            const faqEl = document.getElementById(faqScriptId);
+            if (faqEl) faqEl.remove();
+        };
+    }, [course, courseDates, displayData]);
+
     const handleEnquirySubmit = async (e) => {
         e.preventDefault();
         if (!course) return;
@@ -921,8 +1014,19 @@ export default function TrainingCourseDetails() {
 
     return (
         <>
+            {course && (
+                <Helmet>
+                    <title>{`${course.title} - IfS Training`}</title>
+                    <meta property="og:title" content={course.title} />
+                    <meta name="twitter:title" content={course.title} />
+                    {(course.overview || course.description) && <meta property="og:description" content={(course.overview || course.description).substring(0, 200)} />}
+                    {(course.overview || course.description) && <meta name="twitter:description" content={(course.overview || course.description).substring(0, 200)} />}
+                    {course.imageUrl && <meta property="og:image" content={course.imageUrl} />}
+                    {course.imageUrl && <meta name="twitter:image" content={course.imageUrl} />}
+                </Helmet>
+            )}
             <Toaster />
-            
+
             {/* Hero Header Section */}
             <section className="relative bg-gray-900 overflow-hidden" style={{ minHeight: '600px' }}>
                 {/* Background Image */}

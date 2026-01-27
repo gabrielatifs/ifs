@@ -427,3 +427,139 @@ export const pageSEO = {
     noindex: true,
   },
 };
+
+// ── Shared structured data (used by SEOManager, prerender, etc.) ──
+
+export const ORGANIZATION_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Independent Federation for Safeguarding',
+  alternateName: 'IfS',
+  url: BASE_URL,
+  logo: DEFAULT_OG_IMAGE,
+  description: "The UK's trusted professional body for safeguarding. Supporting professionals through training, events, supervision, and community.",
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    email: 'info@ifs-safeguarding.co.uk',
+    url: `${BASE_URL}/Contact`,
+  },
+};
+
+export const WEBSITE_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Independent Federation for Safeguarding',
+  alternateName: 'IfS',
+  url: BASE_URL,
+};
+
+// Breadcrumb hierarchy mapping: pageName -> { label, parent (pageName) }
+export const breadcrumbHierarchy = {
+  Home: { label: 'Home', parent: null },
+  About: { label: 'About Us', parent: 'Home' },
+  Contact: { label: 'Contact', parent: 'Home' },
+  Team: { label: 'Our Team', parent: 'About' },
+  Governance: { label: 'Governance', parent: 'About' },
+  IfSBoard: { label: 'Board of Trustees', parent: 'Governance' },
+  ArticlesOfAssociation: { label: 'Articles of Association', parent: 'Governance' },
+  Events: { label: 'Events', parent: 'Home' },
+  EventDetails: { label: 'Event Details', parent: 'Events' },
+  Conferences: { label: 'Conferences', parent: 'Events' },
+  ForumsAndWorkshops: { label: 'Forums & Workshops', parent: 'Events' },
+  Training: { label: 'Training', parent: 'Home' },
+  TrainingCourseDetails: { label: 'Course Details', parent: 'Training' },
+  CPDTrainingMarketing: { label: 'CPD & Training', parent: 'Training' },
+  IntroductoryCourses: { label: 'Foundation Courses', parent: 'Training' },
+  AdvancedCourses: { label: 'Advanced Courses', parent: 'Training' },
+  RefresherCourses: { label: 'Refresher Courses', parent: 'Training' },
+  SpecialistCourses: { label: 'Specialist Courses', parent: 'Training' },
+  Jobs: { label: 'Jobs', parent: 'Home' },
+  JobsBoardMarketing: { label: 'Jobs Board', parent: 'Home' },
+  JobDetailsPublic: { label: 'Job Details', parent: 'Jobs' },
+  Membership: { label: 'Membership', parent: 'Home' },
+  MembershipTiers: { label: 'Membership Tiers', parent: 'Membership' },
+  MemberBenefits: { label: 'Member Benefits', parent: 'Membership' },
+  AssociateMembership: { label: 'Associate Membership', parent: 'Membership' },
+  FullMembership: { label: 'Full Membership', parent: 'Membership' },
+  Fellowship: { label: 'Fellowship', parent: 'Membership' },
+  WhyJoinUs: { label: 'Why Join Us', parent: 'Membership' },
+  JoinUs: { label: 'Join Us', parent: 'Membership' },
+  SupervisionServicesMarketing: { label: 'Supervision Services', parent: 'Home' },
+  SignpostingService: { label: 'Signposting Service', parent: 'Home' },
+  ResearchAndAdvocacy: { label: 'Research & Advocacy', parent: 'Home' },
+  PrivacyPolicy: { label: 'Privacy Policy', parent: 'Home' },
+  TermsAndConditions: { label: 'Terms & Conditions', parent: 'Home' },
+  CookiePolicy: { label: 'Cookie Policy', parent: 'Home' },
+  VerifyCredential: { label: 'Verify Credential', parent: 'Home' },
+  RegisteredOrganisation: { label: 'Registered Organisation', parent: 'Home' },
+  Sitemap: { label: 'Sitemap', parent: 'Home' },
+};
+
+export function buildBreadcrumbJsonLd(resolvedPageName) {
+  const entry = breadcrumbHierarchy[resolvedPageName];
+  if (!entry) return null;
+
+  const trail = [];
+  let current = resolvedPageName;
+  while (current) {
+    const node = breadcrumbHierarchy[current];
+    if (!node) break;
+    const seo = pageSEO[current];
+    trail.unshift({ name: node.label, url: seo ? `${BASE_URL}${seo.canonical}` : BASE_URL });
+    current = node.parent;
+  }
+
+  if (trail.length < 2) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: trail.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+// ── Shared sitemap routes (used by sitemap.xml.js & generateSitemap.js) ──
+
+export const sitemapStaticRoutes = [
+  { path: '/', priority: 1.0, changefreq: 'daily' },
+  { path: '/About', priority: 0.9, changefreq: 'monthly' },
+  { path: '/Membership', priority: 0.9, changefreq: 'weekly' },
+  { path: '/Training', priority: 0.9, changefreq: 'weekly' },
+  { path: '/Events', priority: 0.9, changefreq: 'daily' },
+  { path: '/job', priority: 0.9, changefreq: 'daily' },
+  { path: '/Contact', priority: 0.8, changefreq: 'monthly' },
+  { path: '/MembershipTiers', priority: 0.8, changefreq: 'monthly' },
+  { path: '/MemberBenefits', priority: 0.8, changefreq: 'monthly' },
+  { path: '/AssociateMembership', priority: 0.8, changefreq: 'monthly' },
+  { path: '/FullMembership', priority: 0.8, changefreq: 'monthly' },
+  { path: '/Fellowship', priority: 0.7, changefreq: 'monthly' },
+  { path: '/WhyJoinUs', priority: 0.8, changefreq: 'monthly' },
+  { path: '/JoinUs', priority: 0.8, changefreq: 'monthly' },
+  { path: '/RegisteredOrganisation', priority: 0.7, changefreq: 'monthly' },
+  { path: '/CPDTrainingMarketing', priority: 0.8, changefreq: 'weekly' },
+  { path: '/IntroductoryCourses', priority: 0.7, changefreq: 'weekly' },
+  { path: '/AdvancedCourses', priority: 0.7, changefreq: 'weekly' },
+  { path: '/RefresherCourses', priority: 0.7, changefreq: 'weekly' },
+  { path: '/SpecialistCourses', priority: 0.7, changefreq: 'weekly' },
+  { path: '/Conferences', priority: 0.7, changefreq: 'weekly' },
+  { path: '/ForumsAndWorkshops', priority: 0.7, changefreq: 'weekly' },
+  { path: '/JobsBoardMarketing', priority: 0.8, changefreq: 'daily' },
+  { path: '/SupervisionServicesMarketing', priority: 0.7, changefreq: 'monthly' },
+  { path: '/SignpostingService', priority: 0.6, changefreq: 'monthly' },
+  { path: '/Team', priority: 0.6, changefreq: 'monthly' },
+  { path: '/Governance', priority: 0.5, changefreq: 'monthly' },
+  { path: '/IfSBoard', priority: 0.5, changefreq: 'monthly' },
+  { path: '/ArticlesOfAssociation', priority: 0.4, changefreq: 'yearly' },
+  { path: '/ResearchAndAdvocacy', priority: 0.6, changefreq: 'monthly' },
+  { path: '/PrivacyPolicy', priority: 0.3, changefreq: 'yearly' },
+  { path: '/TermsAndConditions', priority: 0.3, changefreq: 'yearly' },
+  { path: '/CookiePolicy', priority: 0.3, changefreq: 'yearly' },
+  { path: '/VerifyCredential', priority: 0.5, changefreq: 'monthly' },
+  { path: '/Sitemap', priority: 0.3, changefreq: 'weekly' },
+];

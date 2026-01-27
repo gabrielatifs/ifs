@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useLocation, Link } from 'react-router-dom';
 import { Event } from '@ifs/shared/api/entities';
 import { User } from '@ifs/shared/api/entities';
@@ -123,6 +124,64 @@ const EventDetails = () => {
         // `event` changing from null to a value, or `loading` becoming false when event is null (not found).
         fetchUserAndSignupStatus();
     }, [event, loading]); // Dependent on `event` AND `loading` to ensure event data is available and loading state is current.
+
+    // Structured data (JSON-LD) for Event schema
+    useEffect(() => {
+        if (!event) return;
+
+        const eventUrl = `https://www.join-ifs.org/EventDetails?id=${event.id}`;
+        const isOnline = (event.location || '').toLowerCase().includes('online') || !!event.meetingUrl;
+
+        const structuredData = {
+            "@context": "https://schema.org",
+            "@type": "Event",
+            "name": event.title,
+            "description": event.description,
+            "startDate": event.date,
+            "eventAttendanceMode": isOnline
+                ? "https://schema.org/OnlineEventAttendanceMode"
+                : "https://schema.org/OfflineEventAttendanceMode",
+            "eventStatus": "https://schema.org/EventScheduled",
+            "location": isOnline
+                ? { "@type": "VirtualLocation", "url": event.meetingUrl || eventUrl }
+                : { "@type": "Place", "name": event.location, "address": { "@type": "PostalAddress", "name": event.location } },
+            "organizer": {
+                "@type": "Organization",
+                "name": "Independent Federation for Safeguarding",
+                "url": "https://www.join-ifs.org",
+            },
+            "isAccessibleForFree": true,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "GBP",
+                "availability": "https://schema.org/InStock",
+                "url": eventUrl,
+            },
+        };
+
+        if (event.imageUrl) {
+            structuredData.image = event.imageUrl;
+        }
+        if (event.facilitator) {
+            structuredData.performer = { "@type": "Person", "name": event.facilitator };
+        }
+
+        const scriptId = 'event-structured-data';
+        let script = document.getElementById(scriptId);
+        if (!script) {
+            script = document.createElement('script');
+            script.id = scriptId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(structuredData);
+
+        return () => {
+            const el = document.getElementById(scriptId);
+            if (el) el.remove();
+        };
+    }, [event]);
 
     const getEmailWrapper = (content) => wrapEmailHtml(content);
 
@@ -299,6 +358,17 @@ const EventDetails = () => {
 
     return (
         <>
+            {event && (
+                <Helmet>
+                    <title>{`${event.title} - IfS Events`}</title>
+                    <meta property="og:title" content={event.title} />
+                    <meta name="twitter:title" content={event.title} />
+                    {event.description && <meta property="og:description" content={event.description.substring(0, 200)} />}
+                    {event.description && <meta name="twitter:description" content={event.description.substring(0, 200)} />}
+                    {event.imageUrl && <meta property="og:image" content={event.imageUrl} />}
+                    {event.imageUrl && <meta name="twitter:image" content={event.imageUrl} />}
+                </Helmet>
+            )}
             <Toaster />
             {/* Hero Header Section */}
             <section className="relative bg-gray-900 overflow-hidden min-h-[450px] sm:min-h-[500px] lg:min-h-[600px]">

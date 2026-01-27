@@ -12,7 +12,15 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { pageSEO, pathToPageName, BASE_URL, DEFAULT_OG_IMAGE } from '../src/seo-config.js';
+import {
+  pageSEO,
+  pathToPageName,
+  BASE_URL,
+  DEFAULT_OG_IMAGE,
+  ORGANIZATION_JSONLD,
+  WEBSITE_JSONLD,
+  buildBreadcrumbJsonLd,
+} from '../src/seo-config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -67,6 +75,12 @@ function renderRoute(templateHtml, route) {
     `<link rel="canonical" href="${canonicalUrl}" />`
   );
 
+  // hreflang
+  html = html.replace(
+    /<link rel="alternate" hreflang="en-gb" href="[^"]*" \/>/,
+    `<link rel="alternate" hreflang="en-gb" href="${canonicalUrl}" />`
+  );
+
   // Open Graph
   html = html.replace(
     /<meta property="og:title" content="[^"]*" \/>/,
@@ -106,6 +120,17 @@ function renderRoute(templateHtml, route) {
       `<meta name="robots" content="noindex, nofollow" />`
     );
   }
+
+  // Structured Data — inject Organization + WebSite (homepage) + Breadcrumb JSON-LD before </head>
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd(pageName);
+  let structuredDataTags = `\n    <script type="application/ld+json">${JSON.stringify(ORGANIZATION_JSONLD)}</script>`;
+  if (pageName === 'Home') {
+    structuredDataTags += `\n    <script type="application/ld+json">${JSON.stringify(WEBSITE_JSONLD)}</script>`;
+  }
+  if (breadcrumbJsonLd) {
+    structuredDataTags += `\n    <script type="application/ld+json">${JSON.stringify(breadcrumbJsonLd)}</script>`;
+  }
+  html = html.replace('</head>', `${structuredDataTags}\n  </head>`);
 
   return html;
 }

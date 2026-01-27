@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { sitemapStaticRoutes } from '../src/seo-config.js';
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
@@ -6,44 +7,13 @@ const SITE_URL = process.env.VITE_MAIN_SITE_URL || 'https://www.join-ifs.org';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Static routes
-const staticRoutes = [
-  { path: '/', priority: 1.0, changefreq: 'daily' },
-  { path: '/About', priority: 0.9, changefreq: 'monthly' },
-  { path: '/Membership', priority: 0.9, changefreq: 'weekly' },
-  { path: '/Training', priority: 0.9, changefreq: 'weekly' },
-  { path: '/Events', priority: 0.9, changefreq: 'daily' },
-  { path: '/job', priority: 0.9, changefreq: 'daily' },
-  { path: '/Contact', priority: 0.8, changefreq: 'monthly' },
-  { path: '/MembershipTiers', priority: 0.8, changefreq: 'monthly' },
-  { path: '/MemberBenefits', priority: 0.8, changefreq: 'monthly' },
-  { path: '/AssociateMembership', priority: 0.8, changefreq: 'monthly' },
-  { path: '/FullMembership', priority: 0.8, changefreq: 'monthly' },
-  { path: '/Fellowship', priority: 0.7, changefreq: 'monthly' },
-  { path: '/WhyJoinUs', priority: 0.8, changefreq: 'monthly' },
-  { path: '/JoinUs', priority: 0.8, changefreq: 'monthly' },
-  { path: '/RegisteredOrganisation', priority: 0.7, changefreq: 'monthly' },
-  { path: '/CPDTrainingMarketing', priority: 0.8, changefreq: 'weekly' },
-  { path: '/IntroductoryCourses', priority: 0.7, changefreq: 'weekly' },
-  { path: '/AdvancedCourses', priority: 0.7, changefreq: 'weekly' },
-  { path: '/RefresherCourses', priority: 0.7, changefreq: 'weekly' },
-  { path: '/SpecialistCourses', priority: 0.7, changefreq: 'weekly' },
-  { path: '/Conferences', priority: 0.7, changefreq: 'weekly' },
-  { path: '/ForumsAndWorkshops', priority: 0.7, changefreq: 'weekly' },
-  { path: '/JobsBoardMarketing', priority: 0.8, changefreq: 'daily' },
-  { path: '/SupervisionServicesMarketing', priority: 0.7, changefreq: 'monthly' },
-  { path: '/SignpostingService', priority: 0.6, changefreq: 'monthly' },
-  { path: '/Team', priority: 0.6, changefreq: 'monthly' },
-  { path: '/Governance', priority: 0.5, changefreq: 'monthly' },
-  { path: '/IfSBoard', priority: 0.5, changefreq: 'monthly' },
-  { path: '/ArticlesOfAssociation', priority: 0.4, changefreq: 'yearly' },
-  { path: '/ResearchAndAdvocacy', priority: 0.6, changefreq: 'monthly' },
-  { path: '/PrivacyPolicy', priority: 0.3, changefreq: 'yearly' },
-  { path: '/TermsAndConditions', priority: 0.3, changefreq: 'yearly' },
-  { path: '/CookiePolicy', priority: 0.3, changefreq: 'yearly' },
-  { path: '/VerifyCredential', priority: 0.5, changefreq: 'monthly' },
-  { path: '/Sitemap', priority: 0.3, changefreq: 'weekly' },
-];
+// Computed once at deploy/cold-start time — reflects the deployment date
+// rather than the current request date, so static pages don't falsely appear
+// "modified today" on every crawl.
+const BUILD_DATE = new Date().toISOString().split('T')[0];
+
+// Add lastmod to shared static routes
+const staticRoutes = sitemapStaticRoutes.map(route => ({ ...route, lastmod: BUILD_DATE }));
 
 function generateJobSlug(job) {
   const title = job.title || '';
