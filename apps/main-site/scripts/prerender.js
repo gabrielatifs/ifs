@@ -213,6 +213,13 @@ async function prerender() {
 }
 
 prerender().catch((error) => {
+  // If Puppeteer/Chrome can't launch (e.g. missing system libraries on Vercel),
+  // exit gracefully. The edge middleware + render API handle crawler SEO as a fallback.
+  if (error.message && error.message.includes('Failed to launch the browser process')) {
+    console.warn('⚠️  Pre-render skipped: Chrome not available in this environment.');
+    console.warn('   Crawler SEO is still handled by edge middleware + /api/render.');
+    process.exit(0);
+  }
   console.error('Pre-render failed:', error);
   process.exit(1);
 });
