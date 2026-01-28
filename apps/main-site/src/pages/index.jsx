@@ -69,18 +69,79 @@ export default function Pages() {
                     {/* Default route */}
                     <Route path="/" element={<Home />} />
 
-                    {/* Legacy PascalCase redirects to lowercase canonical URLs */}
+                    {/* ===== Component routes (must come before legacy redirects) ===== */}
+                    {/* React Router v7 matches routes case-insensitively by default. */}
+                    {/* Component routes must be defined before same-cased redirects */}
+                    {/* to prevent redirects from shadowing actual page components. */}
+
+                    {/* Standalone page routes */}
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/governance" element={<Governance />} />
+                    <Route path="/team" element={<Team />} />
+                    <Route path="/conferences" element={<Conferences />} />
+                    <Route path="/sitemap" element={<Sitemap />} />
+                    <Route path="/board" element={<IfSBoard />} />
+                    <Route path="/articles-of-association" element={<ArticlesOfAssociation />} />
+                    <Route path="/research" element={<ResearchAndAdvocacy />} />
+                    <Route path="/jobs-board" element={<JobsBoardMarketing />} />
+                    <Route path="/join-us" element={<JoinUs />} />
+                    <Route path="/membership-tiers" element={<MembershipTiers />} />
+                    <Route path="/membership-plans" element={<MembershipPlans />} />
+                    <Route path="/registered-organisation" element={<RegisteredOrganisation />} />
+                    <Route path="/supervision" element={<SupervisionServicesMarketing />} />
+                    <Route path="/signposting" element={<SignpostingService />} />
+                    <Route path="/event-registration-success" element={<EventRegistrationSuccess />} />
+                    <Route path="/forums-and-workshops" element={<ForumsAndWorkshops />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/cookie-policy" element={<CookiePolicy />} />
+                    <Route path="/terms" element={<TermsAndConditions />} />
+                    <Route path="/verify" element={<VerifyCredential />} />
+                    <Route path="/application-pending" element={<ApplicationPending />} />
+                    <Route path="/member-access-required" element={<MemberAccessRequired />} />
+
+                    {/* Membership folder routes */}
+                    <Route path="/membership" element={<Membership />} />
+                    <Route path="/membership/associate-membership" element={<AssociateMembership />} />
+                    <Route path="/membership/full-membership" element={<FullMembership />} />
+                    <Route path="/membership/fellowship" element={<Fellowship />} />
+                    <Route path="/membership/member-benefits" element={<MemberBenefits />} />
+                    <Route path="/membership/why-join-us" element={<WhyJoinUs />} />
+
+                    {/* Training folder routes */}
+                    <Route path="/training" element={<Training />} />
+                    <Route path="/training/cpd-training" element={<CPDTrainingMarketing />} />
+                    <Route path="/training/introductory-courses" element={<IntroductoryCourses />} />
+                    <Route path="/training/advanced-courses" element={<AdvancedCourses />} />
+                    <Route path="/training/refresher-courses" element={<RefresherCourses />} />
+                    <Route path="/training/specialist-courses" element={<SpecialistCourses />} />
+                    <Route path="/training/:slug" element={<TrainingCourseDetails />} />
+
+                    {/* Events folder routes */}
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/events/:id" element={<EventDetails />} />
+
+                    {/* Jobs folder routes */}
+                    <Route path="/jobs" element={<Jobs />} />
+                    <Route path="/jobs/:slug" element={<JobDetailsPublic />} />
+
+                    {/* ===== Legacy redirects (after component routes) ===== */}
+                    {/* PascalCase and old URL redirects to canonical lowercase URLs */}
+
+                    {/* Standalone page redirects */}
                     <Route path="/About" element={<Navigate to="/about" replace />} />
+                    <Route path="/Contact" element={<Navigate to="/contact" replace />} />
+                    <Route path="/Conferences" element={<Navigate to="/conferences" replace />} />
+                    <Route path="/Governance" element={<Navigate to="/governance" replace />} />
+                    <Route path="/Team" element={<Navigate to="/team" replace />} />
+                    <Route path="/Sitemap" element={<Navigate to="/sitemap" replace />} />
+                    <Route path="/Home" element={<Navigate to="/" replace />} />
+                    <Route path="/IfSBoard" element={<Navigate to="/board" replace />} />
                     <Route path="/ApplicationPending" element={<Navigate to="/application-pending" replace />} />
                     <Route path="/ArticlesOfAssociation" element={<Navigate to="/articles-of-association" replace />} />
-                    <Route path="/Conferences" element={<Navigate to="/conferences" replace />} />
-                    <Route path="/Contact" element={<Navigate to="/contact" replace />} />
                     <Route path="/CookiePolicy" element={<Navigate to="/cookie-policy" replace />} />
                     <Route path="/EventRegistrationSuccess" element={<Navigate to="/event-registration-success" replace />} />
                     <Route path="/ForumsAndWorkshops" element={<Navigate to="/forums-and-workshops" replace />} />
-                    <Route path="/Governance" element={<Navigate to="/governance" replace />} />
-                    <Route path="/Home" element={<Navigate to="/" replace />} />
-                    <Route path="/IfSBoard" element={<Navigate to="/board" replace />} />
                     <Route path="/JobsBoardMarketing" element={<Navigate to="/jobs-board" replace />} />
                     <Route path="/JoinUs" element={<Navigate to="/join-us" replace />} />
                     <Route path="/joinus" element={<Navigate to="/join-us" replace />} />
@@ -91,19 +152,11 @@ export default function Pages() {
                     <Route path="/RegisteredOrganisation" element={<Navigate to="/registered-organisation" replace />} />
                     <Route path="/ResearchAndAdvocacy" element={<Navigate to="/research" replace />} />
                     <Route path="/SignpostingService" element={<Navigate to="/signposting" replace />} />
-                    <Route path="/Sitemap" element={<Navigate to="/sitemap" replace />} />
                     <Route path="/SupervisionServicesMarketing" element={<Navigate to="/supervision" replace />} />
-                    <Route path="/Team" element={<Navigate to="/team" replace />} />
                     <Route path="/TermsAndConditions" element={<Navigate to="/terms" replace />} />
                     <Route path="/VerifyCredential" element={<Navigate to="/verify" replace />} />
 
-                    {/* Membership folder routes */}
-                    <Route path="/membership" element={<Membership />} />
-                    <Route path="/membership/associate-membership" element={<AssociateMembership />} />
-                    <Route path="/membership/full-membership" element={<FullMembership />} />
-                    <Route path="/membership/fellowship" element={<Fellowship />} />
-                    <Route path="/membership/member-benefits" element={<MemberBenefits />} />
-                    <Route path="/membership/why-join-us" element={<WhyJoinUs />} />
+                    {/* Membership legacy redirects */}
                     <Route path="/Membership" element={<Navigate to="/membership" replace />} />
                     <Route path="/Membership/AssociateMembership" element={<Navigate to="/membership/associate-membership" replace />} />
                     <Route path="/Membership/FullMembership" element={<Navigate to="/membership/full-membership" replace />} />
@@ -115,15 +168,13 @@ export default function Pages() {
                     <Route path="/Fellowship" element={<Navigate to="/membership/fellowship" replace />} />
                     <Route path="/MemberBenefits" element={<Navigate to="/membership/member-benefits" replace />} />
                     <Route path="/WhyJoinUs" element={<Navigate to="/membership/why-join-us" replace />} />
+                    <Route path="/why-join-us" element={<Navigate to="/membership/why-join-us" replace />} />
+                    <Route path="/associate-membership" element={<Navigate to="/membership/associate-membership" replace />} />
+                    <Route path="/full-membership" element={<Navigate to="/membership/full-membership" replace />} />
+                    <Route path="/member-benefits" element={<Navigate to="/membership/member-benefits" replace />} />
+                    <Route path="/fellowship" element={<Navigate to="/membership/fellowship" replace />} />
 
-                    {/* Training folder routes */}
-                    <Route path="/training" element={<Training />} />
-                    <Route path="/training/cpd-training" element={<CPDTrainingMarketing />} />
-                    <Route path="/training/introductory-courses" element={<IntroductoryCourses />} />
-                    <Route path="/training/advanced-courses" element={<AdvancedCourses />} />
-                    <Route path="/training/refresher-courses" element={<RefresherCourses />} />
-                    <Route path="/training/specialist-courses" element={<SpecialistCourses />} />
-                    <Route path="/training/:slug" element={<TrainingCourseDetails />} />
+                    {/* Training legacy redirects */}
                     <Route path="/Training" element={<Navigate to="/training" replace />} />
                     <Route path="/Training/IntroductoryCourses" element={<Navigate to="/training/introductory-courses" replace />} />
                     <Route path="/Training/AdvancedCourses" element={<Navigate to="/training/advanced-courses" replace />} />
@@ -139,16 +190,12 @@ export default function Pages() {
                     <Route path="/TrainingCourseDetails" element={<Navigate to="/training" replace />} />
                     <Route path="/trainingcoursedetails" element={<Navigate to="/training" replace />} />
 
-                    {/* Events folder routes */}
-                    <Route path="/events" element={<Events />} />
-                    <Route path="/events/:id" element={<EventDetails />} />
+                    {/* Events legacy redirects */}
                     <Route path="/Events" element={<Navigate to="/events" replace />} />
                     <Route path="/EventDetails" element={<Navigate to="/events" replace />} />
                     <Route path="/event/:id" element={<EventLegacyRedirect />} />
 
-                    {/* Jobs folder routes */}
-                    <Route path="/jobs" element={<Jobs />} />
-                    <Route path="/jobs/:slug" element={<JobDetailsPublic />} />
+                    {/* Jobs legacy redirects */}
                     <Route path="/Jobs" element={<Navigate to="/jobs" replace />} />
                     <Route path="/job" element={<Navigate to="/jobs" replace />} />
                     <Route path="/job/:slug" element={<JobLegacyRedirect />} />
@@ -156,37 +203,6 @@ export default function Pages() {
                     <Route path="/join/:slug" element={<JobLegacyRedirect />} />
                     <Route path="/Job" element={<Navigate to="/jobs" replace />} />
                     <Route path="/JobDetailsPublic" element={<Navigate to="/jobs" replace />} />
-
-                    {/* Clean URL slugs */}
-                    <Route path="/about" element={<About />} />
-                    <Route path="/jobs-board" element={<JobsBoardMarketing />} />
-                    <Route path="/join-us" element={<JoinUs />} />
-                    <Route path="/why-join-us" element={<Navigate to="/membership/why-join-us" replace />} />
-                    <Route path="/associate-membership" element={<Navigate to="/membership/associate-membership" replace />} />
-                    <Route path="/full-membership" element={<Navigate to="/membership/full-membership" replace />} />
-                    <Route path="/member-benefits" element={<Navigate to="/membership/member-benefits" replace />} />
-                    <Route path="/fellowship" element={<Navigate to="/membership/fellowship" replace />} />
-                    <Route path="/membership-tiers" element={<MembershipTiers />} />
-                    <Route path="/membership-plans" element={<MembershipPlans />} />
-                    <Route path="/registered-organisation" element={<RegisteredOrganisation />} />
-                    <Route path="/supervision" element={<SupervisionServicesMarketing />} />
-                    <Route path="/signposting" element={<SignpostingService />} />
-                    <Route path="/event-registration-success" element={<EventRegistrationSuccess />} />
-                    <Route path="/conferences" element={<Conferences />} />
-                    <Route path="/forums-and-workshops" element={<ForumsAndWorkshops />} />
-                    <Route path="/team" element={<Team />} />
-                    <Route path="/board" element={<IfSBoard />} />
-                    <Route path="/governance" element={<Governance />} />
-                    <Route path="/articles-of-association" element={<ArticlesOfAssociation />} />
-                    <Route path="/research" element={<ResearchAndAdvocacy />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/cookie-policy" element={<CookiePolicy />} />
-                    <Route path="/terms" element={<TermsAndConditions />} />
-                    <Route path="/sitemap" element={<Sitemap />} />
-                    <Route path="/verify" element={<VerifyCredential />} />
-                    <Route path="/application-pending" element={<ApplicationPending />} />
-                    <Route path="/member-access-required" element={<MemberAccessRequired />} />
 
                     {/* 404 catch-all */}
                     <Route path="*" element={<NotFound />} />
