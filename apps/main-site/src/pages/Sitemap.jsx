@@ -16,9 +16,9 @@ const sitemapSections = [
     icon: FileText,
     pages: [
       { name: 'Home', path: '/' },
-      { name: 'About Us', path: '/About' },
-      { name: 'Contact', path: '/Contact' },
-      { name: 'Our Team', path: '/Team' },
+      { name: 'About Us', path: '/about' },
+      { name: 'Contact', path: '/contact' },
+      { name: 'Our Team', path: '/team' },
     ],
   },
   {
@@ -26,14 +26,14 @@ const sitemapSections = [
     icon: Users,
     pages: [
       { name: 'Membership Overview', path: '/membership' },
-      { name: 'Membership Tiers', path: '/MembershipTiers' },
+      { name: 'Membership Tiers', path: '/membership-tiers' },
       { name: 'Member Benefits', path: '/membership/member-benefits' },
       { name: 'Associate Membership', path: '/membership/associate-membership' },
       { name: 'Full Membership', path: '/membership/full-membership' },
       { name: 'Fellowship', path: '/membership/fellowship' },
       { name: 'Why Join Us', path: '/membership/why-join-us' },
-      { name: 'Join Us', path: '/JoinUs' },
-      { name: 'For Organisations', path: '/RegisteredOrganisation' },
+      { name: 'Join Us', path: '/join-us' },
+      { name: 'For Organisations', path: '/registered-organisation' },
     ],
   },
   {
@@ -53,8 +53,8 @@ const sitemapSections = [
     icon: Calendar,
     pages: [
       { name: 'All Events', path: '/events' },
-      { name: 'Conferences', path: '/Conferences' },
-      { name: 'Forums & Workshops', path: '/ForumsAndWorkshops' },
+      { name: 'Conferences', path: '/conferences' },
+      { name: 'Forums & Workshops', path: '/forums-and-workshops' },
     ],
   },
   {
@@ -62,34 +62,34 @@ const sitemapSections = [
     icon: Briefcase,
     pages: [
       { name: 'Jobs Board', path: '/jobs' },
-      { name: 'Post a Job', path: '/JobsBoardMarketing' },
+      { name: 'Post a Job', path: '/jobs-board' },
     ],
   },
   {
     title: 'Services',
     icon: HelpCircle,
     pages: [
-      { name: 'Supervision Services', path: '/SupervisionServicesMarketing' },
-      { name: 'Signposting Service', path: '/SignpostingService' },
-      { name: 'Research & Advocacy', path: '/ResearchAndAdvocacy' },
+      { name: 'Supervision Services', path: '/supervision' },
+      { name: 'Signposting Service', path: '/signposting' },
+      { name: 'Research & Advocacy', path: '/research' },
     ],
   },
   {
     title: 'Governance',
     icon: Building2,
     pages: [
-      { name: 'Governance', path: '/Governance' },
-      { name: 'IfS Board', path: '/IfSBoard' },
-      { name: 'Articles of Association', path: '/ArticlesOfAssociation' },
+      { name: 'Governance', path: '/governance' },
+      { name: 'IfS Board', path: '/board' },
+      { name: 'Articles of Association', path: '/articles-of-association' },
     ],
   },
   {
     title: 'Legal',
     icon: Shield,
     pages: [
-      { name: 'Privacy Policy', path: '/PrivacyPolicy' },
-      { name: 'Terms & Conditions', path: '/TermsAndConditions' },
-      { name: 'Cookie Policy', path: '/CookiePolicy' },
+      { name: 'Privacy Policy', path: '/privacy-policy' },
+      { name: 'Terms & Conditions', path: '/terms' },
+      { name: 'Cookie Policy', path: '/cookie-policy' },
     ],
   },
 ];

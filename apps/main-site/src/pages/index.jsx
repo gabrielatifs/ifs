@@ -69,33 +69,33 @@ export default function Pages() {
                     {/* Default route */}
                     <Route path="/" element={<Home />} />
 
-                    {/* Main site routes */}
-                    <Route path="/About" element={<About />} />
-                    <Route path="/ApplicationPending" element={<ApplicationPending />} />
-                    <Route path="/ArticlesOfAssociation" element={<ArticlesOfAssociation />} />
-                    <Route path="/Conferences" element={<Conferences />} />
-                    <Route path="/Contact" element={<Contact />} />
-                    <Route path="/CookiePolicy" element={<CookiePolicy />} />
-                    <Route path="/EventRegistrationSuccess" element={<EventRegistrationSuccess />} />
-                    <Route path="/ForumsAndWorkshops" element={<ForumsAndWorkshops />} />
-                    <Route path="/Governance" element={<Governance />} />
-                    <Route path="/Home" element={<Home />} />
-                    <Route path="/IfSBoard" element={<IfSBoard />} />
-                    <Route path="/JobsBoardMarketing" element={<JobsBoardMarketing />} />
-                    <Route path="/JoinUs" element={<JoinUs />} />
-                    <Route path="/joinus" element={<JoinUs />} />
-                    <Route path="/MemberAccessRequired" element={<MemberAccessRequired />} />
-                    <Route path="/MembershipPlans" element={<MembershipPlans />} />
-                    <Route path="/MembershipTiers" element={<MembershipTiers />} />
-                    <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-                    <Route path="/RegisteredOrganisation" element={<RegisteredOrganisation />} />
-                    <Route path="/ResearchAndAdvocacy" element={<ResearchAndAdvocacy />} />
-                    <Route path="/SignpostingService" element={<SignpostingService />} />
-                    <Route path="/Sitemap" element={<Sitemap />} />
-                    <Route path="/SupervisionServicesMarketing" element={<SupervisionServicesMarketing />} />
-                    <Route path="/Team" element={<Team />} />
-                    <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-                    <Route path="/VerifyCredential" element={<VerifyCredential />} />
+                    {/* Legacy PascalCase redirects to lowercase canonical URLs */}
+                    <Route path="/About" element={<Navigate to="/about" replace />} />
+                    <Route path="/ApplicationPending" element={<Navigate to="/application-pending" replace />} />
+                    <Route path="/ArticlesOfAssociation" element={<Navigate to="/articles-of-association" replace />} />
+                    <Route path="/Conferences" element={<Navigate to="/conferences" replace />} />
+                    <Route path="/Contact" element={<Navigate to="/contact" replace />} />
+                    <Route path="/CookiePolicy" element={<Navigate to="/cookie-policy" replace />} />
+                    <Route path="/EventRegistrationSuccess" element={<Navigate to="/event-registration-success" replace />} />
+                    <Route path="/ForumsAndWorkshops" element={<Navigate to="/forums-and-workshops" replace />} />
+                    <Route path="/Governance" element={<Navigate to="/governance" replace />} />
+                    <Route path="/Home" element={<Navigate to="/" replace />} />
+                    <Route path="/IfSBoard" element={<Navigate to="/board" replace />} />
+                    <Route path="/JobsBoardMarketing" element={<Navigate to="/jobs-board" replace />} />
+                    <Route path="/JoinUs" element={<Navigate to="/join-us" replace />} />
+                    <Route path="/joinus" element={<Navigate to="/join-us" replace />} />
+                    <Route path="/MemberAccessRequired" element={<Navigate to="/member-access-required" replace />} />
+                    <Route path="/MembershipPlans" element={<Navigate to="/membership-plans" replace />} />
+                    <Route path="/MembershipTiers" element={<Navigate to="/membership-tiers" replace />} />
+                    <Route path="/PrivacyPolicy" element={<Navigate to="/privacy-policy" replace />} />
+                    <Route path="/RegisteredOrganisation" element={<Navigate to="/registered-organisation" replace />} />
+                    <Route path="/ResearchAndAdvocacy" element={<Navigate to="/research" replace />} />
+                    <Route path="/SignpostingService" element={<Navigate to="/signposting" replace />} />
+                    <Route path="/Sitemap" element={<Navigate to="/sitemap" replace />} />
+                    <Route path="/SupervisionServicesMarketing" element={<Navigate to="/supervision" replace />} />
+                    <Route path="/Team" element={<Navigate to="/team" replace />} />
+                    <Route path="/TermsAndConditions" element={<Navigate to="/terms" replace />} />
+                    <Route path="/VerifyCredential" element={<Navigate to="/verify" replace />} />
 
                     {/* Membership folder routes */}
                     <Route path="/membership" element={<Membership />} />
@@ -159,6 +159,8 @@ export default function Pages() {
 
                     {/* Clean URL slugs */}
                     <Route path="/about" element={<About />} />
+                    <Route path="/jobs-board" element={<JobsBoardMarketing />} />
+                    <Route path="/join-us" element={<JoinUs />} />
                     <Route path="/why-join-us" element={<Navigate to="/membership/why-join-us" replace />} />
                     <Route path="/associate-membership" element={<Navigate to="/membership/associate-membership" replace />} />
                     <Route path="/full-membership" element={<Navigate to="/membership/full-membership" replace />} />
