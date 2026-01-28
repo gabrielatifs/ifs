@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
+import { coursePath } from '../components/utils/courseSlug';
 import { User } from '@ifs/shared/api/entities';
 import { customLoginWithRedirect } from '../components/utils/auth';
 import { Course } from '@ifs/shared/api/entities';
@@ -59,7 +60,7 @@ const SessionListItem = React.memo(({ course, session }) => {
                 {/* Session Details */}
                 <div className="flex-1 min-w-0">
                     <Link 
-                        to={`${createPageUrl('TrainingCourseDetails')}?id=${course.id}`}
+                        to={coursePath(course)}
                         className="block group/link"
                     >
                         <h3 className="text-lg lg:text-xl font-bold text-slate-900 mb-2 lg:mb-3 group-hover/link:text-purple-700 transition-colors">
@@ -184,7 +185,7 @@ const CourseCard = React.memo(({ course, variants }) => {
                         size="sm"
                         className="bg-purple-700 hover:bg-purple-800 text-white text-xs px-3 py-2"
                     >
-                        <Link to={`${createPageUrl('TrainingCourseDetails')}?id=${course.id}`}>
+                        <Link to={coursePath(course)}>
                             View Details
                         </Link>
                     </Button>

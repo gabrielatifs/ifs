@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useParams, Link } from 'react-router-dom';
 import { Event } from '@ifs/shared/api/entities';
 import { User } from '@ifs/shared/api/entities';
 import { EventSignup } from '@ifs/shared/api/entities';
@@ -33,6 +33,7 @@ const EventDetails = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true); // Overall loading state for initial data
     const location = useLocation();
+    const { id: eventIdParam } = useParams();
     const { toast } = useToast();
     
     const [signup, setSignup] = useState(null);
@@ -52,7 +53,7 @@ const EventDetails = () => {
             setLoading(true); // Start overall loading
             try {
                 const searchParams = new URLSearchParams(location.search);
-                const eventId = searchParams.get('id');
+                const eventId = eventIdParam || searchParams.get('id');
                 const from = searchParams.get('from');
                 setFromPage(from);
 
@@ -73,7 +74,7 @@ const EventDetails = () => {
         };
 
         fetchEventDetails();
-    }, [location.search]);
+    }, [location.search, eventIdParam]);
 
     // Effect 2: Fetch User and Check Signup Status
     // This effect runs after the event details are potentially loaded.
@@ -129,7 +130,7 @@ const EventDetails = () => {
     useEffect(() => {
         if (!event) return;
 
-        const eventUrl = `https://www.join-ifs.org/EventDetails?id=${event.id}`;
+        const eventUrl = `https://www.join-ifs.org/events/${event.id}`;
         const isOnline = (event.location || '').toLowerCase().includes('online') || !!event.meetingUrl;
 
         const structuredData = {
@@ -327,7 +328,7 @@ const EventDetails = () => {
         });
         
         // Create redirect URL back to THIS EventDetails page
-        const eventDetailsUrl = createPageUrl('EventDetails') + `?id=${event.id}`;
+        const eventDetailsUrl = `/events/${event.id}`;
         const onboardingUrl = createPageUrl('Onboarding') + `?intent=associate&redirect=${encodeURIComponent(eventDetailsUrl)}`;
         
         User.loginWithRedirect(onboardingUrl);

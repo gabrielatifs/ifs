@@ -62,11 +62,30 @@ export default function SEOManager({ pageName, isPortalPage = false }) {
 
   // Check for dynamic routes first (job details, course details, event details)
   let resolvedPageName = pageName;
-  if ((pathname.startsWith('/job/') || pathname.startsWith('/join/')) && pathname !== '/job' && pathname !== '/join') {
+  const trainingStaticSegments = new Set([
+    'introductory-courses',
+    'advanced-courses',
+    'refresher-courses',
+    'specialist-courses',
+    'cpd-training',
+  ]);
+
+  if (
+    (pathname.startsWith('/jobs/') || pathname.startsWith('/job/') || pathname.startsWith('/join/')) &&
+    pathname !== '/jobs' &&
+    pathname !== '/job' &&
+    pathname !== '/join'
+  ) {
     resolvedPageName = 'JobDetailsPublic';
+  } else if (pathname.startsWith('/training/')) {
+    const pathSegments = pathname.split('/').filter(Boolean);
+    const trainingSegment = pathSegments[1];
+    if (trainingSegment && !trainingStaticSegments.has(trainingSegment)) {
+      resolvedPageName = 'TrainingCourseDetails';
+    }
   } else if (pathname.startsWith('/course/')) {
     resolvedPageName = 'TrainingCourseDetails';
-  } else if (pathname.startsWith('/event/')) {
+  } else if (pathname.startsWith('/events/') || pathname.startsWith('/event/')) {
     resolvedPageName = 'EventDetails';
   } else {
     // Use path mapping for static routes (exact match first, then case-insensitive fallback)

@@ -373,7 +373,7 @@ export default function Home() {
     if (event.isCommunityEvent) {
       return `${createPageUrl("CommunityEventDetails")}?id=${event.id}&from=Events`;
     }
-    return `${createPageUrl("EventDetails")}?id=${event.id}&from=Home`;
+      return `/events/${event.id}?from=Home`;
   };
 
   console.log('[Home] Rendering page');
@@ -862,7 +862,7 @@ export default function Home() {
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <Link
-                      to={`${createPageUrl("EventDetails")}?id=${nextWorkshop.id}&from=Home`}
+                      to={`/events/${nextWorkshop.id}?from=Home`}
                       className="inline-flex items-center bg-white text-purple-900 hover:bg-purple-50 font-semibold px-6 py-3 rounded-sm transition-colors">
                       View Details
                       <ArrowRight className="w-5 h-5 ml-2" />

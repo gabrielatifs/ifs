@@ -23,6 +23,6 @@ export const generateJobSlug = (job) => {
 
 export const generateJobPath = (job) => {
     const slug = generateJobSlug(job);
-    if (!slug) return '/job';
-    return `/job/${slug}`;
+    if (!slug) return '/jobs';
+    return `/jobs/${slug}`;
 };

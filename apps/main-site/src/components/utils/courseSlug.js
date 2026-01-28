@@ -13,7 +13,17 @@ export const coursePath = (courseOrTitle) => {
     typeof courseOrTitle === 'string'
       ? courseOrTitle
       : courseOrTitle?.title || '';
+  const id =
+    typeof courseOrTitle === 'object'
+      ? courseOrTitle?.id || courseOrTitle?.courseId
+      : null;
 
   const slug = courseTitleToSlug(title);
-  return slug ? `/course/${slug}` : '/Training';
+  if (slug) {
+    return `/training/${slug}`;
+  }
+  if (id) {
+    return `/training?id=${id}`;
+  }
+  return '/training';
 };

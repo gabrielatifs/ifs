@@ -25,8 +25,10 @@ export default function PathNormalizer() {
         const pathSegments = location.pathname.split('/').filter(Boolean);
         console.log('[PathNormalizer] Path segments:', pathSegments);
         
-        if (pathSegments[0]?.toLowerCase() === 'job') {
-            console.log('[PathNormalizer] Job slug route detected, skipping normalization');
+        const firstSegment = pathSegments[0]?.toLowerCase();
+        const skipSegments = new Set(['job', 'jobs', 'join', 'events', 'event', 'training', 'membership']);
+        if (firstSegment && skipSegments.has(firstSegment)) {
+            console.log('[PathNormalizer] Folder or dynamic route detected, skipping normalization');
             return;
         }
 

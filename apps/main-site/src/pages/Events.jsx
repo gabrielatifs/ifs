@@ -18,7 +18,9 @@ import { usePostHog } from '@ifs/shared/components/providers/PostHogProvider';
 const EventCard = React.memo(({ event, isPast = false }) => {
     // Determine if this is a masterclass or community event
     const isMasterclass = event.source === 'Event';
-    const detailsPage = isMasterclass ? 'EventDetails' : 'CommunityEventDetails';
+    const detailsUrl = isMasterclass
+        ? `/events/${event.id}`
+        : `${createPageUrl('CommunityEventDetails')}?id=${event.id}&from=Events`;
     const eventType = event.type || (isMasterclass ? 'Masterclass' : 'Community Event');
 
     return (
@@ -55,7 +57,7 @@ const EventCard = React.memo(({ event, isPast = false }) => {
                 </div>
 
                 <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
-                    <Link to={`${createPageUrl(detailsPage)}?id=${event.id}&from=Events`}>
+                    <Link to={detailsUrl}>
                         {event.title}
                     </Link>
                 </h3>
@@ -97,7 +99,7 @@ const EventCard = React.memo(({ event, isPast = false }) => {
                             asChild
                             className="bg-purple-700 hover:bg-purple-800 text-white w-full shadow-sm hover:shadow-md transition-all group-hover:bg-purple-800"
                         >
-                            <Link to={`${createPageUrl(detailsPage)}?id=${event.id}&from=Events`}>
+                            <Link to={detailsUrl}>
                                 {isMasterclass ? 'Register Now' : 'Join Event'}
                                 <ArrowRight className="w-4 h-4 ml-2" />
                             </Link>
@@ -109,7 +111,7 @@ const EventCard = React.memo(({ event, isPast = false }) => {
                             variant="outline"
                             className="w-full"
                         >
-                            <Link to={`${createPageUrl(detailsPage)}?id=${event.id}&from=Events`}>
+                            <Link to={detailsUrl}>
                                 View Details
                                 <ArrowRight className="w-4 h-4 ml-2" />
                             </Link>

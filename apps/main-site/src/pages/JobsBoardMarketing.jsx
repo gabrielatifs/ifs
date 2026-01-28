@@ -242,7 +242,7 @@ export default function JobsBoardMarketing() {
                                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                                             <div>
                                                 <h3 className="text-xl font-bold text-purple-800 hover:text-purple-900 transition-colors">
-                                                    <Link to={`/job/${job.slug}`}>{job.title}</Link>
+                                                    <Link to={`/jobs/${job.slug}`}>{job.title}</Link>
                                                 </h3>
                                                 <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-gray-600 mt-2">
                                                     <div className="flex items-center gap-2">
@@ -263,7 +263,7 @@ export default function JobsBoardMarketing() {
                                             </div>
                                             <div className="mt-4 sm:mt-0">
                                                 <Button asChild variant="outline" className="bg-gray-100 hover:bg-gray-200">
-                                                    <Link to={`/job/${job.slug}`}>
+                                                    <Link to={`/jobs/${job.slug}`}>
                                                         View Details
                                                     </Link>
                                                 </Button>

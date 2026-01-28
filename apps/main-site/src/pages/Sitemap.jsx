@@ -4,6 +4,8 @@ import { createPageUrl } from '@ifs/shared/utils';
 import { Job, Course, CourseDate, CommunityEvent } from '@ifs/shared/api/entities';
 import { ifs } from '@ifs/shared/api/ifsClient';
 import { Loader2, FileText, Briefcase, Calendar, BookOpen, Building2, Users, Shield, HelpCircle } from 'lucide-react';
+import { coursePath } from '../components/utils/courseSlug';
+import { generateJobSlug } from '../components/utils/jobUtils';
 import MainSiteNav from '../components/marketing/MainSiteNav';
 import HeroBreadcrumbs from '../components/marketing/HeroBreadcrumbs';
 
@@ -23,13 +25,13 @@ const sitemapSections = [
     title: 'Membership',
     icon: Users,
     pages: [
-      { name: 'Membership Overview', path: '/Membership' },
+      { name: 'Membership Overview', path: '/membership' },
       { name: 'Membership Tiers', path: '/MembershipTiers' },
-      { name: 'Member Benefits', path: '/MemberBenefits' },
-      { name: 'Associate Membership', path: '/AssociateMembership' },
-      { name: 'Full Membership', path: '/FullMembership' },
-      { name: 'Fellowship', path: '/Fellowship' },
-      { name: 'Why Join Us', path: '/WhyJoinUs' },
+      { name: 'Member Benefits', path: '/membership/member-benefits' },
+      { name: 'Associate Membership', path: '/membership/associate-membership' },
+      { name: 'Full Membership', path: '/membership/full-membership' },
+      { name: 'Fellowship', path: '/membership/fellowship' },
+      { name: 'Why Join Us', path: '/membership/why-join-us' },
       { name: 'Join Us', path: '/JoinUs' },
       { name: 'For Organisations', path: '/RegisteredOrganisation' },
     ],
@@ -38,19 +40,19 @@ const sitemapSections = [
     title: 'Training & CPD',
     icon: BookOpen,
     pages: [
-      { name: 'Training Overview', path: '/Training' },
-      { name: 'CPD Training', path: '/CPDTrainingMarketing' },
-      { name: 'Foundation Courses', path: '/IntroductoryCourses' },
-      { name: 'Advanced Courses', path: '/AdvancedCourses' },
-      { name: 'Refresher Courses', path: '/RefresherCourses' },
-      { name: 'Specialist Courses', path: '/SpecialistCourses' },
+      { name: 'Training Overview', path: '/training' },
+      { name: 'CPD Training', path: '/training/cpd-training' },
+      { name: 'Foundation Courses', path: '/training/introductory-courses' },
+      { name: 'Advanced Courses', path: '/training/advanced-courses' },
+      { name: 'Refresher Courses', path: '/training/refresher-courses' },
+      { name: 'Specialist Courses', path: '/training/specialist-courses' },
     ],
   },
   {
     title: 'Events',
     icon: Calendar,
     pages: [
-      { name: 'All Events', path: '/Events' },
+      { name: 'All Events', path: '/events' },
       { name: 'Conferences', path: '/Conferences' },
       { name: 'Forums & Workshops', path: '/ForumsAndWorkshops' },
     ],
@@ -59,7 +61,7 @@ const sitemapSections = [
     title: 'Jobs',
     icon: Briefcase,
     pages: [
-      { name: 'Jobs Board', path: '/job' },
+      { name: 'Jobs Board', path: '/jobs' },
       { name: 'Post a Job', path: '/JobsBoardMarketing' },
     ],
   },
@@ -91,20 +93,6 @@ const sitemapSections = [
     ],
   },
 ];
-
-function generateJobSlug(job) {
-  const title = job.title || '';
-  const company = job.companyName || '';
-  const id = job.id || '';
-
-  const slugPart = `${title}-${company}`
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 50);
-
-  return `${slugPart}-${id.slice(0, 8)}`;
-}
 
 export default function Sitemap() {
   const [loading, setLoading] = useState(true);
@@ -194,7 +182,7 @@ export default function Sitemap() {
                   {section.pages.map((page) => (
                     <li key={page.path}>
                       <Link
-                        to={createPageUrl(page.path === '/' ? 'Home' : page.path.replace('/', ''))}
+                        to={page.path}
                         className="text-gray-600 hover:text-purple-700 hover:underline text-sm transition-colors"
                       >
                         {page.name}
@@ -230,7 +218,7 @@ export default function Sitemap() {
                     {activeJobs.map((job) => (
                       <li key={job.id}>
                         <Link
-                          to={`/job/${generateJobSlug(job)}`}
+                          to={`/jobs/${generateJobSlug(job)}`}
                           className="text-gray-600 hover:text-purple-700 hover:underline text-sm transition-colors block truncate"
                           title={job.title}
                         >
@@ -267,7 +255,7 @@ export default function Sitemap() {
                     {upcomingEvents.map((event) => (
                       <li key={event.id}>
                         <Link
-                          to={`${createPageUrl('EventDetails')}?id=${event.id}`}
+                          to={`/events/${event.id}`}
                           className="text-gray-600 hover:text-purple-700 hover:underline text-sm transition-colors block truncate"
                           title={event.title}
                         >
@@ -307,7 +295,7 @@ export default function Sitemap() {
                     {availableCourses.map((course) => (
                       <li key={course.id}>
                         <Link
-                          to={`${createPageUrl('TrainingCourseDetails')}?id=${course.id}`}
+                          to={coursePath(course)}
                           className="text-gray-600 hover:text-purple-700 hover:underline text-sm transition-colors block truncate"
                           title={course.title}
                         >

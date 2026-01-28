@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@ifs/shared/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
+import { coursePath } from '../components/utils/courseSlug';
 import { User } from '@ifs/shared/api/entities';
 import { Course } from '@ifs/shared/api/entities'; // Updated import
 import { Award, Clock, Users, CheckCircle2, Star, ArrowRight, Loader2 } from 'lucide-react';
@@ -73,7 +74,7 @@ export default function CPDTrainingMarketing() {
                         )}
                     </div>
                     <Button asChild variant="ghost" size="sm" className="text-purple-600 hover:bg-purple-50">
-                        <Link to={`${createPageUrl('TrainingCourseDetails')}?id=${course.id}`}>
+                        <Link to={coursePath(course)}>
                             View Details <ArrowRight className="w-4 h-4 ml-1" />
                         </Link>
                     </Button>

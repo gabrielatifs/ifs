@@ -20,7 +20,7 @@ const WorkshopCard = ({ event, isPast = false }) => {
 
   return (
     <Link
-      to={`${createPageUrl('EventDetails')}?id=${event.id}&from=ForumsAndWorkshops`}
+      to={`/events/${event.id}?from=ForumsAndWorkshops`}
       className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-transparent hover:border-purple-200 flex flex-col lg:flex-row group overflow-hidden">
 
             {/* Image Section */}
@@ -92,7 +92,7 @@ const WorkshopCard = ({ event, isPast = false }) => {
                             Recording Unavailable
                         </Button> :
 
-          <Button asChild size="sm" className="bg-purple-700 hover:bg-purple-800 w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow" onClick={(e) => {e.stopPropagation();e.preventDefault();window.open(createPageUrl(`EventDetails?id=${event.id}&from=ForumsAndWorkshops`), '_self');}}>
+          <Button asChild size="sm" className="bg-purple-700 hover:bg-purple-800 w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow" onClick={(e) => {e.stopPropagation();e.preventDefault();window.open(`/events/${event.id}?from=ForumsAndWorkshops`, '_self');}}>
                            <span className="cursor-pointer">
                                 Register Now <ArrowRight className="w-4 h-4 ml-2" />
                            </span>

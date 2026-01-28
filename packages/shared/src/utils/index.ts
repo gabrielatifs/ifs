@@ -64,9 +64,27 @@ export const isAdminDomain = () => {
 
 export function createPageUrl(pageName: string) {
     const [rawPath, query] = pageName.split('?');
-    const normalizedPath = '/' + rawPath.toLowerCase().replace(/ /g, '-');
-    const fullPath = query ? `${normalizedPath}?${query}` : normalizedPath;
     const normalizedKey = rawPath.toLowerCase().replace(/ /g, '-');
+    const mainSiteCustomPaths: Record<string, string> = {
+        membership: '/membership',
+        associatemembership: '/membership/associate-membership',
+        fullmembership: '/membership/full-membership',
+        memberbenefits: '/membership/member-benefits',
+        whyjoinus: '/membership/why-join-us',
+        fellowship: '/membership/fellowship',
+        training: '/training',
+        cpdtrainingmarketing: '/training/cpd-training',
+        introductorycourses: '/training/introductory-courses',
+        advancedcourses: '/training/advanced-courses',
+        refreshercourses: '/training/refresher-courses',
+        specialistcourses: '/training/specialist-courses',
+        events: '/events',
+        eventdetails: '/events',
+        trainingcoursedetails: '/training',
+        jobs: '/jobs',
+    };
+    const normalizedPath = mainSiteCustomPaths[normalizedKey] || '/' + normalizedKey;
+    const fullPath = query ? `${normalizedPath}?${query}` : normalizedPath;
 
     if (!ADMIN_PAGES.has(normalizedKey)) {
         if (typeof window === 'undefined') {

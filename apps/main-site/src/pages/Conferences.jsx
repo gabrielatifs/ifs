@@ -17,7 +17,7 @@ const ConferenceCard = ({ event }) => {
 
     return (
         <Link 
-            to={createPageUrl(`EventDetails?id=${event.id}`)}
+            to={`/events/${event.id}`}
             className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-transparent hover:border-purple-200 flex flex-col lg:flex-row group overflow-hidden"
         >
             <div className="lg:w-1/3 relative">

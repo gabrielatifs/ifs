@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@ifs/shared/utils';
+import { coursePath } from '../../utils/courseSlug';
 import { Button } from '@ifs/shared/components/ui/button';
 import { GraduationCap, BookOpen, Award, Calendar, ArrowRight, ShieldCheck, FileText, Monitor, Users, Brain, AlertTriangle, RefreshCw } from 'lucide-react';
 import { CourseDate } from '@ifs/shared/api/entities';
@@ -133,7 +134,7 @@ export default function TrainingMegaMenu({ arrowPosition }) {
                 return (
                   <Link 
                     key={`${session.courseId}-${session.date}`} 
-                    to={createPageUrl('TrainingCourseDetails') + '?id=' + session.courseId} 
+                    to={coursePath({ title: session.courseTitle || '', id: session.courseId })} 
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
                   >
                     <Icon className="w-5 h-5 text-gray-500 group-hover:text-purple-600 transition-colors flex-shrink-0" />
